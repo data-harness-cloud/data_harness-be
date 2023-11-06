@@ -1,7 +1,7 @@
 <a name="ChatGLM3"></a>
 # 驭数轻云数据平台
 
-📃 [[Gitee](https://gitee.com/data_harness_cloud/data_harness-be)] [[GitHub](https://github.com/Roy01043/data_harness-be.git)]
+📃 [[Gitee](https://gitee.com/data_harness_cloud/data_harness-be)] [[GitHub](https://github.com/data-harness-cloud/data_harness-be.git)]
 
      👋 加入我们的  WeChat 
 
