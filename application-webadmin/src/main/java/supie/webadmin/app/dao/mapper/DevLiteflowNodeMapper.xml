@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.DevLiteflowNodeMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.DevLiteflowNode">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="ruler_id" jdbcType="BIGINT" property="rulerId"/>
+        <result column="node_id" jdbcType="VARCHAR" property="nodeId"/>
+        <result column="node_tag" jdbcType="VARCHAR" property="nodeTag"/>
+        <result column="field_json_data" jdbcType="LONGVARCHAR" property="fieldJsonData"/>
+        <result column="execution_message" jdbcType="LONGVARCHAR" property="executionMessage"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_dev_liteflow_node
+            (id,
+            ruler_id,
+            node_id,
+            node_tag,
+            field_json_data,
+            execution_message,
+            name,
+            is_delete,
+            status,
+            create_time,
+            create_user_id,
+            update_time,
+            update_user_id,
+            data_user_id,
+            data_dept_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.rulerId},
+            #{item.nodeId},
+            #{item.nodeTag},
+            #{item.fieldJsonData},
+            #{item.executionMessage},
+            #{item.name},
+            #{item.isDelete},
+            #{item.status},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateTime},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.DevLiteflowNodeMapper.inputFilterRef"/>
+        AND sdt_dev_liteflow_node.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="devLiteflowNodeFilter != null">
+            <if test="devLiteflowNodeFilter.id != null">
+                AND sdt_dev_liteflow_node.id = #{devLiteflowNodeFilter.id}
+            </if>
+            <if test="devLiteflowNodeFilter.rulerId != null">
+                AND sdt_dev_liteflow_node.ruler_id = #{devLiteflowNodeFilter.rulerId}
+            </if>
+            <if test="devLiteflowNodeFilter.nodeId != null and devLiteflowNodeFilter.nodeId != ''">
+                AND sdt_dev_liteflow_node.node_id = #{devLiteflowNodeFilter.nodeId}
+            </if>
+            <if test="devLiteflowNodeFilter.nodeTag != null and devLiteflowNodeFilter.nodeTag != ''">
+                AND sdt_dev_liteflow_node.node_tag = #{devLiteflowNodeFilter.nodeTag}
+            </if>
+            <if test="devLiteflowNodeFilter.name != null and devLiteflowNodeFilter.name != ''">
+                <bind name = "safeDevLiteflowNodeName" value = "'%' + devLiteflowNodeFilter.name + '%'" />
+                AND sdt_dev_liteflow_node.name LIKE #{safeDevLiteflowNodeName}
+            </if>
+            <if test="devLiteflowNodeFilter.status != null">
+                AND sdt_dev_liteflow_node.status = #{devLiteflowNodeFilter.status}
+            </if>
+            <if test="devLiteflowNodeFilter.createTimeStart != null and devLiteflowNodeFilter.createTimeStart != ''">
+                AND sdt_dev_liteflow_node.create_time &gt;= #{devLiteflowNodeFilter.createTimeStart}
+            </if>
+            <if test="devLiteflowNodeFilter.createTimeEnd != null and devLiteflowNodeFilter.createTimeEnd != ''">
+                AND sdt_dev_liteflow_node.create_time &lt;= #{devLiteflowNodeFilter.createTimeEnd}
+            </if>
+            <if test="devLiteflowNodeFilter.createUserId != null">
+                AND sdt_dev_liteflow_node.create_user_id = #{devLiteflowNodeFilter.createUserId}
+            </if>
+            <if test="devLiteflowNodeFilter.updateTimeStart != null and devLiteflowNodeFilter.updateTimeStart != ''">
+                AND sdt_dev_liteflow_node.update_time &gt;= #{devLiteflowNodeFilter.updateTimeStart}
+            </if>
+            <if test="devLiteflowNodeFilter.updateTimeEnd != null and devLiteflowNodeFilter.updateTimeEnd != ''">
+                AND sdt_dev_liteflow_node.update_time &lt;= #{devLiteflowNodeFilter.updateTimeEnd}
+            </if>
+            <if test="devLiteflowNodeFilter.updateUserId != null">
+                AND sdt_dev_liteflow_node.update_user_id = #{devLiteflowNodeFilter.updateUserId}
+            </if>
+            <if test="devLiteflowNodeFilter.dataUserId != null">
+                AND sdt_dev_liteflow_node.data_user_id = #{devLiteflowNodeFilter.dataUserId}
+            </if>
+            <if test="devLiteflowNodeFilter.dataDeptId != null">
+                AND sdt_dev_liteflow_node.data_dept_id = #{devLiteflowNodeFilter.dataDeptId}
+            </if>
+            <if test="devLiteflowNodeFilter.searchString != null and devLiteflowNodeFilter.searchString != ''">
+                <bind name = "safeDevLiteflowNodeSearchString" value = "'%' + devLiteflowNodeFilter.searchString + '%'" />
+                AND IFNULL(sdt_dev_liteflow_node.node_tag,'') LIKE #{safeDevLiteflowNodeSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getDevLiteflowNodeList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DevLiteflowNode">
+        SELECT * FROM sdt_dev_liteflow_node
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="queryNode" resultMap="BaseResultMap">
+        SELECT * FROM sdt_dev_liteflow_node
+        WHERE sdt_dev_liteflow_node.ruler_id = #{rulerId} AND sdt_dev_liteflow_node.node_id = #{nodeId}
+            <if test="nodeTag != null and nodeTag != ''">
+                AND sdt_dev_liteflow_node.node_tag = #{nodeTag}
+            </if>
+            AND sdt_dev_liteflow_node.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </select>
+
+    <update id="setExecutionMessage">
+        UPDATE sdt_dev_liteflow_node 
+        SET sdt_dev_liteflow_node.execution_message = #{executionMessage}
+        WHERE sdt_dev_liteflow_node.ruler_id = #{rulerId} AND sdt_dev_liteflow_node.node_id = #{nodeId}
+        <if test="nodeTag != null and nodeTag != ''">
+            AND sdt_dev_liteflow_node.node_tag = #{nodeTag}
+        </if>
+        AND sdt_dev_liteflow_node.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </update>
+</mapper>

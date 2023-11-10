@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.StandardMainMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.StandardMain">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+        <result column="standard_directory_id" jdbcType="BIGINT" property="standardDirectoryId"/>
+        <result column="standard_header_id" jdbcType="BIGINT" property="standardHeaderId"/>
+        <result column="standard_name" jdbcType="VARCHAR" property="standardName"/>
+        <result column="standard_code" jdbcType="VARCHAR" property="standardCode"/>
+        <result column="standard_type" jdbcType="VARCHAR" property="standardType"/>
+        <result column="standard_english" jdbcType="VARCHAR" property="standardEnglish"/>
+        <result column="standard_description" jdbcType="VARCHAR" property="standardDescription"/>
+        <result column="standard_input_mode" jdbcType="VARCHAR" property="standardInputMode"/>
+        <result column="standard_status" jdbcType="VARCHAR" property="standardStatus"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_standard_main
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            project_id,
+            standard_directory_id,
+            standard_header_id,
+            standard_name,
+            standard_code,
+            standard_type,
+            standard_english,
+            standard_description,
+            standard_input_mode,
+            standard_status)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.projectId},
+            #{item.standardDirectoryId},
+            #{item.standardHeaderId},
+            #{item.standardName},
+            #{item.standardCode},
+            #{item.standardType},
+            #{item.standardEnglish},
+            #{item.standardDescription},
+            #{item.standardInputMode},
+            #{item.standardStatus})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.StandardMainMapper.inputFilterRef"/>
+        AND sdt_standard_main.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="standardMainFilter != null">
+            <if test="standardMainFilter.id != null">
+                AND sdt_standard_main.id = #{standardMainFilter.id}
+            </if>
+            <if test="standardMainFilter.updateTimeStart != null and standardMainFilter.updateTimeStart != ''">
+                AND sdt_standard_main.update_time &gt;= #{standardMainFilter.updateTimeStart}
+            </if>
+            <if test="standardMainFilter.updateTimeEnd != null and standardMainFilter.updateTimeEnd != ''">
+                AND sdt_standard_main.update_time &lt;= #{standardMainFilter.updateTimeEnd}
+            </if>
+            <if test="standardMainFilter.createTimeStart != null and standardMainFilter.createTimeStart != ''">
+                AND sdt_standard_main.create_time &gt;= #{standardMainFilter.createTimeStart}
+            </if>
+            <if test="standardMainFilter.createTimeEnd != null and standardMainFilter.createTimeEnd != ''">
+                AND sdt_standard_main.create_time &lt;= #{standardMainFilter.createTimeEnd}
+            </if>
+            <if test="standardMainFilter.createUserId != null">
+                AND sdt_standard_main.create_user_id = #{standardMainFilter.createUserId}
+            </if>
+            <if test="standardMainFilter.updateUserId != null">
+                AND sdt_standard_main.update_user_id = #{standardMainFilter.updateUserId}
+            </if>
+            <if test="standardMainFilter.dataUserId != null">
+                AND sdt_standard_main.data_user_id = #{standardMainFilter.dataUserId}
+            </if>
+            <if test="standardMainFilter.dataDeptId != null">
+                AND sdt_standard_main.data_dept_id = #{standardMainFilter.dataDeptId}
+            </if>
+            <if test="standardMainFilter.projectId != null">
+                AND sdt_standard_main.project_id = #{standardMainFilter.projectId}
+            </if>
+            <if test="standardMainFilter.standardDirectoryId != null">
+                AND sdt_standard_main.standard_directory_id = #{standardMainFilter.standardDirectoryId}
+            </if>
+            <if test="standardMainFilter.standardHeaderId != null">
+                AND sdt_standard_main.standard_header_id = #{standardMainFilter.standardHeaderId}
+            </if>
+            <if test="standardMainFilter.standardName != null and standardMainFilter.standardName != ''">
+                <bind name = "safeStandardMainStandardName" value = "'%' + standardMainFilter.standardName + '%'" />
+                AND sdt_standard_main.standard_name LIKE #{safeStandardMainStandardName}
+            </if>
+            <if test="standardMainFilter.standardCode != null and standardMainFilter.standardCode != ''">
+                <bind name = "safeStandardMainStandardCode" value = "'%' + standardMainFilter.standardCode + '%'" />
+                AND sdt_standard_main.standard_code LIKE #{safeStandardMainStandardCode}
+            </if>
+            <if test="standardMainFilter.standardType != null and standardMainFilter.standardType != ''">
+                <bind name = "safeStandardMainStandardType" value = "'%' + standardMainFilter.standardType + '%'" />
+                AND sdt_standard_main.standard_type LIKE #{safeStandardMainStandardType}
+            </if>
+            <if test="standardMainFilter.standardEnglish != null and standardMainFilter.standardEnglish != ''">
+                <bind name = "safeStandardMainStandardEnglish" value = "'%' + standardMainFilter.standardEnglish + '%'" />
+                AND sdt_standard_main.standard_english LIKE #{safeStandardMainStandardEnglish}
+            </if>
+            <if test="standardMainFilter.standardDescription != null and standardMainFilter.standardDescription != ''">
+                <bind name = "safeStandardMainStandardDescription" value = "'%' + standardMainFilter.standardDescription + '%'" />
+                AND sdt_standard_main.standard_description LIKE #{safeStandardMainStandardDescription}
+            </if>
+            <if test="standardMainFilter.standardInputMode != null and standardMainFilter.standardInputMode != ''">
+                <bind name = "safeStandardMainStandardInputMode" value = "'%' + standardMainFilter.standardInputMode + '%'" />
+                AND sdt_standard_main.standard_input_mode LIKE #{safeStandardMainStandardInputMode}
+            </if>
+            <if test="standardMainFilter.standardStatus != null and standardMainFilter.standardStatus != ''">
+                <bind name = "safeStandardMainStandardStatus" value = "'%' + standardMainFilter.standardStatus + '%'" />
+                AND sdt_standard_main.standard_status LIKE #{safeStandardMainStandardStatus}
+            </if>
+            <if test="standardMainFilter.searchString != null and standardMainFilter.searchString != ''">
+                <bind name = "safeStandardMainSearchString" value = "'%' + standardMainFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_standard_main.standard_name,''), IFNULL(sdt_standard_main.standard_code,''), IFNULL(sdt_standard_main.standard_type,''), IFNULL(sdt_standard_main.standard_english,''), IFNULL(sdt_standard_main.standard_description,''), IFNULL(sdt_standard_main.standard_input_mode,''), IFNULL(sdt_standard_main.standard_status,'')) LIKE #{safeStandardMainSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedStandardMainList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.StandardMain">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_standard_main
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_standard_main
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getStandardMainList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.StandardMain">
+        SELECT * FROM sdt_standard_main
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

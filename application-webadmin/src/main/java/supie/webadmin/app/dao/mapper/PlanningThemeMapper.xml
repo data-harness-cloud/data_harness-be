@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.PlanningThemeMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.PlanningTheme">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+        <result column="classification_id" jdbcType="BIGINT" property="classificationId"/>
+        <result column="theme_name" jdbcType="VARCHAR" property="themeName"/>
+        <result column="theme_code" jdbcType="VARCHAR" property="themeCode"/>
+        <result column="theme_status" jdbcType="VARCHAR" property="themeStatus"/>
+        <result column="theme_description" jdbcType="VARCHAR" property="themeDescription"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_planning_theme
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            project_id,
+            classification_id,
+            theme_name,
+            theme_code,
+            theme_status,
+            theme_description)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.projectId},
+            #{item.classificationId},
+            #{item.themeName},
+            #{item.themeCode},
+            #{item.themeStatus},
+            #{item.themeDescription})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.PlanningThemeMapper.inputFilterRef"/>
+        AND sdt_planning_theme.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="planningThemeFilter != null">
+            <if test="planningThemeFilter.id != null">
+                AND sdt_planning_theme.id = #{planningThemeFilter.id}
+            </if>
+            <if test="planningThemeFilter.updateTimeStart != null and planningThemeFilter.updateTimeStart != ''">
+                AND sdt_planning_theme.update_time &gt;= #{planningThemeFilter.updateTimeStart}
+            </if>
+            <if test="planningThemeFilter.updateTimeEnd != null and planningThemeFilter.updateTimeEnd != ''">
+                AND sdt_planning_theme.update_time &lt;= #{planningThemeFilter.updateTimeEnd}
+            </if>
+            <if test="planningThemeFilter.createTimeStart != null and planningThemeFilter.createTimeStart != ''">
+                AND sdt_planning_theme.create_time &gt;= #{planningThemeFilter.createTimeStart}
+            </if>
+            <if test="planningThemeFilter.createTimeEnd != null and planningThemeFilter.createTimeEnd != ''">
+                AND sdt_planning_theme.create_time &lt;= #{planningThemeFilter.createTimeEnd}
+            </if>
+            <if test="planningThemeFilter.createUserId != null">
+                AND sdt_planning_theme.create_user_id = #{planningThemeFilter.createUserId}
+            </if>
+            <if test="planningThemeFilter.updateUserId != null">
+                AND sdt_planning_theme.update_user_id = #{planningThemeFilter.updateUserId}
+            </if>
+            <if test="planningThemeFilter.dataUserId != null">
+                AND sdt_planning_theme.data_user_id = #{planningThemeFilter.dataUserId}
+            </if>
+            <if test="planningThemeFilter.dataDeptId != null">
+                AND sdt_planning_theme.data_dept_id = #{planningThemeFilter.dataDeptId}
+            </if>
+            <if test="planningThemeFilter.projectId != null">
+                AND sdt_planning_theme.project_id = #{planningThemeFilter.projectId}
+            </if>
+            <if test="planningThemeFilter.classificationId != null">
+                AND sdt_planning_theme.classification_id = #{planningThemeFilter.classificationId}
+            </if>
+            <if test="planningThemeFilter.themeName != null and planningThemeFilter.themeName != ''">
+                <bind name = "safePlanningThemeThemeName" value = "'%' + planningThemeFilter.themeName + '%'" />
+                AND sdt_planning_theme.theme_name LIKE #{safePlanningThemeThemeName}
+            </if>
+            <if test="planningThemeFilter.themeCode != null and planningThemeFilter.themeCode != ''">
+                <bind name = "safePlanningThemeThemeCode" value = "'%' + planningThemeFilter.themeCode + '%'" />
+                AND sdt_planning_theme.theme_code LIKE #{safePlanningThemeThemeCode}
+            </if>
+            <if test="planningThemeFilter.themeStatus != null and planningThemeFilter.themeStatus != ''">
+                <bind name = "safePlanningThemeThemeStatus" value = "'%' + planningThemeFilter.themeStatus + '%'" />
+                AND sdt_planning_theme.theme_status LIKE #{safePlanningThemeThemeStatus}
+            </if>
+            <if test="planningThemeFilter.themeDescription != null and planningThemeFilter.themeDescription != ''">
+                <bind name = "safePlanningThemeThemeDescription" value = "'%' + planningThemeFilter.themeDescription + '%'" />
+                AND sdt_planning_theme.theme_description LIKE #{safePlanningThemeThemeDescription}
+            </if>
+            <if test="planningThemeFilter.searchString != null and planningThemeFilter.searchString != ''">
+                <bind name = "safePlanningThemeSearchString" value = "'%' + planningThemeFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_planning_theme.theme_name,''), IFNULL(sdt_planning_theme.theme_code,''), IFNULL(sdt_planning_theme.theme_status,''), IFNULL(sdt_planning_theme.theme_description,'')) LIKE #{safePlanningThemeSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedPlanningThemeList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.PlanningTheme">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_planning_theme
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_planning_theme
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getPlanningThemeList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.PlanningTheme">
+        SELECT * FROM sdt_planning_theme
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

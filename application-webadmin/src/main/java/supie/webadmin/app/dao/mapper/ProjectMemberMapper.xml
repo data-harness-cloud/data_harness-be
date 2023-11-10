@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.ProjectMemberMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.ProjectMember">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="member_user_id" jdbcType="BIGINT" property="memberUserId"/>
+        <result column="member_project_id" jdbcType="BIGINT" property="memberProjectId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_project_member
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            member_user_id,
+            member_project_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.memberUserId},
+            #{item.memberProjectId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.ProjectMemberMapper.inputFilterRef"/>
+        AND sdt_project_member.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="projectMemberFilter != null">
+            <if test="projectMemberFilter.id != null">
+                AND sdt_project_member.id = #{projectMemberFilter.id}
+            </if>
+            <if test="projectMemberFilter.updateTimeStart != null and projectMemberFilter.updateTimeStart != ''">
+                AND sdt_project_member.update_time &gt;= #{projectMemberFilter.updateTimeStart}
+            </if>
+            <if test="projectMemberFilter.updateTimeEnd != null and projectMemberFilter.updateTimeEnd != ''">
+                AND sdt_project_member.update_time &lt;= #{projectMemberFilter.updateTimeEnd}
+            </if>
+            <if test="projectMemberFilter.createTimeStart != null and projectMemberFilter.createTimeStart != ''">
+                AND sdt_project_member.create_time &gt;= #{projectMemberFilter.createTimeStart}
+            </if>
+            <if test="projectMemberFilter.createTimeEnd != null and projectMemberFilter.createTimeEnd != ''">
+                AND sdt_project_member.create_time &lt;= #{projectMemberFilter.createTimeEnd}
+            </if>
+            <if test="projectMemberFilter.createUserId != null">
+                AND sdt_project_member.create_user_id = #{projectMemberFilter.createUserId}
+            </if>
+            <if test="projectMemberFilter.updateUserId != null">
+                AND sdt_project_member.update_user_id = #{projectMemberFilter.updateUserId}
+            </if>
+            <if test="projectMemberFilter.dataUserId != null">
+                AND sdt_project_member.data_user_id = #{projectMemberFilter.dataUserId}
+            </if>
+            <if test="projectMemberFilter.dataDeptId != null">
+                AND sdt_project_member.data_dept_id = #{projectMemberFilter.dataDeptId}
+            </if>
+            <if test="projectMemberFilter.memberUserId != null">
+                AND sdt_project_member.member_user_id = #{projectMemberFilter.memberUserId}
+            </if>
+            <if test="projectMemberFilter.memberProjectId != null">
+                AND sdt_project_member.member_project_id = #{projectMemberFilter.memberProjectId}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getProjectMemberList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ProjectMember">
+        SELECT * FROM sdt_project_member
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

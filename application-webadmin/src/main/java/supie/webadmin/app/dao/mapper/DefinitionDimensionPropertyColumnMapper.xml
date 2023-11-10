@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.DefinitionDimensionPropertyColumnMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.DefinitionDimensionPropertyColumn">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="dimension_id" jdbcType="BIGINT" property="dimensionId"/>
+        <result column="property_name" jdbcType="VARCHAR" property="propertyName"/>
+        <result column="property_en_name" jdbcType="VARCHAR" property="propertyEnName"/>
+        <result column="property_data_type" jdbcType="VARCHAR" property="propertyDataType"/>
+        <result column="property_description" jdbcType="VARCHAR" property="propertyDescription"/>
+        <result column="property_decimal_length" jdbcType="INTEGER" property="propertyDecimalLength"/>
+        <result column="is_primary" jdbcType="VARCHAR" property="isPrimary"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_definition_dimension_property_column
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            dimension_id,
+            property_name,
+            property_en_name,
+            property_data_type,
+            property_description,
+            property_decimal_length,
+            is_primary)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.dimensionId},
+            #{item.propertyName},
+            #{item.propertyEnName},
+            #{item.propertyDataType},
+            #{item.propertyDescription},
+            #{item.propertyDecimalLength},
+            #{item.isPrimary})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.DefinitionDimensionPropertyColumnMapper.inputFilterRef"/>
+        AND sdt_definition_dimension_property_column.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="definitionDimensionPropertyColumnFilter != null">
+            <if test="definitionDimensionPropertyColumnFilter.id != null">
+                AND sdt_definition_dimension_property_column.id = #{definitionDimensionPropertyColumnFilter.id}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.updateTimeStart != null and definitionDimensionPropertyColumnFilter.updateTimeStart != ''">
+                AND sdt_definition_dimension_property_column.update_time &gt;= #{definitionDimensionPropertyColumnFilter.updateTimeStart}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.updateTimeEnd != null and definitionDimensionPropertyColumnFilter.updateTimeEnd != ''">
+                AND sdt_definition_dimension_property_column.update_time &lt;= #{definitionDimensionPropertyColumnFilter.updateTimeEnd}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.createTimeStart != null and definitionDimensionPropertyColumnFilter.createTimeStart != ''">
+                AND sdt_definition_dimension_property_column.create_time &gt;= #{definitionDimensionPropertyColumnFilter.createTimeStart}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.createTimeEnd != null and definitionDimensionPropertyColumnFilter.createTimeEnd != ''">
+                AND sdt_definition_dimension_property_column.create_time &lt;= #{definitionDimensionPropertyColumnFilter.createTimeEnd}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.createUserId != null">
+                AND sdt_definition_dimension_property_column.create_user_id = #{definitionDimensionPropertyColumnFilter.createUserId}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.updateUserId != null">
+                AND sdt_definition_dimension_property_column.update_user_id = #{definitionDimensionPropertyColumnFilter.updateUserId}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.dataUserId != null">
+                AND sdt_definition_dimension_property_column.data_user_id = #{definitionDimensionPropertyColumnFilter.dataUserId}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.dataDeptId != null">
+                AND sdt_definition_dimension_property_column.data_dept_id = #{definitionDimensionPropertyColumnFilter.dataDeptId}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.dimensionId != null">
+                AND sdt_definition_dimension_property_column.dimension_id = #{definitionDimensionPropertyColumnFilter.dimensionId}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.propertyName != null and definitionDimensionPropertyColumnFilter.propertyName != ''">
+                <bind name = "safeDefinitionDimensionPropertyColumnPropertyName" value = "'%' + definitionDimensionPropertyColumnFilter.propertyName + '%'" />
+                AND sdt_definition_dimension_property_column.property_name LIKE #{safeDefinitionDimensionPropertyColumnPropertyName}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.propertyEnName != null and definitionDimensionPropertyColumnFilter.propertyEnName != ''">
+                <bind name = "safeDefinitionDimensionPropertyColumnPropertyEnName" value = "'%' + definitionDimensionPropertyColumnFilter.propertyEnName + '%'" />
+                AND sdt_definition_dimension_property_column.property_en_name LIKE #{safeDefinitionDimensionPropertyColumnPropertyEnName}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.propertyDataType != null and definitionDimensionPropertyColumnFilter.propertyDataType != ''">
+                <bind name = "safeDefinitionDimensionPropertyColumnPropertyDataType" value = "'%' + definitionDimensionPropertyColumnFilter.propertyDataType + '%'" />
+                AND sdt_definition_dimension_property_column.property_data_type LIKE #{safeDefinitionDimensionPropertyColumnPropertyDataType}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.propertyDescription != null and definitionDimensionPropertyColumnFilter.propertyDescription != ''">
+                <bind name = "safeDefinitionDimensionPropertyColumnPropertyDescription" value = "'%' + definitionDimensionPropertyColumnFilter.propertyDescription + '%'" />
+                AND sdt_definition_dimension_property_column.property_description LIKE #{safeDefinitionDimensionPropertyColumnPropertyDescription}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.propertyDecimalLengthStart != null">
+                AND sdt_definition_dimension_property_column.property_decimal_length &gt;= #{definitionDimensionPropertyColumnFilter.propertyDecimalLengthStart}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.propertyDecimalLengthEnd != null">
+                AND sdt_definition_dimension_property_column.property_decimal_length &lt;= #{definitionDimensionPropertyColumnFilter.propertyDecimalLengthEnd}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.isPrimary != null and definitionDimensionPropertyColumnFilter.isPrimary != ''">
+                AND sdt_definition_dimension_property_column.is_primary = #{definitionDimensionPropertyColumnFilter.isPrimary}
+            </if>
+            <if test="definitionDimensionPropertyColumnFilter.searchString != null and definitionDimensionPropertyColumnFilter.searchString != ''">
+                <bind name = "safeDefinitionDimensionPropertyColumnSearchString" value = "'%' + definitionDimensionPropertyColumnFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_definition_dimension_property_column.property_name,''), IFNULL(sdt_definition_dimension_property_column.property_en_name,''), IFNULL(sdt_definition_dimension_property_column.property_data_type,''), IFNULL(sdt_definition_dimension_property_column.property_description,'')) LIKE #{safeDefinitionDimensionPropertyColumnSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedDefinitionDimensionPropertyColumnList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DefinitionDimensionPropertyColumn">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_definition_dimension_property_column
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_definition_dimension_property_column
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getDefinitionDimensionPropertyColumnList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DefinitionDimensionPropertyColumn">
+        SELECT * FROM sdt_definition_dimension_property_column
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

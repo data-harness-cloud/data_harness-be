@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.upms.dao.SysUserMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.upms.model.SysUser">
+        <id column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="login_name" jdbcType="VARCHAR" property="loginName"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="show_name" jdbcType="VARCHAR" property="showName"/>
+        <result column="dept_id" jdbcType="BIGINT" property="deptId"/>
+        <result column="user_type" jdbcType="INTEGER" property="userType"/>
+        <result column="head_image_url" jdbcType="VARCHAR" property="headImageUrl"/>
+        <result column="user_status" jdbcType="INTEGER" property="userStatus"/>
+        <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMapWithProjectMember" type="supie.webadmin.upms.model.SysUser" extends="BaseResultMap">
+        <association property="projectMember" column="user_id" foreignColumn="member_user_id"
+                     notNullColumn="user_id" resultMap="supie.webadmin.app.dao.ProjectMemberMapper.BaseResultMap" />
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_sys_user
+            (user_id,
+            login_name,
+            password,
+            show_name,
+            dept_id,
+            user_type,
+            head_image_url,
+            user_status,
+            deleted_flag,
+            create_user_id,
+            update_user_id,
+            create_time,
+            update_time)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.userId},
+            #{item.loginName},
+            #{item.password},
+            #{item.showName},
+            #{item.deptId},
+            #{item.userType},
+            #{item.headImageUrl},
+            #{item.userStatus},
+            #{item.deletedFlag},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.createTime},
+            #{item.updateTime})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.upms.dao.SysUserMapper.inputFilterRef"/>
+        AND sdt_sys_user.deleted_flag = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="sysUserFilter != null">
+            <if test="sysUserFilter.loginName != null and sysUserFilter.loginName != ''">
+                <bind name = "safeSysUserLoginName" value = "'%' + sysUserFilter.loginName + '%'" />
+                AND sdt_sys_user.login_name LIKE #{safeSysUserLoginName}
+            </if>
+            <if test="sysUserFilter.showName != null and sysUserFilter.showName != ''">
+                <bind name = "safeSysUserShowName" value = "'%' + sysUserFilter.showName + '%'" />
+                AND sdt_sys_user.show_name LIKE #{safeSysUserShowName}
+            </if>
+            <if test="sysUserFilter.deptId != null">
+                AND (EXISTS (SELECT 1 FROM sdt_sys_dept_relation WHERE
+                        sdt_sys_dept_relation.parent_dept_id = #{sysUserFilter.deptId}
+                        AND sdt_sys_user.dept_id = sdt_sys_dept_relation.dept_id))
+            </if>
+            <if test="sysUserFilter.userStatus != null">
+                AND sdt_sys_user.user_status = #{sysUserFilter.userStatus}
+            </if>
+            <if test="sysUserFilter.userType != null">
+                AND sdt_sys_user.user_type = #{sysUserFilter.userType}
+            </if>
+            <if test="sysUserFilter.createTimeStart != null and sysUserFilter.createTimeStart != ''">
+                AND sdt_sys_user.create_time &gt;= #{sysUserFilter.createTimeStart}
+            </if>
+            <if test="sysUserFilter.createTimeEnd != null and sysUserFilter.createTimeEnd != ''">
+                AND sdt_sys_user.create_time &lt;= #{sysUserFilter.createTimeEnd}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getSysUserList" resultMap="BaseResultMap" parameterType="supie.webadmin.upms.model.SysUser">
+        SELECT * FROM sdt_sys_user
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getSysUserListByMemberProjectId" resultMap="BaseResultMapWithProjectMember">
+        SELECT
+            sdt_sys_user.*,
+            sdt_project_member.*
+        FROM
+            sdt_sys_user,
+            sdt_project_member
+        <where>
+            AND sdt_project_member.member_project_id = #{memberProjectId}
+            AND sdt_project_member.member_user_id = sdt_sys_user.user_id
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getNotInSysUserListByMemberProjectId" resultMap="BaseResultMap">
+        SELECT
+            sdt_sys_user.*
+        FROM
+            sdt_sys_user
+        <where>
+            AND NOT EXISTS (SELECT * FROM sdt_project_member
+                WHERE sdt_project_member.member_project_id = #{memberProjectId} AND sdt_project_member.member_user_id = sdt_sys_user.user_id)
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getSysUserListByDeptIds" resultMap="BaseResultMap">
+        SELECT * FROM sdt_sys_user
+        <where>
+            <if test="deptIds != null">
+                AND (EXISTS (SELECT 1 FROM sdt_sys_dept_relation WHERE
+                        sdt_sys_dept_relation.parent_dept_id IN
+                        <foreach collection="deptIds" item="item" separator="," open="(" close=")">
+                            #{item}
+                        </foreach>
+                        AND sdt_sys_user.dept_id = sdt_sys_dept_relation.dept_id))
+            </if>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getSysUserListByLoginNames" resultMap="BaseResultMap">
+        SELECT * FROM sdt_sys_user
+        <where>
+            <if test="loginNames != null">
+                AND sdt_sys_user.login_name IN
+                <foreach collection="loginNames" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getUserIdListByRoleIds" resultType="java.lang.Long">
+        SELECT
+            DISTINCT sdt_sys_user.user_id
+        FROM
+            sdt_sys_user_role,
+            sdt_sys_user
+        <where>
+            AND sdt_sys_user_role.role_id IN
+            <foreach collection="roleIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            AND sdt_sys_user_role.user_id = sdt_sys_user.user_id
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getSysUserListByRoleId" resultMap="BaseResultMap">
+        SELECT
+            sdt_sys_user.*
+        FROM
+            sdt_sys_user_role,
+            sdt_sys_user
+        <where>
+            AND sdt_sys_user_role.role_id = #{roleId}
+            AND sdt_sys_user_role.user_id = sdt_sys_user.user_id
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getNotInSysUserListByRoleId" resultMap="BaseResultMap">
+        SELECT * FROM sdt_sys_user
+        <where>
+            NOT EXISTS (SELECT * FROM sdt_sys_user_role
+                WHERE sdt_sys_user_role.role_id = #{roleId} AND sdt_sys_user_role.user_id = sdt_sys_user.user_id)
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getSysUserListByDataPermId" resultMap="BaseResultMap">
+        SELECT
+            sdt_sys_user.*
+        FROM
+            sdt_sys_data_perm_user,
+            sdt_sys_user
+        <where>
+            AND sdt_sys_data_perm_user.data_perm_id = #{dataPermId}
+            AND sdt_sys_data_perm_user.user_id = sdt_sys_user.user_id
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getNotInSysUserListByDataPermId" resultMap="BaseResultMap">
+        SELECT * FROM sdt_sys_user
+        <where>
+            NOT EXISTS (SELECT * FROM sdt_sys_data_perm_user
+                WHERE sdt_sys_data_perm_user.data_perm_id = #{dataPermId} AND sdt_sys_data_perm_user.user_id = sdt_sys_user.user_id)
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getUserIdListByDeptPostIds" resultType="java.lang.Long">
+        SELECT
+            DISTINCT sdt_sys_user.user_id
+        FROM
+            sdt_sys_user_post,
+            sdt_sys_user
+        <where>
+            AND sdt_sys_user_post.dept_post_id IN
+            <foreach collection="deptPostIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            AND sdt_sys_user_post.user_id = sdt_sys_user.user_id
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getSysUserListByDeptPostId" resultMap="BaseResultMap">
+        SELECT
+            sdt_sys_user.*
+        FROM
+            sdt_sys_user_post,
+            sdt_sys_user
+        <where>
+            AND sdt_sys_user_post.dept_post_id = #{deptPostId}
+            AND sdt_sys_user_post.user_id = sdt_sys_user.user_id
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getNotInSysUserListByDeptPostId" resultMap="BaseResultMap">
+        SELECT * FROM sdt_sys_user
+        <where>
+            NOT EXISTS (SELECT * FROM sdt_sys_user_post
+                WHERE sdt_sys_user_post.dept_post_id = #{deptPostId} AND sdt_sys_user_post.user_id = sdt_sys_user.user_id)
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getUserIdListByPostIds" resultType="java.lang.Long">
+        SELECT
+            DISTINCT sdt_sys_user.user_id
+        FROM
+            sdt_sys_user_post,
+            sdt_sys_user
+        <where>
+            AND sdt_sys_user_post.post_id IN
+            <foreach collection="postIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            AND sdt_sys_user_post.user_id = sdt_sys_user.user_id
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getSysUserListByPostId" resultMap="BaseResultMap">
+        SELECT
+            sdt_sys_user.*
+        FROM
+            sdt_sys_user_post,
+            sdt_sys_user
+        <where>
+            AND sdt_sys_user_post.post_id = #{postId}
+            AND sdt_sys_user_post.user_id = sdt_sys_user.user_id
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <!-- 以下查询仅用于权限分配的问题定位，由于关联表较多，可能会给系统运行带来性能影响 -->
+    <select id="getSysPermListWithDetail" resultType="map">
+        SELECT
+            r.role_id roleId,
+            r.role_name roleName,
+            m.menu_id menuId,
+            m.menu_name menuName,
+            m.menu_type menuType,
+            pc.perm_code_id permCodeId,
+            pc.perm_code permCode,
+            pc.perm_code_type permCodeType,
+            p.url url
+        FROM
+            sdt_sys_user_role ur,
+            sdt_sys_role r,
+            sdt_sys_role_menu rm,
+            sdt_sys_menu m,
+            sdt_sys_menu_perm_code mpc,
+            sdt_sys_perm_code pc,
+            sdt_sys_perm_code_perm pcp,
+            sdt_sys_perm p
+        <where>
+            AND ur.user_id = #{userId}
+            AND ur.role_id = r.role_id
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = m.menu_id
+            AND rm.menu_id = mpc.menu_id
+            AND mpc.perm_code_id = pc.perm_code_id
+            AND mpc.perm_code_id = pcp.perm_code_id
+            AND pcp.perm_id = p.perm_id
+            <if test="url != null and url != ''">
+                AND p.url = #{url}
+            </if>
+        </where>
+        ORDER BY
+            r.role_id, m.menu_id, pc.perm_code_id, p.url
+    </select>
+
+    <select id="getSysPermCodeListWithDetail" resultType="map">
+        SELECT
+            r.role_id roleId,
+            r.role_name roleName,
+            m.menu_id menuId,
+            m.menu_name menuName,
+            m.menu_type menuType,
+            pc.perm_code_id permCodeId,
+            pc.perm_code permCode,
+            pc.perm_code_type permCodeType
+        FROM
+            sdt_sys_user_role ur,
+            sdt_sys_role r,
+            sdt_sys_role_menu rm,
+            sdt_sys_menu m,
+            sdt_sys_menu_perm_code mpc,
+            sdt_sys_perm_code pc
+        <where>
+            AND ur.user_id = #{userId}
+            AND ur.role_id = r.role_id
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = m.menu_id
+            AND rm.menu_id = mpc.menu_id
+            AND mpc.perm_code_id = pc.perm_code_id
+            <if test="permCode != null and permCode != ''">
+                AND pc.perm_code = #{permCode}
+            </if>
+        </where>
+        ORDER BY
+            r.role_id, m.menu_id, pc.perm_code_id
+    </select>
+
+    <select id="getSysMenuListWithDetail" resultType="map">
+        SELECT
+            r.role_id roleId,
+            r.role_name roleName,
+            m.menu_id menuId,
+            m.menu_name menuName,
+            m.menu_type menuType
+        FROM
+            sdt_sys_user_role ur,
+            sdt_sys_role r,
+            sdt_sys_role_menu rm,
+            sdt_sys_menu m
+        <where>
+            AND ur.user_id = #{userId}
+            AND ur.role_id = r.role_id
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = m.menu_id
+            <if test="menuName != null and menuName != ''">
+                AND m.menu_name = #{menuName}
+            </if>
+        </where>
+        ORDER BY
+            r.role_id, m.menu_id
+    </select>
+</mapper>

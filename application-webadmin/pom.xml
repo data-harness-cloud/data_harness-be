@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+        <groupId>supie</groupId>
+        <artifactId>SDT</artifactId>
+        <version>1.0.0</version>
+	</parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>application-webadmin</artifactId>
+    <version>1.0.0</version>
+    <name>application-webadmin</name>
+    <packaging>jar</packaging>
+
+	<dependencies>
+        <dependency>
+            <groupId>com.anji-plus</groupId>
+            <artifactId>spring-boot-starter-captcha</artifactId>
+            <version>${ajcaptcha.version}</version>
+        </dependency>
+		<!-- 业务组件依赖 -->
+        <dependency>
+            <groupId>supie</groupId>
+            <artifactId>common-ext</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>supie</groupId>
+            <artifactId>common-redis</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>supie</groupId>
+            <artifactId>common-log</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>supie</groupId>
+            <artifactId>common-minio</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>supie</groupId>
+            <artifactId>common-sequence</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>supie</groupId>
+            <artifactId>common-datafilter</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>supie</groupId>
+            <artifactId>application-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>supie</groupId>
+            <artifactId>common-swagger</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>supie</groupId>
+            <artifactId>common-dict</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>supie</groupId>
+            <artifactId>common-quartz</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+		</plugins>
+	</build>
+</project>

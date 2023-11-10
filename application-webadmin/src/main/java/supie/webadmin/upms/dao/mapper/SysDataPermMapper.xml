@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.upms.dao.SysDataPermMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.upms.model.SysDataPerm">
+        <id column="data_perm_id" jdbcType="BIGINT" property="dataPermId"/>
+        <result column="data_perm_name" jdbcType="VARCHAR" property="dataPermName"/>
+        <result column="rule_type" jdbcType="INTEGER" property="ruleType"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMapEx" type="supie.webadmin.upms.model.SysDataPerm" extends="BaseResultMap">
+        <collection property="dataPermDeptList" column="data_perm_id" javaType="ArrayList"
+                    ofType="supie.webadmin.upms.model.SysDataPermDept" notNullColumn="dept_id"
+                    resultMap="supie.webadmin.upms.dao.SysDataPermDeptMapper.BaseResultMap">
+        </collection>
+        <collection property="dataPermMenuList" column="data_perm_id" javaType="ArrayList"
+                    ofType="supie.webadmin.upms.model.SysDataPermMenu" notNullColumn="menu_id"
+                    resultMap="supie.webadmin.upms.dao.SysDataPermMenuMapper.BaseResultMap">
+        </collection>
+    </resultMap>
+
+    <sql id="filterRef">
+        <if test="sysDataPermFilter != null">
+            <if test="sysDataPermFilter.ruleType != null">
+                AND sdt_sys_data_perm.rule_type = #{sysDataPermFilter.ruleType}
+            </if>
+            <if test="sysDataPermFilter.searchString != null and sysDataPermFilter.searchString != ''">
+                <bind name= "safeSearchString" value= "'%' + sysDataPermFilter.searchString + '%'" />
+                AND IFNULL(sdt_sys_data_perm.data_perm_name, '') LIKE #{safeSearchString}
+            </if>
+        </if>
+        AND sdt_sys_data_perm.deleted_flag = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <select id="getSysDataPermList" resultMap="BaseResultMap" parameterType="supie.webadmin.upms.model.SysDataPerm">
+        SELECT
+            sdt_sys_data_perm.*
+        FROM
+            sdt_sys_data_perm
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getSysDataPermListByUserId" resultMap="BaseResultMapEx" parameterType="supie.webadmin.upms.model.SysDataPerm">
+        SELECT
+            sdt_sys_data_perm.*,
+            sdt_sys_data_perm_dept.*,
+            sdt_sys_data_perm_menu.*
+        FROM
+            sdt_sys_data_perm_user
+        INNER JOIN
+            sdt_sys_data_perm ON sdt_sys_data_perm_user.data_perm_id = sdt_sys_data_perm.data_perm_id
+        LEFT JOIN
+            sdt_sys_data_perm_dept ON sdt_sys_data_perm.data_perm_id = sdt_sys_data_perm_dept.data_perm_id
+        LEFT JOIN
+            sdt_sys_data_perm_menu ON sdt_sys_data_perm.data_perm_id = sdt_sys_data_perm_menu.data_perm_id
+        <where>
+            AND sdt_sys_data_perm_user.user_id = #{userId}
+        </where>
+    </select>
+
+    <select id="getSysDataPermListByMenuId" resultMap="BaseResultMap" parameterType="supie.webadmin.upms.model.SysDataPerm">
+        SELECT
+            sdt_sys_data_perm.*
+        FROM
+            sdt_sys_data_perm,
+            sdt_sys_data_perm_menu
+        <where>
+            sdt_sys_data_perm.data_perm_id = sdt_sys_data_perm_menu.data_perm_id
+            AND sdt_sys_data_perm_menu.menu_id = #{menuId}
+        </where>
+    </select>
+</mapper>

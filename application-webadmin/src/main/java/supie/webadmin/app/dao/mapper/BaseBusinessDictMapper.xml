@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.BaseBusinessDictMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.BaseBusinessDict">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="parent_id" jdbcType="BIGINT" property="parentId"/>
+        <result column="bind_type" jdbcType="VARCHAR" property="bindType"/>
+        <result column="dict_name" jdbcType="VARCHAR" property="dictName"/>
+        <result column="dict_desc" jdbcType="VARCHAR" property="dictDesc"/>
+        <result column="show_order" jdbcType="VARCHAR" property="showOrder"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_base_business_dict
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            parent_id,
+            bind_type,
+            dict_name,
+            dict_desc,
+            show_order)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.parentId},
+            #{item.bindType},
+            #{item.dictName},
+            #{item.dictDesc},
+            #{item.showOrder})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.BaseBusinessDictMapper.inputFilterRef"/>
+        AND sdt_base_business_dict.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="baseBusinessDictFilter != null">
+            <if test="baseBusinessDictFilter.id != null">
+                AND sdt_base_business_dict.id = #{baseBusinessDictFilter.id}
+            </if>
+            <if test="baseBusinessDictFilter.updateTimeStart != null and baseBusinessDictFilter.updateTimeStart != ''">
+                AND sdt_base_business_dict.update_time &gt;= #{baseBusinessDictFilter.updateTimeStart}
+            </if>
+            <if test="baseBusinessDictFilter.updateTimeEnd != null and baseBusinessDictFilter.updateTimeEnd != ''">
+                AND sdt_base_business_dict.update_time &lt;= #{baseBusinessDictFilter.updateTimeEnd}
+            </if>
+            <if test="baseBusinessDictFilter.createTimeStart != null and baseBusinessDictFilter.createTimeStart != ''">
+                AND sdt_base_business_dict.create_time &gt;= #{baseBusinessDictFilter.createTimeStart}
+            </if>
+            <if test="baseBusinessDictFilter.createTimeEnd != null and baseBusinessDictFilter.createTimeEnd != ''">
+                AND sdt_base_business_dict.create_time &lt;= #{baseBusinessDictFilter.createTimeEnd}
+            </if>
+            <if test="baseBusinessDictFilter.createUserId != null">
+                AND sdt_base_business_dict.create_user_id = #{baseBusinessDictFilter.createUserId}
+            </if>
+            <if test="baseBusinessDictFilter.updateUserId != null">
+                AND sdt_base_business_dict.update_user_id = #{baseBusinessDictFilter.updateUserId}
+            </if>
+            <if test="baseBusinessDictFilter.dataUserId != null">
+                AND sdt_base_business_dict.data_user_id = #{baseBusinessDictFilter.dataUserId}
+            </if>
+            <if test="baseBusinessDictFilter.dataDeptId != null">
+                AND sdt_base_business_dict.data_dept_id = #{baseBusinessDictFilter.dataDeptId}
+            </if>
+            <if test="baseBusinessDictFilter.parentId != null">
+                AND sdt_base_business_dict.parent_id = #{baseBusinessDictFilter.parentId}
+            </if>
+            <if test="baseBusinessDictFilter.bindType != null and baseBusinessDictFilter.bindType != ''">
+                <bind name = "safeBaseBusinessDictBindType" value = "'%' + baseBusinessDictFilter.bindType + '%'" />
+                AND sdt_base_business_dict.bind_type LIKE #{safeBaseBusinessDictBindType}
+            </if>
+            <if test="baseBusinessDictFilter.bindTypeList != null and baseBusinessDictFilter.bindTypeList.size() > 0">
+                <foreach collection="baseBusinessDictFilter.bindTypeList" item="item"
+                         open="AND sdt_base_business_dict.bind_type IN (" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="baseBusinessDictFilter.dictName != null and baseBusinessDictFilter.dictName != ''">
+                <bind name = "safeBaseBusinessDictDictName" value = "'%' + baseBusinessDictFilter.dictName + '%'" />
+                AND sdt_base_business_dict.dict_name LIKE #{safeBaseBusinessDictDictName}
+            </if>
+            <if test="baseBusinessDictFilter.dictDesc != null and baseBusinessDictFilter.dictDesc != ''">
+                <bind name = "safeBaseBusinessDictDictDesc" value = "'%' + baseBusinessDictFilter.dictDesc + '%'" />
+                AND sdt_base_business_dict.dict_desc LIKE #{safeBaseBusinessDictDictDesc}
+            </if>
+            <if test="baseBusinessDictFilter.showOrder != null and baseBusinessDictFilter.showOrder != ''">
+                <bind name = "safeBaseBusinessDictShowOrder" value = "'%' + baseBusinessDictFilter.showOrder + '%'" />
+                AND sdt_base_business_dict.show_order LIKE #{safeBaseBusinessDictShowOrder}
+            </if>
+            <if test="baseBusinessDictFilter.searchString != null and baseBusinessDictFilter.searchString != ''">
+                <bind name = "safeBaseBusinessDictSearchString" value = "'%' + baseBusinessDictFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_base_business_dict.bind_type,''), IFNULL(sdt_base_business_dict.dict_name,''), IFNULL(sdt_base_business_dict.dict_desc,'')) LIKE #{safeBaseBusinessDictSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedBaseBusinessDictList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.BaseBusinessDict">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_base_business_dict
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_base_business_dict
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getBaseBusinessDictList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.BaseBusinessDict">
+        SELECT * FROM sdt_base_business_dict
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.ProjectDatasourceMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.ProjectDatasource">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="datasource_name" jdbcType="VARCHAR" property="datasourceName"/>
+        <result column="datasource_type" jdbcType="VARCHAR" property="datasourceType"/>
+        <result column="datasource_show_name" jdbcType="VARCHAR" property="datasourceShowName"/>
+        <result column="datasource_description" jdbcType="LONGVARCHAR" property="datasourceDescription"/>
+        <result column="datasource_content" jdbcType="LONGVARCHAR" property="datasourceContent"/>
+        <result column="datasource_icon" jdbcType="VARCHAR" property="datasourceIcon"/>
+        <result column="datasource_group" jdbcType="VARCHAR" property="datasourceGroup"/>
+        <result column="datasource_connect" jdbcType="INTEGER" property="datasourceConnect"/>
+        <result column="is_meta_collect" jdbcType="INTEGER" property="isMetaCollect"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMapWithProjectDatasourceRelation" type="supie.webadmin.app.model.ProjectDatasource" extends="BaseResultMap">
+        <association property="projectDatasourceRelation" column="id" foreignColumn="datasource_id"
+                     notNullColumn="id" resultMap="supie.webadmin.app.dao.ProjectDatasourceRelationMapper.BaseResultMap" />
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_project_datasource
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            datasource_name,
+            datasource_type,
+            datasource_show_name,
+            datasource_description,
+            datasource_content,
+            datasource_icon,
+            datasource_group,
+            datasource_connect,
+            is_meta_collect,
+            project_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.datasourceName},
+            #{item.datasourceType},
+            #{item.datasourceShowName},
+            #{item.datasourceDescription},
+            #{item.datasourceContent},
+            #{item.datasourceIcon},
+            #{item.datasourceGroup},
+            #{item.datasourceConnect},
+            #{item.isMetaCollect},
+            #{item.projectId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.ProjectDatasourceMapper.inputFilterRef"/>
+        AND sdt_project_datasource.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="projectDatasourceFilter != null">
+            <if test="projectDatasourceFilter.id != null">
+                AND sdt_project_datasource.id = #{projectDatasourceFilter.id}
+            </if>
+            <if test="projectDatasourceFilter.updateTimeStart != null and projectDatasourceFilter.updateTimeStart != ''">
+                AND sdt_project_datasource.update_time &gt;= #{projectDatasourceFilter.updateTimeStart}
+            </if>
+            <if test="projectDatasourceFilter.updateTimeEnd != null and projectDatasourceFilter.updateTimeEnd != ''">
+                AND sdt_project_datasource.update_time &lt;= #{projectDatasourceFilter.updateTimeEnd}
+            </if>
+            <if test="projectDatasourceFilter.createTimeStart != null and projectDatasourceFilter.createTimeStart != ''">
+                AND sdt_project_datasource.create_time &gt;= #{projectDatasourceFilter.createTimeStart}
+            </if>
+            <if test="projectDatasourceFilter.createTimeEnd != null and projectDatasourceFilter.createTimeEnd != ''">
+                AND sdt_project_datasource.create_time &lt;= #{projectDatasourceFilter.createTimeEnd}
+            </if>
+            <if test="projectDatasourceFilter.createUserId != null">
+                AND sdt_project_datasource.create_user_id = #{projectDatasourceFilter.createUserId}
+            </if>
+            <if test="projectDatasourceFilter.updateUserId != null">
+                AND sdt_project_datasource.update_user_id = #{projectDatasourceFilter.updateUserId}
+            </if>
+            <if test="projectDatasourceFilter.dataUserId != null">
+                AND sdt_project_datasource.data_user_id = #{projectDatasourceFilter.dataUserId}
+            </if>
+            <if test="projectDatasourceFilter.dataDeptId != null">
+                AND sdt_project_datasource.data_dept_id = #{projectDatasourceFilter.dataDeptId}
+            </if>
+            <if test="projectDatasourceFilter.datasourceName != null and projectDatasourceFilter.datasourceName != ''">
+                <bind name = "safeProjectDatasourceDatasourceName" value = "'%' + projectDatasourceFilter.datasourceName + '%'" />
+                AND sdt_project_datasource.datasource_name LIKE #{safeProjectDatasourceDatasourceName}
+            </if>
+            <if test="projectDatasourceFilter.datasourceType != null and projectDatasourceFilter.datasourceType != ''">
+                <bind name = "safeProjectDatasourceDatasourceType" value = "'%' + projectDatasourceFilter.datasourceType + '%'" />
+                AND sdt_project_datasource.datasource_type LIKE #{safeProjectDatasourceDatasourceType}
+            </if>
+            <if test="projectDatasourceFilter.datasourceShowName != null and projectDatasourceFilter.datasourceShowName != ''">
+                <bind name = "safeProjectDatasourceDatasourceShowName" value = "'%' + projectDatasourceFilter.datasourceShowName + '%'" />
+                AND sdt_project_datasource.datasource_show_name LIKE #{safeProjectDatasourceDatasourceShowName}
+            </if>
+            <if test="projectDatasourceFilter.datasourceDescription != null and projectDatasourceFilter.datasourceDescription != ''">
+                <bind name = "safeProjectDatasourceDatasourceDescription" value = "'%' + projectDatasourceFilter.datasourceDescription + '%'" />
+                AND sdt_project_datasource.datasource_description LIKE #{safeProjectDatasourceDatasourceDescription}
+            </if>
+            <if test="projectDatasourceFilter.datasourceContent != null and projectDatasourceFilter.datasourceContent != ''">
+                <bind name = "safeProjectDatasourceDatasourceContent" value = "'%' + projectDatasourceFilter.datasourceContent + '%'" />
+                AND sdt_project_datasource.datasource_content LIKE #{safeProjectDatasourceDatasourceContent}
+            </if>
+            <if test="projectDatasourceFilter.datasourceIcon != null and projectDatasourceFilter.datasourceIcon != ''">
+                <bind name = "safeProjectDatasourceDatasourceIcon" value = "'%' + projectDatasourceFilter.datasourceIcon + '%'" />
+                AND sdt_project_datasource.datasource_icon LIKE #{safeProjectDatasourceDatasourceIcon}
+            </if>
+            <if test="projectDatasourceFilter.datasourceGroup != null and projectDatasourceFilter.datasourceGroup != ''">
+                AND sdt_project_datasource.datasource_group = #{projectDatasourceFilter.datasourceGroup}
+            </if>
+            <if test="projectDatasourceFilter.datasourceConnect != null">
+                AND sdt_project_datasource.datasource_connect = #{projectDatasourceFilter.datasourceConnect}
+            </if>
+            <if test="projectDatasourceFilter.isMetaCollect != null">
+                AND sdt_project_datasource.is_meta_collect = #{projectDatasourceFilter.isMetaCollect}
+            </if>
+            <if test="projectDatasourceFilter.searchString != null and projectDatasourceFilter.searchString != ''">
+                <bind name = "safeProjectDatasourceSearchString" value = "'%' + projectDatasourceFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_project_datasource.datasource_name,''), IFNULL(sdt_project_datasource.datasource_show_name,''), IFNULL(sdt_project_datasource.datasource_description,''), IFNULL(sdt_project_datasource.datasource_content,''), IFNULL(sdt_project_datasource.datasource_group,'')) LIKE #{safeProjectDatasourceSearchString}
+            </if>
+            <if test="projectDatasourceFilter.projectId != null">
+                AND sdt_project_datasource.project_id = #{projectDatasourceFilter.projectId}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedProjectDatasourceList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ProjectDatasource">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_project_datasource
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_project_datasource
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getProjectDatasourceList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ProjectDatasource">
+        SELECT * FROM sdt_project_datasource
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getProjectDatasourceListByProjectId" resultMap="BaseResultMapWithProjectDatasourceRelation">
+        SELECT
+            sdt_project_datasource.*,
+            sdt_project_datasource_relation.*
+        FROM
+            sdt_project_datasource,
+            sdt_project_datasource_relation
+        <where>
+            AND sdt_project_datasource_relation.project_id = #{projectId}
+            AND sdt_project_datasource_relation.datasource_id = sdt_project_datasource.id
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getNotInProjectDatasourceListByProjectId" resultMap="BaseResultMap">
+        SELECT
+            sdt_project_datasource.*
+        FROM
+            sdt_project_datasource
+        <where>
+            AND NOT EXISTS (SELECT * FROM sdt_project_datasource_relation
+                WHERE sdt_project_datasource_relation.project_id = #{projectId} AND sdt_project_datasource_relation.datasource_id = sdt_project_datasource.id)
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.DefinitionDimensionLevelMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.DefinitionDimensionLevel">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="dimension_id" jdbcType="BIGINT" property="dimensionId"/>
+        <result column="level_number" jdbcType="INTEGER" property="levelNumber"/>
+        <result column="level_name" jdbcType="VARCHAR" property="levelName"/>
+        <result column="level_code" jdbcType="VARCHAR" property="levelCode"/>
+        <result column="level_scale" jdbcType="VARCHAR" property="levelScale"/>
+        <result column="level_enable" jdbcType="VARCHAR" property="levelEnable"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_definition_dimension_level
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            dimension_id,
+            level_number,
+            level_name,
+            level_code,
+            level_scale,
+            level_enable)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.dimensionId},
+            #{item.levelNumber},
+            #{item.levelName},
+            #{item.levelCode},
+            #{item.levelScale},
+            #{item.levelEnable})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.DefinitionDimensionLevelMapper.inputFilterRef"/>
+        AND sdt_definition_dimension_level.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="definitionDimensionLevelFilter != null">
+            <if test="definitionDimensionLevelFilter.id != null">
+                AND sdt_definition_dimension_level.id = #{definitionDimensionLevelFilter.id}
+            </if>
+            <if test="definitionDimensionLevelFilter.updateTimeStart != null and definitionDimensionLevelFilter.updateTimeStart != ''">
+                AND sdt_definition_dimension_level.update_time &gt;= #{definitionDimensionLevelFilter.updateTimeStart}
+            </if>
+            <if test="definitionDimensionLevelFilter.updateTimeEnd != null and definitionDimensionLevelFilter.updateTimeEnd != ''">
+                AND sdt_definition_dimension_level.update_time &lt;= #{definitionDimensionLevelFilter.updateTimeEnd}
+            </if>
+            <if test="definitionDimensionLevelFilter.createTimeStart != null and definitionDimensionLevelFilter.createTimeStart != ''">
+                AND sdt_definition_dimension_level.create_time &gt;= #{definitionDimensionLevelFilter.createTimeStart}
+            </if>
+            <if test="definitionDimensionLevelFilter.createTimeEnd != null and definitionDimensionLevelFilter.createTimeEnd != ''">
+                AND sdt_definition_dimension_level.create_time &lt;= #{definitionDimensionLevelFilter.createTimeEnd}
+            </if>
+            <if test="definitionDimensionLevelFilter.createUserId != null">
+                AND sdt_definition_dimension_level.create_user_id = #{definitionDimensionLevelFilter.createUserId}
+            </if>
+            <if test="definitionDimensionLevelFilter.updateUserId != null">
+                AND sdt_definition_dimension_level.update_user_id = #{definitionDimensionLevelFilter.updateUserId}
+            </if>
+            <if test="definitionDimensionLevelFilter.dataUserId != null">
+                AND sdt_definition_dimension_level.data_user_id = #{definitionDimensionLevelFilter.dataUserId}
+            </if>
+            <if test="definitionDimensionLevelFilter.dataDeptId != null">
+                AND sdt_definition_dimension_level.data_dept_id = #{definitionDimensionLevelFilter.dataDeptId}
+            </if>
+            <if test="definitionDimensionLevelFilter.dimensionId != null">
+                AND sdt_definition_dimension_level.dimension_id = #{definitionDimensionLevelFilter.dimensionId}
+            </if>
+            <if test="definitionDimensionLevelFilter.levelNumberStart != null">
+                AND sdt_definition_dimension_level.level_number &gt;= #{definitionDimensionLevelFilter.levelNumberStart}
+            </if>
+            <if test="definitionDimensionLevelFilter.levelNumberEnd != null">
+                AND sdt_definition_dimension_level.level_number &lt;= #{definitionDimensionLevelFilter.levelNumberEnd}
+            </if>
+            <if test="definitionDimensionLevelFilter.levelName != null and definitionDimensionLevelFilter.levelName != ''">
+                <bind name = "safeDefinitionDimensionLevelLevelName" value = "'%' + definitionDimensionLevelFilter.levelName + '%'" />
+                AND sdt_definition_dimension_level.level_name LIKE #{safeDefinitionDimensionLevelLevelName}
+            </if>
+            <if test="definitionDimensionLevelFilter.levelCode != null and definitionDimensionLevelFilter.levelCode != ''">
+                <bind name = "safeDefinitionDimensionLevelLevelCode" value = "'%' + definitionDimensionLevelFilter.levelCode + '%'" />
+                AND sdt_definition_dimension_level.level_code LIKE #{safeDefinitionDimensionLevelLevelCode}
+            </if>
+            <if test="definitionDimensionLevelFilter.levelScale != null and definitionDimensionLevelFilter.levelScale != ''">
+                <bind name = "safeDefinitionDimensionLevelLevelScale" value = "'%' + definitionDimensionLevelFilter.levelScale + '%'" />
+                AND sdt_definition_dimension_level.level_scale LIKE #{safeDefinitionDimensionLevelLevelScale}
+            </if>
+            <if test="definitionDimensionLevelFilter.levelEnable != null and definitionDimensionLevelFilter.levelEnable != ''">
+                AND sdt_definition_dimension_level.level_enable = #{definitionDimensionLevelFilter.levelEnable}
+            </if>
+            <if test="definitionDimensionLevelFilter.searchString != null and definitionDimensionLevelFilter.searchString != ''">
+                <bind name = "safeDefinitionDimensionLevelSearchString" value = "'%' + definitionDimensionLevelFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_definition_dimension_level.level_name,''), IFNULL(sdt_definition_dimension_level.level_code,''), IFNULL(sdt_definition_dimension_level.level_scale,'')) LIKE #{safeDefinitionDimensionLevelSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedDefinitionDimensionLevelList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DefinitionDimensionLevel">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_definition_dimension_level
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_definition_dimension_level
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getDefinitionDimensionLevelList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DefinitionDimensionLevel">
+        SELECT * FROM sdt_definition_dimension_level
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

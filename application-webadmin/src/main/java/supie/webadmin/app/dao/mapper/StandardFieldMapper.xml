@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.StandardFieldMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.StandardField">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="staidard_id" jdbcType="BIGINT" property="staidardId"/>
+        <result column="standard_field_name" jdbcType="VARCHAR" property="standardFieldName"/>
+        <result column="standard_field_code" jdbcType="VARCHAR" property="standardFieldCode"/>
+        <result column="standard_field_type" jdbcType="VARCHAR" property="standardFieldType"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_standard_field
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            staidard_id,
+            standard_field_name,
+            standard_field_code,
+            standard_field_type)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.staidardId},
+            #{item.standardFieldName},
+            #{item.standardFieldCode},
+            #{item.standardFieldType})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.StandardFieldMapper.inputFilterRef"/>
+        AND sdt_standard_field.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="standardFieldFilter != null">
+            <if test="standardFieldFilter.id != null">
+                AND sdt_standard_field.id = #{standardFieldFilter.id}
+            </if>
+            <if test="standardFieldFilter.updateTimeStart != null and standardFieldFilter.updateTimeStart != ''">
+                AND sdt_standard_field.update_time &gt;= #{standardFieldFilter.updateTimeStart}
+            </if>
+            <if test="standardFieldFilter.updateTimeEnd != null and standardFieldFilter.updateTimeEnd != ''">
+                AND sdt_standard_field.update_time &lt;= #{standardFieldFilter.updateTimeEnd}
+            </if>
+            <if test="standardFieldFilter.createTimeStart != null and standardFieldFilter.createTimeStart != ''">
+                AND sdt_standard_field.create_time &gt;= #{standardFieldFilter.createTimeStart}
+            </if>
+            <if test="standardFieldFilter.createTimeEnd != null and standardFieldFilter.createTimeEnd != ''">
+                AND sdt_standard_field.create_time &lt;= #{standardFieldFilter.createTimeEnd}
+            </if>
+            <if test="standardFieldFilter.createUserId != null">
+                AND sdt_standard_field.create_user_id = #{standardFieldFilter.createUserId}
+            </if>
+            <if test="standardFieldFilter.updateUserId != null">
+                AND sdt_standard_field.update_user_id = #{standardFieldFilter.updateUserId}
+            </if>
+            <if test="standardFieldFilter.dataUserId != null">
+                AND sdt_standard_field.data_user_id = #{standardFieldFilter.dataUserId}
+            </if>
+            <if test="standardFieldFilter.dataDeptId != null">
+                AND sdt_standard_field.data_dept_id = #{standardFieldFilter.dataDeptId}
+            </if>
+            <if test="standardFieldFilter.staidardId != null">
+                AND sdt_standard_field.staidard_id = #{standardFieldFilter.staidardId}
+            </if>
+            <if test="standardFieldFilter.standardFieldName != null and standardFieldFilter.standardFieldName != ''">
+                <bind name = "safeStandardFieldStandardFieldName" value = "'%' + standardFieldFilter.standardFieldName + '%'" />
+                AND sdt_standard_field.standard_field_name LIKE #{safeStandardFieldStandardFieldName}
+            </if>
+            <if test="standardFieldFilter.standardFieldCode != null and standardFieldFilter.standardFieldCode != ''">
+                <bind name = "safeStandardFieldStandardFieldCode" value = "'%' + standardFieldFilter.standardFieldCode + '%'" />
+                AND sdt_standard_field.standard_field_code LIKE #{safeStandardFieldStandardFieldCode}
+            </if>
+            <if test="standardFieldFilter.standardFieldType != null and standardFieldFilter.standardFieldType != ''">
+                <bind name = "safeStandardFieldStandardFieldType" value = "'%' + standardFieldFilter.standardFieldType + '%'" />
+                AND sdt_standard_field.standard_field_type LIKE #{safeStandardFieldStandardFieldType}
+            </if>
+            <if test="standardFieldFilter.searchString != null and standardFieldFilter.searchString != ''">
+                <bind name = "safeStandardFieldSearchString" value = "'%' + standardFieldFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_standard_field.standard_field_name,''), IFNULL(sdt_standard_field.standard_field_code,''), IFNULL(sdt_standard_field.standard_field_type,'')) LIKE #{safeStandardFieldSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedStandardFieldList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.StandardField">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_standard_field
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_standard_field
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getStandardFieldList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.StandardField">
+        SELECT * FROM sdt_standard_field
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

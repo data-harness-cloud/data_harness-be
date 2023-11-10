@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.RemoteHostMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.RemoteHost">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="show_name" jdbcType="VARCHAR" property="showName"/>
+        <result column="host_ip" jdbcType="VARCHAR" property="hostIp"/>
+        <result column="host_port" jdbcType="VARCHAR" property="hostPort"/>
+        <result column="host_key_file_path" jdbcType="VARCHAR" property="hostKeyFilePath"/>
+        <result column="login_name" jdbcType="VARCHAR" property="loginName"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_remote_host
+            (id,
+            show_name,
+            host_ip,
+            host_port,
+            host_key_file_path,
+            login_name,
+            password,
+            is_delete,
+            create_time,
+            create_user_id,
+            update_time,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            project_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.showName},
+            #{item.hostIp},
+            #{item.hostPort},
+            #{item.hostKeyFilePath},
+            #{item.loginName},
+            #{item.password},
+            #{item.isDelete},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateTime},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.projectId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.RemoteHostMapper.inputFilterRef"/>
+        AND sdt_remote_host.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="remoteHostFilter != null">
+            <if test="remoteHostFilter.id != null">
+                AND sdt_remote_host.id = #{remoteHostFilter.id}
+            </if>
+            <if test="remoteHostFilter.showName != null and remoteHostFilter.showName != ''">
+                <bind name = "safeRemoteHostShowName" value = "'%' + remoteHostFilter.showName + '%'" />
+                AND sdt_remote_host.show_name LIKE #{safeRemoteHostShowName}
+            </if>
+            <if test="remoteHostFilter.hostIp != null and remoteHostFilter.hostIp != ''">
+                AND sdt_remote_host.host_ip = #{remoteHostFilter.hostIp}
+            </if>
+            <if test="remoteHostFilter.hostPort != null and remoteHostFilter.hostPort != ''">
+                AND sdt_remote_host.host_port = #{remoteHostFilter.hostPort}
+            </if>
+            <if test="remoteHostFilter.hostKeyFilePath != null and remoteHostFilter.hostKeyFilePath != ''">
+                <bind name = "safeRemoteHostHostKeyFilePath" value = "'%' + remoteHostFilter.hostKeyFilePath + '%'" />
+                AND sdt_remote_host.host_key_file_path LIKE #{safeRemoteHostHostKeyFilePath}
+            </if>
+            <if test="remoteHostFilter.loginName != null and remoteHostFilter.loginName != ''">
+                <bind name = "safeRemoteHostLoginName" value = "'%' + remoteHostFilter.loginName + '%'" />
+                AND sdt_remote_host.login_name LIKE #{safeRemoteHostLoginName}
+            </if>
+            <if test="remoteHostFilter.createTimeStart != null and remoteHostFilter.createTimeStart != ''">
+                AND sdt_remote_host.create_time &gt;= #{remoteHostFilter.createTimeStart}
+            </if>
+            <if test="remoteHostFilter.createTimeEnd != null and remoteHostFilter.createTimeEnd != ''">
+                AND sdt_remote_host.create_time &lt;= #{remoteHostFilter.createTimeEnd}
+            </if>
+            <if test="remoteHostFilter.createUserId != null">
+                AND sdt_remote_host.create_user_id = #{remoteHostFilter.createUserId}
+            </if>
+            <if test="remoteHostFilter.updateTimeStart != null and remoteHostFilter.updateTimeStart != ''">
+                AND sdt_remote_host.update_time &gt;= #{remoteHostFilter.updateTimeStart}
+            </if>
+            <if test="remoteHostFilter.updateTimeEnd != null and remoteHostFilter.updateTimeEnd != ''">
+                AND sdt_remote_host.update_time &lt;= #{remoteHostFilter.updateTimeEnd}
+            </if>
+            <if test="remoteHostFilter.updateUserId != null">
+                AND sdt_remote_host.update_user_id = #{remoteHostFilter.updateUserId}
+            </if>
+            <if test="remoteHostFilter.dataUserId != null">
+                AND sdt_remote_host.data_user_id = #{remoteHostFilter.dataUserId}
+            </if>
+            <if test="remoteHostFilter.dataDeptId != null">
+                AND sdt_remote_host.data_dept_id = #{remoteHostFilter.dataDeptId}
+            </if>
+            <if test="remoteHostFilter.projectId != null">
+                AND sdt_remote_host.project_id = #{remoteHostFilter.projectId}
+            </if>
+            <if test="remoteHostFilter.searchString != null and remoteHostFilter.searchString != ''">
+                <bind name = "safeRemoteHostSearchString" value = "'%' + remoteHostFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_remote_host.show_name,''), IFNULL(sdt_remote_host.login_name,'')) LIKE #{safeRemoteHostSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getRemoteHostList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.RemoteHost">
+        SELECT * FROM sdt_remote_host
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.BaseBusinessFileMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.BaseBusinessFile">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="bind_id" jdbcType="BIGINT" property="bindId"/>
+        <result column="bind_str_id" jdbcType="VARCHAR" property="bindStrId"/>
+        <result column="bind_type" jdbcType="VARCHAR" property="bindType"/>
+        <result column="file_name" jdbcType="VARCHAR" property="fileName"/>
+        <result column="file_json" jdbcType="VARCHAR" property="fileJson"/>
+        <result column="file_size" jdbcType="BIGINT" property="fileSize"/>
+        <result column="file_type" jdbcType="VARCHAR" property="fileType"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_base_business_file
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            bind_id,
+            bind_str_id,
+            bind_type,
+            file_name,
+            file_json,
+            file_size,
+            file_type)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.bindId},
+            #{item.bindStrId},
+            #{item.bindType},
+            #{item.fileName},
+            #{item.fileJson},
+            #{item.fileSize},
+            #{item.fileType})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.BaseBusinessFileMapper.inputFilterRef"/>
+        AND sdt_base_business_file.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="baseBusinessFileFilter != null">
+            <if test="baseBusinessFileFilter.id != null">
+                AND sdt_base_business_file.id = #{baseBusinessFileFilter.id}
+            </if>
+            <if test="baseBusinessFileFilter.updateTimeStart != null and baseBusinessFileFilter.updateTimeStart != ''">
+                AND sdt_base_business_file.update_time &gt;= #{baseBusinessFileFilter.updateTimeStart}
+            </if>
+            <if test="baseBusinessFileFilter.updateTimeEnd != null and baseBusinessFileFilter.updateTimeEnd != ''">
+                AND sdt_base_business_file.update_time &lt;= #{baseBusinessFileFilter.updateTimeEnd}
+            </if>
+            <if test="baseBusinessFileFilter.createTimeStart != null and baseBusinessFileFilter.createTimeStart != ''">
+                AND sdt_base_business_file.create_time &gt;= #{baseBusinessFileFilter.createTimeStart}
+            </if>
+            <if test="baseBusinessFileFilter.createTimeEnd != null and baseBusinessFileFilter.createTimeEnd != ''">
+                AND sdt_base_business_file.create_time &lt;= #{baseBusinessFileFilter.createTimeEnd}
+            </if>
+            <if test="baseBusinessFileFilter.createUserId != null">
+                AND sdt_base_business_file.create_user_id = #{baseBusinessFileFilter.createUserId}
+            </if>
+            <if test="baseBusinessFileFilter.updateUserId != null">
+                AND sdt_base_business_file.update_user_id = #{baseBusinessFileFilter.updateUserId}
+            </if>
+            <if test="baseBusinessFileFilter.dataUserId != null">
+                AND sdt_base_business_file.data_user_id = #{baseBusinessFileFilter.dataUserId}
+            </if>
+            <if test="baseBusinessFileFilter.dataDeptId != null">
+                AND sdt_base_business_file.data_dept_id = #{baseBusinessFileFilter.dataDeptId}
+            </if>
+            <if test="baseBusinessFileFilter.bindId != null">
+                AND sdt_base_business_file.bind_id = #{baseBusinessFileFilter.bindId}
+            </if>
+            <if test="baseBusinessFileFilter.bindStrId != null and baseBusinessFileFilter.bindStrId != ''">
+                AND sdt_base_business_file.bind_str_id = #{baseBusinessFileFilter.bindStrId}
+            </if>
+            <if test="baseBusinessFileFilter.bindType != null and baseBusinessFileFilter.bindType != ''">
+                AND sdt_base_business_file.bind_type = #{baseBusinessFileFilter.bindType}
+            </if>
+            <if test="baseBusinessFileFilter.fileName != null and baseBusinessFileFilter.fileName != ''">
+                <bind name = "safeBaseBusinessFileFileName" value = "'%' + baseBusinessFileFilter.fileName + '%'" />
+                AND sdt_base_business_file.file_name LIKE #{safeBaseBusinessFileFileName}
+            </if>
+            <if test="baseBusinessFileFilter.fileJson != null and baseBusinessFileFilter.fileJson != ''">
+                <bind name = "safeBaseBusinessFileFileJson" value = "'%' + baseBusinessFileFilter.fileJson + '%'" />
+                AND sdt_base_business_file.file_json LIKE #{safeBaseBusinessFileFileJson}
+            </if>
+            <if test="baseBusinessFileFilter.fileSizeStart != null">
+                AND sdt_base_business_file.file_size &gt;= #{baseBusinessFileFilter.fileSizeStart}
+            </if>
+            <if test="baseBusinessFileFilter.fileSizeEnd != null">
+                AND sdt_base_business_file.file_size &lt;= #{baseBusinessFileFilter.fileSizeEnd}
+            </if>
+            <if test="baseBusinessFileFilter.fileType != null and baseBusinessFileFilter.fileType != ''">
+                <bind name = "safeBaseBusinessFileFileType" value = "'%' + baseBusinessFileFilter.fileType + '%'" />
+                AND sdt_base_business_file.file_type LIKE #{safeBaseBusinessFileFileType}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedBaseBusinessFileList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.BaseBusinessFile">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_base_business_file
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_base_business_file
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getBaseBusinessFileList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.BaseBusinessFile">
+        SELECT * FROM sdt_base_business_file
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

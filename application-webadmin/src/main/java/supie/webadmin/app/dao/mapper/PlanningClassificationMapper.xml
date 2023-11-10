@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.PlanningClassificationMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.PlanningClassification">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+        <result column="classification_name" jdbcType="VARCHAR" property="classificationName"/>
+        <result column="classification_code" jdbcType="VARCHAR" property="classificationCode"/>
+        <result column="classification_status" jdbcType="VARCHAR" property="classificationStatus"/>
+        <result column="classification_description" jdbcType="VARCHAR" property="classificationDescription"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_planning_classification
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            project_id,
+            classification_name,
+            classification_code,
+            classification_status,
+            classification_description)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.projectId},
+            #{item.classificationName},
+            #{item.classificationCode},
+            #{item.classificationStatus},
+            #{item.classificationDescription})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.PlanningClassificationMapper.inputFilterRef"/>
+        AND sdt_planning_classification.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="planningClassificationFilter != null">
+            <if test="planningClassificationFilter.id != null">
+                AND sdt_planning_classification.id = #{planningClassificationFilter.id}
+            </if>
+            <if test="planningClassificationFilter.updateTimeStart != null and planningClassificationFilter.updateTimeStart != ''">
+                AND sdt_planning_classification.update_time &gt;= #{planningClassificationFilter.updateTimeStart}
+            </if>
+            <if test="planningClassificationFilter.updateTimeEnd != null and planningClassificationFilter.updateTimeEnd != ''">
+                AND sdt_planning_classification.update_time &lt;= #{planningClassificationFilter.updateTimeEnd}
+            </if>
+            <if test="planningClassificationFilter.createTimeStart != null and planningClassificationFilter.createTimeStart != ''">
+                AND sdt_planning_classification.create_time &gt;= #{planningClassificationFilter.createTimeStart}
+            </if>
+            <if test="planningClassificationFilter.createTimeEnd != null and planningClassificationFilter.createTimeEnd != ''">
+                AND sdt_planning_classification.create_time &lt;= #{planningClassificationFilter.createTimeEnd}
+            </if>
+            <if test="planningClassificationFilter.createUserId != null">
+                AND sdt_planning_classification.create_user_id = #{planningClassificationFilter.createUserId}
+            </if>
+            <if test="planningClassificationFilter.updateUserId != null">
+                AND sdt_planning_classification.update_user_id = #{planningClassificationFilter.updateUserId}
+            </if>
+            <if test="planningClassificationFilter.dataUserId != null">
+                AND sdt_planning_classification.data_user_id = #{planningClassificationFilter.dataUserId}
+            </if>
+            <if test="planningClassificationFilter.dataDeptId != null">
+                AND sdt_planning_classification.data_dept_id = #{planningClassificationFilter.dataDeptId}
+            </if>
+            <if test="planningClassificationFilter.projectId != null">
+                AND sdt_planning_classification.project_id = #{planningClassificationFilter.projectId}
+            </if>
+            <if test="planningClassificationFilter.classificationName != null and planningClassificationFilter.classificationName != ''">
+                <bind name = "safePlanningClassificationClassificationName" value = "'%' + planningClassificationFilter.classificationName + '%'" />
+                AND sdt_planning_classification.classification_name LIKE #{safePlanningClassificationClassificationName}
+            </if>
+            <if test="planningClassificationFilter.classificationCode != null and planningClassificationFilter.classificationCode != ''">
+                <bind name = "safePlanningClassificationClassificationCode" value = "'%' + planningClassificationFilter.classificationCode + '%'" />
+                AND sdt_planning_classification.classification_code LIKE #{safePlanningClassificationClassificationCode}
+            </if>
+            <if test="planningClassificationFilter.classificationStatus != null and planningClassificationFilter.classificationStatus != ''">
+                <bind name = "safePlanningClassificationClassificationStatus" value = "'%' + planningClassificationFilter.classificationStatus + '%'" />
+                AND sdt_planning_classification.classification_status LIKE #{safePlanningClassificationClassificationStatus}
+            </if>
+            <if test="planningClassificationFilter.classificationDescription != null and planningClassificationFilter.classificationDescription != ''">
+                <bind name = "safePlanningClassificationClassificationDescription" value = "'%' + planningClassificationFilter.classificationDescription + '%'" />
+                AND sdt_planning_classification.classification_description LIKE #{safePlanningClassificationClassificationDescription}
+            </if>
+            <if test="planningClassificationFilter.searchString != null and planningClassificationFilter.searchString != ''">
+                <bind name = "safePlanningClassificationSearchString" value = "'%' + planningClassificationFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_planning_classification.classification_name,''), IFNULL(sdt_planning_classification.classification_code,''), IFNULL(sdt_planning_classification.classification_status,''), IFNULL(sdt_planning_classification.classification_description,'')) LIKE #{safePlanningClassificationSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedPlanningClassificationList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.PlanningClassification">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_planning_classification
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_planning_classification
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getPlanningClassificationList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.PlanningClassification">
+        SELECT * FROM sdt_planning_classification
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

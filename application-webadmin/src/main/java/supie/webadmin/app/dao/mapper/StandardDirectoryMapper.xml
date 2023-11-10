@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.StandardDirectoryMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.StandardDirectory">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+        <result column="directory_name" jdbcType="VARCHAR" property="directoryName"/>
+        <result column="directory_code" jdbcType="VARCHAR" property="directoryCode"/>
+        <result column="directory_parent_id" jdbcType="BIGINT" property="directoryParentId"/>
+        <result column="directory_type" jdbcType="VARCHAR" property="directoryType"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_standard_directory
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            project_id,
+            directory_name,
+            directory_code,
+            directory_parent_id,
+            directory_type)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.projectId},
+            #{item.directoryName},
+            #{item.directoryCode},
+            #{item.directoryParentId},
+            #{item.directoryType})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.StandardDirectoryMapper.inputFilterRef"/>
+        AND sdt_standard_directory.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="standardDirectoryFilter != null">
+            <if test="standardDirectoryFilter.id != null">
+                AND sdt_standard_directory.id = #{standardDirectoryFilter.id}
+            </if>
+            <if test="standardDirectoryFilter.updateTimeStart != null and standardDirectoryFilter.updateTimeStart != ''">
+                AND sdt_standard_directory.update_time &gt;= #{standardDirectoryFilter.updateTimeStart}
+            </if>
+            <if test="standardDirectoryFilter.updateTimeEnd != null and standardDirectoryFilter.updateTimeEnd != ''">
+                AND sdt_standard_directory.update_time &lt;= #{standardDirectoryFilter.updateTimeEnd}
+            </if>
+            <if test="standardDirectoryFilter.createTimeStart != null and standardDirectoryFilter.createTimeStart != ''">
+                AND sdt_standard_directory.create_time &gt;= #{standardDirectoryFilter.createTimeStart}
+            </if>
+            <if test="standardDirectoryFilter.createTimeEnd != null and standardDirectoryFilter.createTimeEnd != ''">
+                AND sdt_standard_directory.create_time &lt;= #{standardDirectoryFilter.createTimeEnd}
+            </if>
+            <if test="standardDirectoryFilter.createUserId != null">
+                AND sdt_standard_directory.create_user_id = #{standardDirectoryFilter.createUserId}
+            </if>
+            <if test="standardDirectoryFilter.updateUserId != null">
+                AND sdt_standard_directory.update_user_id = #{standardDirectoryFilter.updateUserId}
+            </if>
+            <if test="standardDirectoryFilter.dataUserId != null">
+                AND sdt_standard_directory.data_user_id = #{standardDirectoryFilter.dataUserId}
+            </if>
+            <if test="standardDirectoryFilter.dataDeptId != null">
+                AND sdt_standard_directory.data_dept_id = #{standardDirectoryFilter.dataDeptId}
+            </if>
+            <if test="standardDirectoryFilter.projectId != null">
+                AND sdt_standard_directory.project_id = #{standardDirectoryFilter.projectId}
+            </if>
+            <if test="standardDirectoryFilter.directoryName != null and standardDirectoryFilter.directoryName != ''">
+                <bind name = "safeStandardDirectoryDirectoryName" value = "'%' + standardDirectoryFilter.directoryName + '%'" />
+                AND sdt_standard_directory.directory_name LIKE #{safeStandardDirectoryDirectoryName}
+            </if>
+            <if test="standardDirectoryFilter.directoryCode != null and standardDirectoryFilter.directoryCode != ''">
+                <bind name = "safeStandardDirectoryDirectoryCode" value = "'%' + standardDirectoryFilter.directoryCode + '%'" />
+                AND sdt_standard_directory.directory_code LIKE #{safeStandardDirectoryDirectoryCode}
+            </if>
+            <if test="standardDirectoryFilter.directoryParentId != null">
+                AND sdt_standard_directory.directory_parent_id = #{standardDirectoryFilter.directoryParentId}
+            </if>
+            <if test="standardDirectoryFilter.directoryType != null and standardDirectoryFilter.directoryType != ''">
+                <bind name = "safeStandardDirectoryDirectoryType" value = "'%' + standardDirectoryFilter.directoryType + '%'" />
+                AND sdt_standard_directory.directory_type LIKE #{safeStandardDirectoryDirectoryType}
+            </if>
+            <if test="standardDirectoryFilter.searchString != null and standardDirectoryFilter.searchString != ''">
+                <bind name = "safeStandardDirectorySearchString" value = "'%' + standardDirectoryFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_standard_directory.directory_name,''), IFNULL(sdt_standard_directory.directory_code,''), IFNULL(sdt_standard_directory.directory_type,'')) LIKE #{safeStandardDirectorySearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedStandardDirectoryList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.StandardDirectory">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_standard_directory
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_standard_directory
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getStandardDirectoryList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.StandardDirectory">
+        SELECT * FROM sdt_standard_directory
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.ModelPhysicsScriptMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.ModelPhysicsScript">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+        <result column="model_id" jdbcType="BIGINT" property="modelId"/>
+        <result column="model_physics_database" jdbcType="LONGVARCHAR" property="modelPhysicsDatabase"/>
+        <result column="model_physics_table" jdbcType="LONGVARCHAR" property="modelPhysicsTable"/>
+        <result column="model_physics_table_name" jdbcType="VARCHAR" property="modelPhysicsTableName"/>
+        <result column="model_physics_datasource_id" jdbcType="VARCHAR" property="modelPhysicsDatasourceId"/>
+        <result column="model_physics_description" jdbcType="LONGVARCHAR" property="modelPhysicsDescription"/>
+        <result column="model_physics_state" jdbcType="INTEGER" property="modelPhysicsState"/>
+        <result column="model_physics_premise" jdbcType="VARCHAR" property="modelPhysicsPremise"/>
+        <result column="model_physics_header_id" jdbcType="BIGINT" property="modelPhysicsHeaderId"/>
+        <result column="show_order" jdbcType="INTEGER" property="showOrder"/>
+        <result column="planning_warehouse_layer_id" jdbcType="BIGINT" property="planningWarehouseLayerId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_model_physics_script
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            project_id,
+            model_id,
+            model_physics_database,
+            model_physics_table,
+            model_physics_table_name,
+            model_physics_datasource_id,
+            model_physics_description,
+            model_physics_state,
+            model_physics_premise,
+            model_physics_header_id,
+            show_order,
+            planning_warehouse_layer_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.projectId},
+            #{item.modelId},
+            #{item.modelPhysicsDatabase},
+            #{item.modelPhysicsTable},
+            #{item.modelPhysicsTableName},
+            #{item.modelPhysicsDatasourceId},
+            #{item.modelPhysicsDescription},
+            #{item.modelPhysicsState},
+            #{item.modelPhysicsPremise},
+            #{item.modelPhysicsHeaderId},
+            #{item.showOrder},
+            #{item.planningWarehouseLayerId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.ModelPhysicsScriptMapper.inputFilterRef"/>
+        AND sdt_model_physics_script.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="modelPhysicsScriptFilter != null">
+            <if test="modelPhysicsScriptFilter.id != null">
+                AND sdt_model_physics_script.id = #{modelPhysicsScriptFilter.id}
+            </if>
+            <if test="modelPhysicsScriptFilter.updateTimeStart != null and modelPhysicsScriptFilter.updateTimeStart != ''">
+                AND sdt_model_physics_script.update_time &gt;= #{modelPhysicsScriptFilter.updateTimeStart}
+            </if>
+            <if test="modelPhysicsScriptFilter.updateTimeEnd != null and modelPhysicsScriptFilter.updateTimeEnd != ''">
+                AND sdt_model_physics_script.update_time &lt;= #{modelPhysicsScriptFilter.updateTimeEnd}
+            </if>
+            <if test="modelPhysicsScriptFilter.createTimeStart != null and modelPhysicsScriptFilter.createTimeStart != ''">
+                AND sdt_model_physics_script.create_time &gt;= #{modelPhysicsScriptFilter.createTimeStart}
+            </if>
+            <if test="modelPhysicsScriptFilter.createTimeEnd != null and modelPhysicsScriptFilter.createTimeEnd != ''">
+                AND sdt_model_physics_script.create_time &lt;= #{modelPhysicsScriptFilter.createTimeEnd}
+            </if>
+            <if test="modelPhysicsScriptFilter.createUserId != null">
+                AND sdt_model_physics_script.create_user_id = #{modelPhysicsScriptFilter.createUserId}
+            </if>
+            <if test="modelPhysicsScriptFilter.updateUserId != null">
+                AND sdt_model_physics_script.update_user_id = #{modelPhysicsScriptFilter.updateUserId}
+            </if>
+            <if test="modelPhysicsScriptFilter.dataUserId != null">
+                AND sdt_model_physics_script.data_user_id = #{modelPhysicsScriptFilter.dataUserId}
+            </if>
+            <if test="modelPhysicsScriptFilter.dataDeptId != null">
+                AND sdt_model_physics_script.data_dept_id = #{modelPhysicsScriptFilter.dataDeptId}
+            </if>
+            <if test="modelPhysicsScriptFilter.projectId != null">
+                AND sdt_model_physics_script.project_id = #{modelPhysicsScriptFilter.projectId}
+            </if>
+            <if test="modelPhysicsScriptFilter.modelId != null">
+                AND sdt_model_physics_script.model_id = #{modelPhysicsScriptFilter.modelId}
+            </if>
+            <if test="modelPhysicsScriptFilter.modelPhysicsDatabase != null and modelPhysicsScriptFilter.modelPhysicsDatabase != ''">
+                <bind name = "safeModelPhysicsScriptModelPhysicsDatabase" value = "'%' + modelPhysicsScriptFilter.modelPhysicsDatabase + '%'" />
+                AND sdt_model_physics_script.model_physics_database LIKE #{safeModelPhysicsScriptModelPhysicsDatabase}
+            </if>
+            <if test="modelPhysicsScriptFilter.modelPhysicsTable != null and modelPhysicsScriptFilter.modelPhysicsTable != ''">
+                <bind name = "safeModelPhysicsScriptModelPhysicsTable" value = "'%' + modelPhysicsScriptFilter.modelPhysicsTable + '%'" />
+                AND sdt_model_physics_script.model_physics_table LIKE #{safeModelPhysicsScriptModelPhysicsTable}
+            </if>
+            <if test="modelPhysicsScriptFilter.modelPhysicsDatasourceId != null and modelPhysicsScriptFilter.modelPhysicsDatasourceId != ''">
+                <bind name = "safeModelPhysicsScriptModelPhysicsDatasourceId" value = "'%' + modelPhysicsScriptFilter.modelPhysicsDatasourceId + '%'" />
+                AND sdt_model_physics_script.model_physics_datasource_id LIKE #{safeModelPhysicsScriptModelPhysicsDatasourceId}
+            </if>
+            <if test="modelPhysicsScriptFilter.modelPhysicsDescription != null and modelPhysicsScriptFilter.modelPhysicsDescription != ''">
+                <bind name = "safeModelPhysicsScriptModelPhysicsDescription" value = "'%' + modelPhysicsScriptFilter.modelPhysicsDescription + '%'" />
+                AND sdt_model_physics_script.model_physics_description LIKE #{safeModelPhysicsScriptModelPhysicsDescription}
+            </if>
+            <if test="modelPhysicsScriptFilter.modelPhysicsState != null">
+                AND sdt_model_physics_script.model_physics_state = #{modelPhysicsScriptFilter.modelPhysicsState}
+            </if>
+            <if test="modelPhysicsScriptFilter.modelPhysicsPremise != null and modelPhysicsScriptFilter.modelPhysicsPremise != ''">
+                AND sdt_model_physics_script.model_physics_premise = #{modelPhysicsScriptFilter.modelPhysicsPremise}
+            </if>
+            <if test="modelPhysicsScriptFilter.modelPhysicsHeaderId != null">
+                AND sdt_model_physics_script.model_physics_header_id = #{modelPhysicsScriptFilter.modelPhysicsHeaderId}
+            </if>
+            <if test="modelPhysicsScriptFilter.showOrder != null">
+                AND sdt_model_physics_script.show_order = #{modelPhysicsScriptFilter.showOrder}
+            </if>
+            <if test="modelPhysicsScriptFilter.planningWarehouseLayerId != null">
+                AND sdt_model_physics_script.planning_warehouse_layer_id = #{modelPhysicsScriptFilter.planningWarehouseLayerId}
+            </if>
+            <if test="modelPhysicsScriptFilter.searchString != null and modelPhysicsScriptFilter.searchString != ''">
+                <bind name = "safeModelPhysicsScriptSearchString" value = "'%' + modelPhysicsScriptFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_model_physics_script.model_physics_database,''), IFNULL(sdt_model_physics_script.model_physics_table,''), IFNULL(sdt_model_physics_script.model_physics_description,''), IFNULL(sdt_model_physics_script.model_physics_premise,'')) LIKE #{safeModelPhysicsScriptSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedModelPhysicsScriptList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ModelPhysicsScript">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_model_physics_script
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_model_physics_script
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getModelPhysicsScriptList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ModelPhysicsScript">
+        SELECT * FROM sdt_model_physics_script
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

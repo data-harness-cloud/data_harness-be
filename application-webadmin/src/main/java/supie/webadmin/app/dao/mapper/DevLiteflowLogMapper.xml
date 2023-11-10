@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.DevLiteflowLogMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.DevLiteflowLog">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="ruler_id" jdbcType="BIGINT" property="rulerId"/>
+        <result column="run_version" jdbcType="INTEGER" property="runVersion"/>
+        <result column="run_time" jdbcType="TIMESTAMP" property="runTime"/>
+        <result column="run_result" jdbcType="VARCHAR" property="runResult"/>
+        <result column="run_result_msg" jdbcType="VARCHAR" property="runResultMsg"/>
+        <result column="log_file_name" jdbcType="VARCHAR" property="logFileName"/>
+        <result column="log_file_json" jdbcType="VARCHAR" property="logFileJson"/>
+        <result column="log_file_size" jdbcType="BIGINT" property="logFileSize"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="scheduling_tasks_id" jdbcType="BIGINT" property="schedulingTasksId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_dev_liteflow_log
+            (id,
+            ruler_id,
+            run_version,
+            run_time,
+            run_result,
+            run_result_msg,
+            log_file_name,
+            log_file_json,
+            log_file_size,
+            is_delete,
+            create_time,
+            create_user_id,
+            update_time,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            scheduling_tasks_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.rulerId},
+            #{item.runVersion},
+            #{item.runTime},
+            #{item.runResult},
+            #{item.runResultMsg},
+            #{item.logFileName},
+            #{item.logFileJson},
+            #{item.logFileSize},
+            #{item.isDelete},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateTime},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.schedulingTasksId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.DevLiteflowLogMapper.inputFilterRef"/>
+        AND sdt_dev_liteflow_log.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="devLiteflowLogFilter != null">
+            <if test="devLiteflowLogFilter.id != null">
+                AND sdt_dev_liteflow_log.id = #{devLiteflowLogFilter.id}
+            </if>
+            <if test="devLiteflowLogFilter.rulerId != null">
+                AND sdt_dev_liteflow_log.ruler_id = #{devLiteflowLogFilter.rulerId}
+            </if>
+            <if test="devLiteflowLogFilter.runVersion != null">
+                AND sdt_dev_liteflow_log.run_version = #{devLiteflowLogFilter.runVersion}
+            </if>
+            <if test="devLiteflowLogFilter.runTimeStart != null and devLiteflowLogFilter.runTimeStart != ''">
+                AND sdt_dev_liteflow_log.run_time &gt;= #{devLiteflowLogFilter.runTimeStart}
+            </if>
+            <if test="devLiteflowLogFilter.runTimeEnd != null and devLiteflowLogFilter.runTimeEnd != ''">
+                AND sdt_dev_liteflow_log.run_time &lt;= #{devLiteflowLogFilter.runTimeEnd}
+            </if>
+            <if test="devLiteflowLogFilter.runResult != null and devLiteflowLogFilter.runResult != ''">
+                <bind name = "safeDevLiteflowLogRunResult" value = "'%' + devLiteflowLogFilter.runResult + '%'" />
+                AND sdt_dev_liteflow_log.run_result LIKE #{safeDevLiteflowLogRunResult}
+            </if>
+            <if test="devLiteflowLogFilter.runResultMsg != null and devLiteflowLogFilter.runResultMsg != ''">
+                <bind name = "safeDevLiteflowLogRunResultMsg" value = "'%' + devLiteflowLogFilter.runResultMsg + '%'" />
+                AND sdt_dev_liteflow_log.run_result_msg LIKE #{safeDevLiteflowLogRunResultMsg}
+            </if>
+            <if test="devLiteflowLogFilter.logFileName != null and devLiteflowLogFilter.logFileName != ''">
+                <bind name = "safeDevLiteflowLogLogFileName" value = "'%' + devLiteflowLogFilter.logFileName + '%'" />
+                AND sdt_dev_liteflow_log.log_file_name LIKE #{safeDevLiteflowLogLogFileName}
+            </if>
+            <if test="devLiteflowLogFilter.logFileSizeStart != null">
+                AND sdt_dev_liteflow_log.log_file_size &gt;= #{devLiteflowLogFilter.logFileSizeStart}
+            </if>
+            <if test="devLiteflowLogFilter.logFileSizeEnd != null">
+                AND sdt_dev_liteflow_log.log_file_size &lt;= #{devLiteflowLogFilter.logFileSizeEnd}
+            </if>
+            <if test="devLiteflowLogFilter.createTimeStart != null and devLiteflowLogFilter.createTimeStart != ''">
+                AND sdt_dev_liteflow_log.create_time &gt;= #{devLiteflowLogFilter.createTimeStart}
+            </if>
+            <if test="devLiteflowLogFilter.createTimeEnd != null and devLiteflowLogFilter.createTimeEnd != ''">
+                AND sdt_dev_liteflow_log.create_time &lt;= #{devLiteflowLogFilter.createTimeEnd}
+            </if>
+            <if test="devLiteflowLogFilter.createUserId != null">
+                AND sdt_dev_liteflow_log.create_user_id = #{devLiteflowLogFilter.createUserId}
+            </if>
+            <if test="devLiteflowLogFilter.updateTimeStart != null and devLiteflowLogFilter.updateTimeStart != ''">
+                AND sdt_dev_liteflow_log.update_time &gt;= #{devLiteflowLogFilter.updateTimeStart}
+            </if>
+            <if test="devLiteflowLogFilter.updateTimeEnd != null and devLiteflowLogFilter.updateTimeEnd != ''">
+                AND sdt_dev_liteflow_log.update_time &lt;= #{devLiteflowLogFilter.updateTimeEnd}
+            </if>
+            <if test="devLiteflowLogFilter.updateUserId != null">
+                AND sdt_dev_liteflow_log.update_user_id = #{devLiteflowLogFilter.updateUserId}
+            </if>
+            <if test="devLiteflowLogFilter.dataUserId != null">
+                AND sdt_dev_liteflow_log.data_user_id = #{devLiteflowLogFilter.dataUserId}
+            </if>
+            <if test="devLiteflowLogFilter.dataDeptId != null">
+                AND sdt_dev_liteflow_log.data_dept_id = #{devLiteflowLogFilter.dataDeptId}
+            </if>
+            <if test="devLiteflowLogFilter.schedulingTasksId != null">
+                AND sdt_dev_liteflow_log.scheduling_tasks_id = #{devLiteflowLogFilter.schedulingTasksId}
+            </if>
+            <if test="devLiteflowLogFilter.searchString != null and devLiteflowLogFilter.searchString != ''">
+                <bind name = "safeDevLiteflowLogSearchString" value = "'%' + devLiteflowLogFilter.searchString + '%'" />
+                AND IFNULL(sdt_dev_liteflow_log.log_file_name,'') LIKE #{safeDevLiteflowLogSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getDevLiteflowLogList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DevLiteflowLog">
+        SELECT * FROM sdt_dev_liteflow_log
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.ProjectEngineMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.ProjectEngine">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="engine_name" jdbcType="VARCHAR" property="engineName"/>
+        <result column="engine_type" jdbcType="VARCHAR" property="engineType"/>
+        <result column="engine_host" jdbcType="VARCHAR" property="engineHost"/>
+        <result column="engine_port" jdbcType="VARCHAR" property="enginePort"/>
+        <result column="engine_username" jdbcType="VARCHAR" property="engineUsername"/>
+        <result column="engine_password" jdbcType="VARCHAR" property="enginePassword"/>
+        <result column="engine_path" jdbcType="VARCHAR" property="enginePath"/>
+        <result column="engine_config" jdbcType="VARCHAR" property="engineConfig"/>
+        <result column="engine_status" jdbcType="VARCHAR" property="engineStatus"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_project_engine
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            engine_name,
+            engine_type,
+            engine_host,
+            engine_port,
+            engine_username,
+            engine_password,
+            engine_path,
+            engine_config,
+            engine_status)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.engineName},
+            #{item.engineType},
+            #{item.engineHost},
+            #{item.enginePort},
+            #{item.engineUsername},
+            #{item.enginePassword},
+            #{item.enginePath},
+            #{item.engineConfig},
+            #{item.engineStatus})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.ProjectEngineMapper.inputFilterRef"/>
+        AND sdt_project_engine.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="projectEngineFilter != null">
+            <if test="projectEngineFilter.id != null">
+                AND sdt_project_engine.id = #{projectEngineFilter.id}
+            </if>
+            <if test="projectEngineFilter.updateTimeStart != null and projectEngineFilter.updateTimeStart != ''">
+                AND sdt_project_engine.update_time &gt;= #{projectEngineFilter.updateTimeStart}
+            </if>
+            <if test="projectEngineFilter.updateTimeEnd != null and projectEngineFilter.updateTimeEnd != ''">
+                AND sdt_project_engine.update_time &lt;= #{projectEngineFilter.updateTimeEnd}
+            </if>
+            <if test="projectEngineFilter.createTimeStart != null and projectEngineFilter.createTimeStart != ''">
+                AND sdt_project_engine.create_time &gt;= #{projectEngineFilter.createTimeStart}
+            </if>
+            <if test="projectEngineFilter.createTimeEnd != null and projectEngineFilter.createTimeEnd != ''">
+                AND sdt_project_engine.create_time &lt;= #{projectEngineFilter.createTimeEnd}
+            </if>
+            <if test="projectEngineFilter.createUserId != null">
+                AND sdt_project_engine.create_user_id = #{projectEngineFilter.createUserId}
+            </if>
+            <if test="projectEngineFilter.updateUserId != null">
+                AND sdt_project_engine.update_user_id = #{projectEngineFilter.updateUserId}
+            </if>
+            <if test="projectEngineFilter.dataUserId != null">
+                AND sdt_project_engine.data_user_id = #{projectEngineFilter.dataUserId}
+            </if>
+            <if test="projectEngineFilter.dataDeptId != null">
+                AND sdt_project_engine.data_dept_id = #{projectEngineFilter.dataDeptId}
+            </if>
+            <if test="projectEngineFilter.engineName != null and projectEngineFilter.engineName != ''">
+                <bind name = "safeProjectEngineEngineName" value = "'%' + projectEngineFilter.engineName + '%'" />
+                AND sdt_project_engine.engine_name LIKE #{safeProjectEngineEngineName}
+            </if>
+            <if test="projectEngineFilter.engineType != null and projectEngineFilter.engineType != ''">
+                <bind name = "safeProjectEngineEngineType" value = "'%' + projectEngineFilter.engineType + '%'" />
+                AND sdt_project_engine.engine_type LIKE #{safeProjectEngineEngineType}
+            </if>
+            <if test="projectEngineFilter.engineHost != null and projectEngineFilter.engineHost != ''">
+                <bind name = "safeProjectEngineEngineHost" value = "'%' + projectEngineFilter.engineHost + '%'" />
+                AND sdt_project_engine.engine_host LIKE #{safeProjectEngineEngineHost}
+            </if>
+            <if test="projectEngineFilter.enginePort != null and projectEngineFilter.enginePort != ''">
+                <bind name = "safeProjectEngineEnginePort" value = "'%' + projectEngineFilter.enginePort + '%'" />
+                AND sdt_project_engine.engine_port LIKE #{safeProjectEngineEnginePort}
+            </if>
+            <if test="projectEngineFilter.engineUsername != null and projectEngineFilter.engineUsername != ''">
+                <bind name = "safeProjectEngineEngineUsername" value = "'%' + projectEngineFilter.engineUsername + '%'" />
+                AND sdt_project_engine.engine_username LIKE #{safeProjectEngineEngineUsername}
+            </if>
+            <if test="projectEngineFilter.engineStatus != null and projectEngineFilter.engineStatus != ''">
+                AND sdt_project_engine.engine_status = #{projectEngineFilter.engineStatus}
+            </if>
+            <if test="projectEngineFilter.searchString != null and projectEngineFilter.searchString != ''">
+                <bind name = "safeProjectEngineSearchString" value = "'%' + projectEngineFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_project_engine.engine_name,''), IFNULL(sdt_project_engine.engine_type,''), IFNULL(sdt_project_engine.engine_username,'')) LIKE #{safeProjectEngineSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedProjectEngineList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ProjectEngine">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_project_engine
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_project_engine
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getProjectEngineList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ProjectEngine">
+        SELECT * FROM sdt_project_engine
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

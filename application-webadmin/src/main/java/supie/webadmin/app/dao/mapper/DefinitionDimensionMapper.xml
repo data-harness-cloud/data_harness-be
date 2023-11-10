@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.DefinitionDimensionMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.DefinitionDimension">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+        <result column="process_id" jdbcType="BIGINT" property="processId"/>
+        <result column="dimension_type" jdbcType="VARCHAR" property="dimensionType"/>
+        <result column="dimension_name" jdbcType="VARCHAR" property="dimensionName"/>
+        <result column="dimension_en_name" jdbcType="VARCHAR" property="dimensionEnName"/>
+        <result column="dimension_code" jdbcType="VARCHAR" property="dimensionCode"/>
+        <result column="dimension_describe" jdbcType="VARCHAR" property="dimensionDescribe"/>
+        <result column="dimension_directory_id" jdbcType="BIGINT" property="dimensionDirectoryId"/>
+        <result column="is_auto_create_table" jdbcType="VARCHAR" property="isAutoCreateTable"/>
+        <result column="dimension_period_type" jdbcType="VARCHAR" property="dimensionPeriodType"/>
+        <result column="dimension_period_start_date" jdbcType="TIMESTAMP" property="dimensionPeriodStartDate"/>
+        <result column="dimension_period_end_date" jdbcType="TIMESTAMP" property="dimensionPeriodEndDate"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_definition_dimension
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            project_id,
+            process_id,
+            dimension_type,
+            dimension_name,
+            dimension_en_name,
+            dimension_code,
+            dimension_describe,
+            dimension_directory_id,
+            is_auto_create_table,
+            dimension_period_type,
+            dimension_period_start_date,
+            dimension_period_end_date)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.projectId},
+            #{item.processId},
+            #{item.dimensionType},
+            #{item.dimensionName},
+            #{item.dimensionEnName},
+            #{item.dimensionCode},
+            #{item.dimensionDescribe},
+            #{item.dimensionDirectoryId},
+            #{item.isAutoCreateTable},
+            #{item.dimensionPeriodType},
+            #{item.dimensionPeriodStartDate},
+            #{item.dimensionPeriodEndDate})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.DefinitionDimensionMapper.inputFilterRef"/>
+        AND sdt_definition_dimension.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="definitionDimensionFilter != null">
+            <if test="definitionDimensionFilter.id != null">
+                AND sdt_definition_dimension.id = #{definitionDimensionFilter.id}
+            </if>
+            <if test="definitionDimensionFilter.updateTimeStart != null and definitionDimensionFilter.updateTimeStart != ''">
+                AND sdt_definition_dimension.update_time &gt;= #{definitionDimensionFilter.updateTimeStart}
+            </if>
+            <if test="definitionDimensionFilter.updateTimeEnd != null and definitionDimensionFilter.updateTimeEnd != ''">
+                AND sdt_definition_dimension.update_time &lt;= #{definitionDimensionFilter.updateTimeEnd}
+            </if>
+            <if test="definitionDimensionFilter.createTimeStart != null and definitionDimensionFilter.createTimeStart != ''">
+                AND sdt_definition_dimension.create_time &gt;= #{definitionDimensionFilter.createTimeStart}
+            </if>
+            <if test="definitionDimensionFilter.createTimeEnd != null and definitionDimensionFilter.createTimeEnd != ''">
+                AND sdt_definition_dimension.create_time &lt;= #{definitionDimensionFilter.createTimeEnd}
+            </if>
+            <if test="definitionDimensionFilter.createUserId != null">
+                AND sdt_definition_dimension.create_user_id = #{definitionDimensionFilter.createUserId}
+            </if>
+            <if test="definitionDimensionFilter.updateUserId != null">
+                AND sdt_definition_dimension.update_user_id = #{definitionDimensionFilter.updateUserId}
+            </if>
+            <if test="definitionDimensionFilter.dataUserId != null">
+                AND sdt_definition_dimension.data_user_id = #{definitionDimensionFilter.dataUserId}
+            </if>
+            <if test="definitionDimensionFilter.dataDeptId != null">
+                AND sdt_definition_dimension.data_dept_id = #{definitionDimensionFilter.dataDeptId}
+            </if>
+            <if test="definitionDimensionFilter.projectId != null">
+                AND sdt_definition_dimension.project_id = #{definitionDimensionFilter.projectId}
+            </if>
+            <if test="definitionDimensionFilter.processId != null">
+                AND sdt_definition_dimension.process_id = #{definitionDimensionFilter.processId}
+            </if>
+            <if test="definitionDimensionFilter.dimensionType != null and definitionDimensionFilter.dimensionType != ''">
+                AND sdt_definition_dimension.dimension_type = #{definitionDimensionFilter.dimensionType}
+            </if>
+            <if test="definitionDimensionFilter.dimensionName != null and definitionDimensionFilter.dimensionName != ''">
+                <bind name = "safeDefinitionDimensionDimensionName" value = "'%' + definitionDimensionFilter.dimensionName + '%'" />
+                AND sdt_definition_dimension.dimension_name LIKE #{safeDefinitionDimensionDimensionName}
+            </if>
+            <if test="definitionDimensionFilter.dimensionEnName != null and definitionDimensionFilter.dimensionEnName != ''">
+                <bind name = "safeDefinitionDimensionDimensionEnName" value = "'%' + definitionDimensionFilter.dimensionEnName + '%'" />
+                AND sdt_definition_dimension.dimension_en_name LIKE #{safeDefinitionDimensionDimensionEnName}
+            </if>
+            <if test="definitionDimensionFilter.dimensionCode != null and definitionDimensionFilter.dimensionCode != ''">
+                <bind name = "safeDefinitionDimensionDimensionCode" value = "'%' + definitionDimensionFilter.dimensionCode + '%'" />
+                AND sdt_definition_dimension.dimension_code LIKE #{safeDefinitionDimensionDimensionCode}
+            </if>
+            <if test="definitionDimensionFilter.dimensionDescribe != null and definitionDimensionFilter.dimensionDescribe != ''">
+                <bind name = "safeDefinitionDimensionDimensionDescribe" value = "'%' + definitionDimensionFilter.dimensionDescribe + '%'" />
+                AND sdt_definition_dimension.dimension_describe LIKE #{safeDefinitionDimensionDimensionDescribe}
+            </if>
+            <if test="definitionDimensionFilter.dimensionDirectoryId != null">
+                AND sdt_definition_dimension.dimension_directory_id = #{definitionDimensionFilter.dimensionDirectoryId}
+            </if>
+            <if test="definitionDimensionFilter.isAutoCreateTable != null and definitionDimensionFilter.isAutoCreateTable != ''">
+                AND sdt_definition_dimension.is_auto_create_table = #{definitionDimensionFilter.isAutoCreateTable}
+            </if>
+            <if test="definitionDimensionFilter.dimensionPeriodType != null and definitionDimensionFilter.dimensionPeriodType != ''">
+                <bind name = "safeDefinitionDimensionDimensionPeriodType" value = "'%' + definitionDimensionFilter.dimensionPeriodType + '%'" />
+                AND sdt_definition_dimension.dimension_period_type LIKE #{safeDefinitionDimensionDimensionPeriodType}
+            </if>
+            <if test="definitionDimensionFilter.dimensionPeriodStartDateStart != null and definitionDimensionFilter.dimensionPeriodStartDateStart != ''">
+                AND sdt_definition_dimension.dimension_period_start_date &gt;= #{definitionDimensionFilter.dimensionPeriodStartDateStart}
+            </if>
+            <if test="definitionDimensionFilter.dimensionPeriodStartDateEnd != null and definitionDimensionFilter.dimensionPeriodStartDateEnd != ''">
+                AND sdt_definition_dimension.dimension_period_start_date &lt;= #{definitionDimensionFilter.dimensionPeriodStartDateEnd}
+            </if>
+            <if test="definitionDimensionFilter.dimensionPeriodEndDateStart != null and definitionDimensionFilter.dimensionPeriodEndDateStart != ''">
+                AND sdt_definition_dimension.dimension_period_end_date &gt;= #{definitionDimensionFilter.dimensionPeriodEndDateStart}
+            </if>
+            <if test="definitionDimensionFilter.dimensionPeriodEndDateEnd != null and definitionDimensionFilter.dimensionPeriodEndDateEnd != ''">
+                AND sdt_definition_dimension.dimension_period_end_date &lt;= #{definitionDimensionFilter.dimensionPeriodEndDateEnd}
+            </if>
+            <if test="definitionDimensionFilter.searchString != null and definitionDimensionFilter.searchString != ''">
+                <bind name = "safeDefinitionDimensionSearchString" value = "'%' + definitionDimensionFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_definition_dimension.dimension_type,''), IFNULL(sdt_definition_dimension.dimension_name,''), IFNULL(sdt_definition_dimension.dimension_en_name,''), IFNULL(sdt_definition_dimension.dimension_code,''), IFNULL(sdt_definition_dimension.dimension_describe,''), IFNULL(sdt_definition_dimension.dimension_period_type,'')) LIKE #{safeDefinitionDimensionSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedDefinitionDimensionList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DefinitionDimension">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_definition_dimension
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_definition_dimension
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getDefinitionDimensionList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DefinitionDimension">
+        SELECT * FROM sdt_definition_dimension
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

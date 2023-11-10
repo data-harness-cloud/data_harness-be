@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.ProjectDatasourceRelationMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.ProjectDatasourceRelation">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+        <result column="datasource_id" jdbcType="BIGINT" property="datasourceId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_project_datasource_relation
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            project_id,
+            datasource_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.projectId},
+            #{item.datasourceId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.ProjectDatasourceRelationMapper.inputFilterRef"/>
+        AND sdt_project_datasource_relation.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="projectDatasourceRelationFilter != null">
+            <if test="projectDatasourceRelationFilter.id != null">
+                AND sdt_project_datasource_relation.id = #{projectDatasourceRelationFilter.id}
+            </if>
+            <if test="projectDatasourceRelationFilter.updateTimeStart != null and projectDatasourceRelationFilter.updateTimeStart != ''">
+                AND sdt_project_datasource_relation.update_time &gt;= #{projectDatasourceRelationFilter.updateTimeStart}
+            </if>
+            <if test="projectDatasourceRelationFilter.updateTimeEnd != null and projectDatasourceRelationFilter.updateTimeEnd != ''">
+                AND sdt_project_datasource_relation.update_time &lt;= #{projectDatasourceRelationFilter.updateTimeEnd}
+            </if>
+            <if test="projectDatasourceRelationFilter.createTimeStart != null and projectDatasourceRelationFilter.createTimeStart != ''">
+                AND sdt_project_datasource_relation.create_time &gt;= #{projectDatasourceRelationFilter.createTimeStart}
+            </if>
+            <if test="projectDatasourceRelationFilter.createTimeEnd != null and projectDatasourceRelationFilter.createTimeEnd != ''">
+                AND sdt_project_datasource_relation.create_time &lt;= #{projectDatasourceRelationFilter.createTimeEnd}
+            </if>
+            <if test="projectDatasourceRelationFilter.createUserId != null">
+                AND sdt_project_datasource_relation.create_user_id = #{projectDatasourceRelationFilter.createUserId}
+            </if>
+            <if test="projectDatasourceRelationFilter.updateUserId != null">
+                AND sdt_project_datasource_relation.update_user_id = #{projectDatasourceRelationFilter.updateUserId}
+            </if>
+            <if test="projectDatasourceRelationFilter.dataUserId != null">
+                AND sdt_project_datasource_relation.data_user_id = #{projectDatasourceRelationFilter.dataUserId}
+            </if>
+            <if test="projectDatasourceRelationFilter.dataDeptId != null">
+                AND sdt_project_datasource_relation.data_dept_id = #{projectDatasourceRelationFilter.dataDeptId}
+            </if>
+            <if test="projectDatasourceRelationFilter.projectId != null">
+                AND sdt_project_datasource_relation.project_id = #{projectDatasourceRelationFilter.projectId}
+            </if>
+            <if test="projectDatasourceRelationFilter.datasourceId != null">
+                AND sdt_project_datasource_relation.datasource_id = #{projectDatasourceRelationFilter.datasourceId}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedProjectDatasourceRelationList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ProjectDatasourceRelation">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_project_datasource_relation
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_project_datasource_relation
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getProjectDatasourceRelationList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ProjectDatasourceRelation">
+        SELECT * FROM sdt_project_datasource_relation
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.ModelDesginFieldMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.ModelDesginField">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="model_field_name" jdbcType="VARCHAR" property="modelFieldName"/>
+        <result column="model_field_code" jdbcType="VARCHAR" property="modelFieldCode"/>
+        <result column="model_field_type" jdbcType="VARCHAR" property="modelFieldType"/>
+        <result column="model_field_index" jdbcType="VARCHAR" property="modelFieldIndex"/>
+        <result column="model_field_meta_standard" jdbcType="VARCHAR" property="modelFieldMetaStandard"/>
+        <result column="model_field_value_standard" jdbcType="VARCHAR" property="modelFieldValueStandard"/>
+        <result column="model_field_description" jdbcType="VARCHAR" property="modelFieldDescription"/>
+        <result column="model_field_key" jdbcType="VARCHAR" property="modelFieldKey"/>
+        <result column="model_field_length" jdbcType="INTEGER" property="modelFieldLength"/>
+        <result column="model_field_decimal_point" jdbcType="INTEGER" property="modelFieldDecimalPoint"/>
+        <result column="model_field_ppartition" jdbcType="VARCHAR" property="modelFieldPpartition"/>
+        <result column="model_field_is_null" jdbcType="INTEGER" property="modelFieldIsNull"/>
+        <result column="model_field_source_name" jdbcType="VARCHAR" property="modelFieldSourceName"/>
+        <result column="model_field_default_value" jdbcType="VARCHAR" property="modelFieldDefaultValue"/>
+        <result column="model_field_source_type" jdbcType="VARCHAR" property="modelFieldSourceType"/>
+        <result column="model_field_source_table" jdbcType="VARCHAR" property="modelFieldSourceTable"/>
+        <result column="model_field_mapping" jdbcType="LONGVARCHAR" property="modelFieldMapping"/>
+        <result column="model_id" jdbcType="BIGINT" property="modelId"/>
+        <result column="model_field_source_id" jdbcType="BIGINT" property="modelFieldSourceId"/>
+        <result column="model_quote_standard" jdbcType="VARCHAR" property="modelQuoteStandard"/>
+        <result column="model_field_script" jdbcType="LONGVARCHAR" property="modelFieldScript"/>
+        <result column="show_order" jdbcType="INTEGER" property="showOrder"/>
+        <result column="process_id" jdbcType="BIGINT" property="processId"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMapWithDefinitionIndexModelFieldRelation" type="supie.webadmin.app.model.ModelDesginField" extends="BaseResultMap">
+        <association property="definitionIndexModelFieldRelation" column="id" foreignColumn="model_field_id"
+                     notNullColumn="id" resultMap="supie.webadmin.app.dao.DefinitionIndexModelFieldRelationMapper.BaseResultMap" />
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_model_desgin_field
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            model_field_name,
+            model_field_code,
+            model_field_type,
+            model_field_index,
+            model_field_meta_standard,
+            model_field_value_standard,
+            model_field_description,
+            model_field_key,
+            model_field_length,
+            model_field_decimal_point,
+            model_field_ppartition,
+            model_field_is_null,
+            model_field_source_name,
+            model_field_default_value,
+            model_field_source_type,
+            model_field_source_table,
+            model_field_mapping,
+            model_id,
+            model_field_source_id,
+            model_quote_standard,
+            model_field_script,
+            show_order,
+            process_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.modelFieldName},
+            #{item.modelFieldCode},
+            #{item.modelFieldType},
+            #{item.modelFieldIndex},
+            #{item.modelFieldMetaStandard},
+            #{item.modelFieldValueStandard},
+            #{item.modelFieldDescription},
+            #{item.modelFieldKey},
+            #{item.modelFieldLength},
+            #{item.modelFieldDecimalPoint},
+            #{item.modelFieldPpartition},
+            #{item.modelFieldIsNull},
+            #{item.modelFieldSourceName},
+            #{item.modelFieldDefaultValue},
+            #{item.modelFieldSourceType},
+            #{item.modelFieldSourceTable},
+            #{item.modelFieldMapping},
+            #{item.modelId},
+            #{item.modelFieldSourceId},
+            #{item.modelQuoteStandard},
+            #{item.modelFieldScript},
+            #{item.showOrder},
+            #{item.processId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.ModelDesginFieldMapper.inputFilterRef"/>
+        AND sdt_model_desgin_field.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="modelDesginFieldFilter != null">
+            <if test="modelDesginFieldFilter.id != null">
+                AND sdt_model_desgin_field.id = #{modelDesginFieldFilter.id}
+            </if>
+            <if test="modelDesginFieldFilter.updateTimeStart != null and modelDesginFieldFilter.updateTimeStart != ''">
+                AND sdt_model_desgin_field.update_time &gt;= #{modelDesginFieldFilter.updateTimeStart}
+            </if>
+            <if test="modelDesginFieldFilter.updateTimeEnd != null and modelDesginFieldFilter.updateTimeEnd != ''">
+                AND sdt_model_desgin_field.update_time &lt;= #{modelDesginFieldFilter.updateTimeEnd}
+            </if>
+            <if test="modelDesginFieldFilter.createTimeStart != null and modelDesginFieldFilter.createTimeStart != ''">
+                AND sdt_model_desgin_field.create_time &gt;= #{modelDesginFieldFilter.createTimeStart}
+            </if>
+            <if test="modelDesginFieldFilter.createTimeEnd != null and modelDesginFieldFilter.createTimeEnd != ''">
+                AND sdt_model_desgin_field.create_time &lt;= #{modelDesginFieldFilter.createTimeEnd}
+            </if>
+            <if test="modelDesginFieldFilter.createUserId != null">
+                AND sdt_model_desgin_field.create_user_id = #{modelDesginFieldFilter.createUserId}
+            </if>
+            <if test="modelDesginFieldFilter.updateUserId != null">
+                AND sdt_model_desgin_field.update_user_id = #{modelDesginFieldFilter.updateUserId}
+            </if>
+            <if test="modelDesginFieldFilter.dataUserId != null">
+                AND sdt_model_desgin_field.data_user_id = #{modelDesginFieldFilter.dataUserId}
+            </if>
+            <if test="modelDesginFieldFilter.dataDeptId != null">
+                AND sdt_model_desgin_field.data_dept_id = #{modelDesginFieldFilter.dataDeptId}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldName != null and modelDesginFieldFilter.modelFieldName != ''">
+                <bind name = "safeModelDesginFieldModelFieldName" value = "'%' + modelDesginFieldFilter.modelFieldName + '%'" />
+                AND sdt_model_desgin_field.model_field_name LIKE #{safeModelDesginFieldModelFieldName}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldCode != null and modelDesginFieldFilter.modelFieldCode != ''">
+                <bind name = "safeModelDesginFieldModelFieldCode" value = "'%' + modelDesginFieldFilter.modelFieldCode + '%'" />
+                AND sdt_model_desgin_field.model_field_code LIKE #{safeModelDesginFieldModelFieldCode}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldType != null and modelDesginFieldFilter.modelFieldType != ''">
+                <bind name = "safeModelDesginFieldModelFieldType" value = "'%' + modelDesginFieldFilter.modelFieldType + '%'" />
+                AND sdt_model_desgin_field.model_field_type LIKE #{safeModelDesginFieldModelFieldType}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldIndex != null and modelDesginFieldFilter.modelFieldIndex != ''">
+                <bind name = "safeModelDesginFieldModelFieldIndex" value = "'%' + modelDesginFieldFilter.modelFieldIndex + '%'" />
+                AND sdt_model_desgin_field.model_field_index LIKE #{safeModelDesginFieldModelFieldIndex}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldMetaStandard != null and modelDesginFieldFilter.modelFieldMetaStandard != ''">
+                <bind name = "safeModelDesginFieldModelFieldMetaStandard" value = "'%' + modelDesginFieldFilter.modelFieldMetaStandard + '%'" />
+                AND sdt_model_desgin_field.model_field_meta_standard LIKE #{safeModelDesginFieldModelFieldMetaStandard}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldValueStandard != null and modelDesginFieldFilter.modelFieldValueStandard != ''">
+                <bind name = "safeModelDesginFieldModelFieldValueStandard" value = "'%' + modelDesginFieldFilter.modelFieldValueStandard + '%'" />
+                AND sdt_model_desgin_field.model_field_value_standard LIKE #{safeModelDesginFieldModelFieldValueStandard}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldDescription != null and modelDesginFieldFilter.modelFieldDescription != ''">
+                <bind name = "safeModelDesginFieldModelFieldDescription" value = "'%' + modelDesginFieldFilter.modelFieldDescription + '%'" />
+                AND sdt_model_desgin_field.model_field_description LIKE #{safeModelDesginFieldModelFieldDescription}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldKey != null and modelDesginFieldFilter.modelFieldKey != ''">
+                <bind name = "safeModelDesginFieldModelFieldKey" value = "'%' + modelDesginFieldFilter.modelFieldKey + '%'" />
+                AND sdt_model_desgin_field.model_field_key LIKE #{safeModelDesginFieldModelFieldKey}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldLengthStart != null">
+                AND sdt_model_desgin_field.model_field_length &gt;= #{modelDesginFieldFilter.modelFieldLengthStart}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldLengthEnd != null">
+                AND sdt_model_desgin_field.model_field_length &lt;= #{modelDesginFieldFilter.modelFieldLengthEnd}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldDecimalPoint != null">
+                AND sdt_model_desgin_field.model_field_decimal_point = #{modelDesginFieldFilter.modelFieldDecimalPoint}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldPpartition != null and modelDesginFieldFilter.modelFieldPpartition != ''">
+                <bind name = "safeModelDesginFieldModelFieldPpartition" value = "'%' + modelDesginFieldFilter.modelFieldPpartition + '%'" />
+                AND sdt_model_desgin_field.model_field_ppartition LIKE #{safeModelDesginFieldModelFieldPpartition}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldIsNull != null">
+                AND sdt_model_desgin_field.model_field_is_null = #{modelDesginFieldFilter.modelFieldIsNull}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldSourceName != null and modelDesginFieldFilter.modelFieldSourceName != ''">
+                <bind name = "safeModelDesginFieldModelFieldSourceName" value = "'%' + modelDesginFieldFilter.modelFieldSourceName + '%'" />
+                AND sdt_model_desgin_field.model_field_source_name LIKE #{safeModelDesginFieldModelFieldSourceName}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldDefaultValue != null and modelDesginFieldFilter.modelFieldDefaultValue != ''">
+                <bind name = "safeModelDesginFieldModelFieldDefaultValue" value = "'%' + modelDesginFieldFilter.modelFieldDefaultValue + '%'" />
+                AND sdt_model_desgin_field.model_field_default_value LIKE #{safeModelDesginFieldModelFieldDefaultValue}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldSourceType != null and modelDesginFieldFilter.modelFieldSourceType != ''">
+                <bind name = "safeModelDesginFieldModelFieldSourceType" value = "'%' + modelDesginFieldFilter.modelFieldSourceType + '%'" />
+                AND sdt_model_desgin_field.model_field_source_type LIKE #{safeModelDesginFieldModelFieldSourceType}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldSourceTable != null and modelDesginFieldFilter.modelFieldSourceTable != ''">
+                <bind name = "safeModelDesginFieldModelFieldSourceTable" value = "'%' + modelDesginFieldFilter.modelFieldSourceTable + '%'" />
+                AND sdt_model_desgin_field.model_field_source_table LIKE #{safeModelDesginFieldModelFieldSourceTable}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldMapping != null and modelDesginFieldFilter.modelFieldMapping != ''">
+                <bind name = "safeModelDesginFieldModelFieldMapping" value = "'%' + modelDesginFieldFilter.modelFieldMapping + '%'" />
+                AND sdt_model_desgin_field.model_field_mapping LIKE #{safeModelDesginFieldModelFieldMapping}
+            </if>
+            <if test="modelDesginFieldFilter.modelId != null">
+                AND sdt_model_desgin_field.model_id = #{modelDesginFieldFilter.modelId}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldSourceId != null">
+                AND sdt_model_desgin_field.model_field_source_id = #{modelDesginFieldFilter.modelFieldSourceId}
+            </if>
+            <if test="modelDesginFieldFilter.modelQuoteStandard != null and modelDesginFieldFilter.modelQuoteStandard != ''">
+                <bind name = "safeModelDesginFieldModelQuoteStandard" value = "'%' + modelDesginFieldFilter.modelQuoteStandard + '%'" />
+                AND sdt_model_desgin_field.model_quote_standard LIKE #{safeModelDesginFieldModelQuoteStandard}
+            </if>
+            <if test="modelDesginFieldFilter.modelFieldScript != null and modelDesginFieldFilter.modelFieldScript != ''">
+                <bind name = "safeModelDesginFieldModelFieldScript" value = "'%' + modelDesginFieldFilter.modelFieldScript + '%'" />
+                AND sdt_model_desgin_field.model_field_script LIKE #{safeModelDesginFieldModelFieldScript}
+            </if>
+            <if test="modelDesginFieldFilter.showOrder != null">
+                AND sdt_model_desgin_field.show_order = #{modelDesginFieldFilter.showOrder}
+            </if>
+            <if test="modelDesginFieldFilter.processId != null">
+                AND sdt_model_desgin_field.process_id = #{modelDesginFieldFilter.processId}
+            </if>
+            <if test="modelDesginFieldFilter.searchString != null and modelDesginFieldFilter.searchString != ''">
+                <bind name = "safeModelDesginFieldSearchString" value = "'%' + modelDesginFieldFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_model_desgin_field.model_field_name,''), IFNULL(sdt_model_desgin_field.model_field_code,''), IFNULL(sdt_model_desgin_field.model_field_type,''), IFNULL(sdt_model_desgin_field.model_field_index,''), IFNULL(sdt_model_desgin_field.model_field_meta_standard,''), IFNULL(sdt_model_desgin_field.model_field_value_standard,''), IFNULL(sdt_model_desgin_field.model_field_description,''), IFNULL(sdt_model_desgin_field.model_field_key,''), IFNULL(sdt_model_desgin_field.model_field_ppartition,''), IFNULL(sdt_model_desgin_field.model_field_source_name,''), IFNULL(sdt_model_desgin_field.model_field_source_type,''), IFNULL(sdt_model_desgin_field.model_field_source_table,''), IFNULL(sdt_model_desgin_field.model_field_mapping,''), IFNULL(sdt_model_desgin_field.model_quote_standard,''), IFNULL(sdt_model_desgin_field.model_field_script,'')) LIKE #{safeModelDesginFieldSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedModelDesginFieldList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ModelDesginField">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_model_desgin_field
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_model_desgin_field
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getModelDesginFieldList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ModelDesginField">
+        SELECT * FROM sdt_model_desgin_field
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getModelDesginFieldListByIndexId" resultMap="BaseResultMapWithDefinitionIndexModelFieldRelation">
+        SELECT
+            sdt_model_desgin_field.*,
+            sdt_definition_index_model_field_relation.*
+        FROM
+            sdt_model_desgin_field,
+            sdt_definition_index_model_field_relation
+        <where>
+            AND sdt_definition_index_model_field_relation.index_id = #{indexId}
+            AND sdt_definition_index_model_field_relation.model_field_id = sdt_model_desgin_field.id
+            <include refid="filterRef"/>
+            <include refid="supie.webadmin.app.dao.DefinitionIndexModelFieldRelationMapper.filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getNotInModelDesginFieldListByIndexId" resultMap="BaseResultMap">
+        SELECT
+            sdt_model_desgin_field.*
+        FROM
+            sdt_model_desgin_field
+        <where>
+            AND NOT EXISTS (SELECT * FROM sdt_definition_index_model_field_relation
+                WHERE sdt_definition_index_model_field_relation.index_id = #{indexId} AND sdt_definition_index_model_field_relation.model_field_id = sdt_model_desgin_field.id)
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="queryByModelId" resultMap="BaseResultMap">
+        SELECT * FROM sdt_model_desgin_field
+        WHERE model_id = #{modelId}
+        AND sdt_model_desgin_field.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+        ORDER BY show_order
+    </select>
+</mapper>

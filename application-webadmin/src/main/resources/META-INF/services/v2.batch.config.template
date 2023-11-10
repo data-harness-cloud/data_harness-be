@@ -1,0 +1,41 @@
+env {
+  execution.parallelism = "executionParallelism"
+  job.mode = "jobMode"
+}
+
+
+#在source所属的块中配置数据源
+source {
+    Jdbc {
+          parallelism="seatunnelSourceParallelism"
+          partition_column="partitionColumn"
+          partition_num="partitionNum"
+          result_table_name="resultTableName"
+          query="seatunnelSourceQuery"
+          password="seatunnelSourcePassword"
+          driver="seatunnelSourceDriver"
+          user="seatunnelSourceUser"
+          url="seatunnelSourceUrl"
+      }
+}
+
+
+
+# 在transform的块中声明转换插件
+transform {
+}
+
+
+
+# 在transform的块中声明转换插件
+sink {
+  StarRocks {
+          batch_max_rows=10240 #
+          source_table_name="sourceTableName"
+          table="seatunnelSinkTable"
+          database="seatunnelSinkDatabase"
+          base-url="seatunnelSinkUrl"
+          password="seatunnelSinkPassword"
+          username="seatunnelSinkUser"
+      }
+}

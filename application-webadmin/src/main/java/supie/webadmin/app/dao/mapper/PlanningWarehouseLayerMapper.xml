@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.PlanningWarehouseLayerMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.PlanningWarehouseLayer">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+        <result column="house_layer_name" jdbcType="VARCHAR" property="houseLayerName"/>
+        <result column="house_layer_code" jdbcType="VARCHAR" property="houseLayerCode"/>
+        <result column="house_layer_status" jdbcType="INTEGER" property="houseLayerStatus"/>
+        <result column="house_layer_database" jdbcType="VARCHAR" property="houseLayerDatabase"/>
+        <result column="house_layer_description" jdbcType="VARCHAR" property="houseLayerDescription"/>
+        <result column="house_layer_header_user_id" jdbcType="BIGINT" property="houseLayerHeaderUserId"/>
+        <result column="house_layer_type" jdbcType="VARCHAR" property="houseLayerType"/>
+        <result column="house_layer_datasource_type" jdbcType="VARCHAR" property="houseLayerDatasourceType"/>
+        <result column="datasource_id" jdbcType="BIGINT" property="datasourceId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_planning_warehouse_layer
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            project_id,
+            house_layer_name,
+            house_layer_code,
+            house_layer_status,
+            house_layer_database,
+            house_layer_description,
+            house_layer_header_user_id,
+            house_layer_type,
+            house_layer_datasource_type,
+            datasource_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.projectId},
+            #{item.houseLayerName},
+            #{item.houseLayerCode},
+            #{item.houseLayerStatus},
+            #{item.houseLayerDatabase},
+            #{item.houseLayerDescription},
+            #{item.houseLayerHeaderUserId},
+            #{item.houseLayerType},
+            #{item.houseLayerDatasourceType},
+            #{item.datasourceId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.PlanningWarehouseLayerMapper.inputFilterRef"/>
+        AND sdt_planning_warehouse_layer.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="planningWarehouseLayerFilter != null">
+            <if test="planningWarehouseLayerFilter.id != null">
+                AND sdt_planning_warehouse_layer.id = #{planningWarehouseLayerFilter.id}
+            </if>
+            <if test="planningWarehouseLayerFilter.updateTimeStart != null and planningWarehouseLayerFilter.updateTimeStart != ''">
+                AND sdt_planning_warehouse_layer.update_time &gt;= #{planningWarehouseLayerFilter.updateTimeStart}
+            </if>
+            <if test="planningWarehouseLayerFilter.updateTimeEnd != null and planningWarehouseLayerFilter.updateTimeEnd != ''">
+                AND sdt_planning_warehouse_layer.update_time &lt;= #{planningWarehouseLayerFilter.updateTimeEnd}
+            </if>
+            <if test="planningWarehouseLayerFilter.createTimeStart != null and planningWarehouseLayerFilter.createTimeStart != ''">
+                AND sdt_planning_warehouse_layer.create_time &gt;= #{planningWarehouseLayerFilter.createTimeStart}
+            </if>
+            <if test="planningWarehouseLayerFilter.createTimeEnd != null and planningWarehouseLayerFilter.createTimeEnd != ''">
+                AND sdt_planning_warehouse_layer.create_time &lt;= #{planningWarehouseLayerFilter.createTimeEnd}
+            </if>
+            <if test="planningWarehouseLayerFilter.createUserId != null">
+                AND sdt_planning_warehouse_layer.create_user_id = #{planningWarehouseLayerFilter.createUserId}
+            </if>
+            <if test="planningWarehouseLayerFilter.updateUserId != null">
+                AND sdt_planning_warehouse_layer.update_user_id = #{planningWarehouseLayerFilter.updateUserId}
+            </if>
+            <if test="planningWarehouseLayerFilter.dataUserId != null">
+                AND sdt_planning_warehouse_layer.data_user_id = #{planningWarehouseLayerFilter.dataUserId}
+            </if>
+            <if test="planningWarehouseLayerFilter.dataDeptId != null">
+                AND sdt_planning_warehouse_layer.data_dept_id = #{planningWarehouseLayerFilter.dataDeptId}
+            </if>
+            <if test="planningWarehouseLayerFilter.projectId != null">
+                AND sdt_planning_warehouse_layer.project_id = #{planningWarehouseLayerFilter.projectId}
+            </if>
+            <if test="planningWarehouseLayerFilter.houseLayerName != null and planningWarehouseLayerFilter.houseLayerName != ''">
+                <bind name = "safePlanningWarehouseLayerHouseLayerName" value = "'%' + planningWarehouseLayerFilter.houseLayerName + '%'" />
+                AND sdt_planning_warehouse_layer.house_layer_name LIKE #{safePlanningWarehouseLayerHouseLayerName}
+            </if>
+            <if test="planningWarehouseLayerFilter.houseLayerCode != null and planningWarehouseLayerFilter.houseLayerCode != ''">
+                <bind name = "safePlanningWarehouseLayerHouseLayerCode" value = "'%' + planningWarehouseLayerFilter.houseLayerCode + '%'" />
+                AND sdt_planning_warehouse_layer.house_layer_code LIKE #{safePlanningWarehouseLayerHouseLayerCode}
+            </if>
+            <if test="planningWarehouseLayerFilter.houseLayerStatus != null">
+                AND sdt_planning_warehouse_layer.house_layer_status = #{planningWarehouseLayerFilter.houseLayerStatus}
+            </if>
+            <if test="planningWarehouseLayerFilter.houseLayerDatabase != null and planningWarehouseLayerFilter.houseLayerDatabase != ''">
+                <bind name = "safePlanningWarehouseLayerHouseLayerDatabase" value = "'%' + planningWarehouseLayerFilter.houseLayerDatabase + '%'" />
+                AND sdt_planning_warehouse_layer.house_layer_database LIKE #{safePlanningWarehouseLayerHouseLayerDatabase}
+            </if>
+            <if test="planningWarehouseLayerFilter.houseLayerDescription != null and planningWarehouseLayerFilter.houseLayerDescription != ''">
+                <bind name = "safePlanningWarehouseLayerHouseLayerDescription" value = "'%' + planningWarehouseLayerFilter.houseLayerDescription + '%'" />
+                AND sdt_planning_warehouse_layer.house_layer_description LIKE #{safePlanningWarehouseLayerHouseLayerDescription}
+            </if>
+            <if test="planningWarehouseLayerFilter.houseLayerHeaderUserId != null">
+                AND sdt_planning_warehouse_layer.house_layer_header_user_id = #{planningWarehouseLayerFilter.houseLayerHeaderUserId}
+            </if>
+            <if test="planningWarehouseLayerFilter.houseLayerType != null and planningWarehouseLayerFilter.houseLayerType != ''">
+                <bind name = "safePlanningWarehouseLayerHouseLayerType" value = "'%' + planningWarehouseLayerFilter.houseLayerType + '%'" />
+                AND sdt_planning_warehouse_layer.house_layer_type LIKE #{safePlanningWarehouseLayerHouseLayerType}
+            </if>
+            <if test="planningWarehouseLayerFilter.houseLayerDatasourceType != null and planningWarehouseLayerFilter.houseLayerDatasourceType != ''">
+                <bind name = "safePlanningWarehouseLayerHouseLayerDatasourceType" value = "'%' + planningWarehouseLayerFilter.houseLayerDatasourceType + '%'" />
+                AND sdt_planning_warehouse_layer.house_layer_datasource_type LIKE #{safePlanningWarehouseLayerHouseLayerDatasourceType}
+            </if>
+            <if test="planningWarehouseLayerFilter.datasourceId != null">
+                AND sdt_planning_warehouse_layer.datasource_id = #{planningWarehouseLayerFilter.datasourceId}
+            </if>
+            <if test="planningWarehouseLayerFilter.searchString != null and planningWarehouseLayerFilter.searchString != ''">
+                <bind name = "safePlanningWarehouseLayerSearchString" value = "'%' + planningWarehouseLayerFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_planning_warehouse_layer.house_layer_name,''), IFNULL(sdt_planning_warehouse_layer.house_layer_code,''), IFNULL(sdt_planning_warehouse_layer.house_layer_database,''), IFNULL(sdt_planning_warehouse_layer.house_layer_description,''), IFNULL(sdt_planning_warehouse_layer.house_layer_type,''), IFNULL(sdt_planning_warehouse_layer.house_layer_datasource_type,'')) LIKE #{safePlanningWarehouseLayerSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedPlanningWarehouseLayerList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.PlanningWarehouseLayer">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_planning_warehouse_layer
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_planning_warehouse_layer
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getPlanningWarehouseLayerList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.PlanningWarehouseLayer">
+        SELECT * FROM sdt_planning_warehouse_layer
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <!-- 支持基于一对一或者一对多从表字段过滤的SQL_ID -->
+    <select id="getPlanningWarehouseLayerListEx" resultMap="BaseResultMap" >
+        SELECT
+            sdt_planning_warehouse_layer.*
+        FROM
+            sdt_planning_warehouse_layer
+        <where>
+            <include refid="filterRef"/>
+            <if test="modelPhysicsScriptFilter != null">
+                AND EXISTS (SELECT * FROM sdt_model_physics_script
+                <where>
+                    sdt_planning_warehouse_layer.id = sdt_model_physics_script.planning_warehouse_layer_id
+                    <include refid="supie.webadmin.app.dao.ModelPhysicsScriptMapper.filterRef"/>
+                </where>)
+            </if>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.upms.dao.SysMenuMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.upms.model.SysMenu">
+        <id column="menu_id" jdbcType="BIGINT" property="menuId"/>
+        <result column="parent_id" jdbcType="BIGINT" property="parentId"/>
+        <result column="menu_name" jdbcType="VARCHAR" property="menuName"/>
+        <result column="str_id" jdbcType="VARCHAR" property="strId"/>
+        <result column="menu_type" jdbcType="INTEGER" property="menuType"/>
+        <result column="form_router_name" jdbcType="VARCHAR" property="formRouterName"/>
+        <result column="online_form_id" jdbcType="BIGINT" property="onlineFormId"/>
+        <result column="online_menu_perm_type" jdbcType="INTEGER" property="onlineMenuPermType"/>
+        <result column="report_page_id" jdbcType="BIGINT" property="reportPageId"/>
+        <result column="online_flow_entry_id" jdbcType="BIGINT" property="onlineFlowEntryId"/>
+        <result column="show_order" jdbcType="INTEGER" property="showOrder"/>
+        <result column="icon" jdbcType="VARCHAR" property="icon"/>
+        <result column="extra_data" jdbcType="VARCHAR" property="extraData"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
+    </resultMap>
+
+    <select id="getMenuListByUserId" resultMap="BaseResultMap">
+        SELECT
+            m.*
+        FROM
+            sdt_sys_user_role ur,
+            sdt_sys_role_menu rm,
+            sdt_sys_menu m
+        <where>
+            AND ur.user_id = #{userId}
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = m.menu_id
+        </where>
+        ORDER BY m.show_order
+    </select>
+
+    <select id="getMenuAndPermListByRoleIds" resultType="map">
+        SELECT
+            m.menu_id menuId,
+            p.url url
+        FROM
+            sdt_sys_role_menu rm,
+            sdt_sys_menu_perm_code mpc,
+            sdt_sys_perm_code_perm pcp,
+            sdt_sys_perm p,
+            sdt_sys_menu m
+        <where>
+            rm.role_id IN
+            <foreach collection="roleIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            AND rm.menu_id = m.menu_id
+            AND rm.menu_id = mpc.menu_id
+            AND mpc.perm_code_id = pcp.perm_code_id
+            AND pcp.perm_id = p.perm_id
+        </where>
+        ORDER BY m.menu_type
+    </select>
+
+    <select id="getOnlineMenuListByUserId" resultMap="BaseResultMap">
+        SELECT
+            m.*
+        FROM
+            sdt_sys_user_role ur,
+            sdt_sys_role_menu rm,
+            sdt_sys_menu m
+        <where>
+            AND ur.user_id = #{userId}
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = m.menu_id
+            AND m.online_form_id IS NOT NULL
+            <if test="menuType != null">
+                AND m.menu_type = #{menuType}
+            </if>
+        </where>
+        ORDER BY m.show_order
+    </select>
+
+    <select id="getReportMenuListByUserId" resultMap="BaseResultMap">
+        SELECT
+            m.*
+        FROM
+            sdt_sys_user_role ur,
+            sdt_sys_role_menu rm,
+            sdt_sys_menu m
+        <where>
+            AND ur.user_id = #{userId}
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = m.menu_id
+            AND m.report_page_id IS NOT NULL
+            <if test="menuType != null">
+                AND m.menu_type = #{menuType}
+            </if>
+        </where>
+        ORDER BY m.show_order
+    </select>
+
+    <!-- 以下查询仅用于权限分配的问题定位，由于关联表较多，可能会给系统运行带来性能影响 -->
+    <select id="getSysPermListWithDetail" resultType="map">
+        SELECT
+            pc.perm_code_id permCodeId,
+            pc.show_name showName,
+            pc.perm_code_type permCodeType,
+            pc.perm_code permCode,
+            p.perm_id permId,
+            p.perm_name permName,
+            p.url url
+        FROM
+            sdt_sys_menu_perm_code mpc,
+            sdt_sys_perm_code_perm pcp,
+            sdt_sys_perm_code pc,
+            sdt_sys_perm p
+        <where>
+            AND mpc.menu_id = #{menuId}
+            AND mpc.perm_code_id = pc.perm_code_id
+            AND mpc.perm_code_id = pcp.perm_code_id
+            AND pcp.perm_id = p.perm_id
+            <if test="url != null and url != ''">
+                AND p.url = #{url}
+            </if>
+        </where>
+        ORDER BY
+            pc.perm_code_id, p.url
+    </select>
+
+    <select id="getSysUserListWithDetail" resultType="map">
+        SELECT
+            u.user_id userId,
+            u.login_name loginName,
+            u.show_name showName,
+            r.role_id roleId,
+            r.role_name roleName
+        FROM
+            sdt_sys_role_menu rm,
+            sdt_sys_role r,
+            sdt_sys_user_role ur,
+            sdt_sys_user u
+        <where>
+            AND rm.menu_id = #{menuId}
+            AND rm.role_id = r.role_id
+            AND rm.role_id = ur.role_id
+            AND ur.user_id = u.user_id
+            <if test="loginName != null and loginName != ''">
+                AND u.login_name = #{loginName}
+            </if>
+        </where>
+        ORDER BY
+            u.user_id, r.role_id
+    </select>
+</mapper>

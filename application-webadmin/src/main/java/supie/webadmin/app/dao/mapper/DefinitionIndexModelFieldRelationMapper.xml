@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.DefinitionIndexModelFieldRelationMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.DefinitionIndexModelFieldRelation">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="str_id" jdbcType="VARCHAR" property="strId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="index_id" jdbcType="BIGINT" property="indexId"/>
+        <result column="index_process_id" jdbcType="BIGINT" property="indexProcessId"/>
+        <result column="model_id" jdbcType="BIGINT" property="modelId"/>
+        <result column="model_field_id" jdbcType="BIGINT" property="modelFieldId"/>
+        <result column="model_process_id" jdbcType="BIGINT" property="modelProcessId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_definition_index_model_field_relation
+            (id,
+            str_id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            index_id,
+            index_process_id,
+            model_id,
+            model_field_id,
+            model_process_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.strId},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.indexId},
+            #{item.indexProcessId},
+            #{item.modelId},
+            #{item.modelFieldId},
+            #{item.modelProcessId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.DefinitionIndexModelFieldRelationMapper.inputFilterRef"/>
+        AND sdt_definition_index_model_field_relation.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="definitionIndexModelFieldRelationFilter != null">
+            <if test="definitionIndexModelFieldRelationFilter.id != null">
+                AND sdt_definition_index_model_field_relation.id = #{definitionIndexModelFieldRelationFilter.id}
+            </if>
+            <if test="definitionIndexModelFieldRelationFilter.strId != null and definitionIndexModelFieldRelationFilter.strId != ''">
+                AND sdt_definition_index_model_field_relation.str_id = #{definitionIndexModelFieldRelationFilter.strId}
+            </if>
+            <if test="definitionIndexModelFieldRelationFilter.createUserId != null">
+                AND sdt_definition_index_model_field_relation.create_user_id = #{definitionIndexModelFieldRelationFilter.createUserId}
+            </if>
+            <if test="definitionIndexModelFieldRelationFilter.updateUserId != null">
+                AND sdt_definition_index_model_field_relation.update_user_id = #{definitionIndexModelFieldRelationFilter.updateUserId}
+            </if>
+            <if test="definitionIndexModelFieldRelationFilter.dataUserId != null">
+                AND sdt_definition_index_model_field_relation.data_user_id = #{definitionIndexModelFieldRelationFilter.dataUserId}
+            </if>
+            <if test="definitionIndexModelFieldRelationFilter.dataDeptId != null">
+                AND sdt_definition_index_model_field_relation.data_dept_id = #{definitionIndexModelFieldRelationFilter.dataDeptId}
+            </if>
+            <if test="definitionIndexModelFieldRelationFilter.indexId != null">
+                AND sdt_definition_index_model_field_relation.index_id = #{definitionIndexModelFieldRelationFilter.indexId}
+            </if>
+            <if test="definitionIndexModelFieldRelationFilter.indexProcessId != null">
+                AND sdt_definition_index_model_field_relation.index_process_id = #{definitionIndexModelFieldRelationFilter.indexProcessId}
+            </if>
+            <if test="definitionIndexModelFieldRelationFilter.modelId != null">
+                AND sdt_definition_index_model_field_relation.model_id = #{definitionIndexModelFieldRelationFilter.modelId}
+            </if>
+            <if test="definitionIndexModelFieldRelationFilter.modelFieldId != null">
+                AND sdt_definition_index_model_field_relation.model_field_id = #{definitionIndexModelFieldRelationFilter.modelFieldId}
+            </if>
+            <if test="definitionIndexModelFieldRelationFilter.modelProcessId != null">
+                AND sdt_definition_index_model_field_relation.model_process_id = #{definitionIndexModelFieldRelationFilter.modelProcessId}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getDefinitionIndexModelFieldRelationList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DefinitionIndexModelFieldRelation">
+        SELECT * FROM sdt_definition_index_model_field_relation
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

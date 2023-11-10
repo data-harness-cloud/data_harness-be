@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.upms.dao.SysDeptRelationMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.upms.model.SysDeptRelation">
+        <id column="parent_dept_id" jdbcType="BIGINT" property="parentDeptId"/>
+        <id column="dept_id" jdbcType="BIGINT" property="deptId"/>
+    </resultMap>
+
+    <delete id="removeBetweenChildrenAndParents">
+        DELETE a FROM sdt_sys_dept_relation a
+        INNER JOIN sdt_sys_dept_relation b ON a.dept_id = b.dept_id
+        WHERE b.parent_dept_id = #{myDeptId} AND a.parent_dept_id IN
+        <foreach collection="parentDeptIds" index="index" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <insert id="insertList">
+        INSERT INTO sdt_sys_dept_relation(parent_dept_id, dept_id) VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            (#{item.parentDeptId}, #{item.deptId})
+        </foreach>
+    </insert>
+
+    <insert id="insertParentList">
+        INSERT INTO sdt_sys_dept_relation(parent_dept_id, dept_id)
+        SELECT t.parent_dept_id, #{myDeptId} FROM sdt_sys_dept_relation t
+        WHERE t.dept_id = #{parentDeptId}
+        UNION ALL
+        SELECT #{myDeptId}, #{myDeptId}
+    </insert>
+</mapper>

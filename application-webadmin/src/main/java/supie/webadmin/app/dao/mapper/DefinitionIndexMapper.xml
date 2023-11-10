@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.DefinitionIndexMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.DefinitionIndex">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="str_id" jdbcType="VARCHAR" property="strId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="index_type" jdbcType="VARCHAR" property="indexType"/>
+        <result column="index_name" jdbcType="VARCHAR" property="indexName"/>
+        <result column="index_en_name" jdbcType="VARCHAR" property="indexEnName"/>
+        <result column="index_code" jdbcType="VARCHAR" property="indexCode"/>
+        <result column="index_level" jdbcType="VARCHAR" property="indexLevel"/>
+        <result column="process_id" jdbcType="BIGINT" property="processId"/>
+        <result column="index_description" jdbcType="VARCHAR" property="indexDescription"/>
+        <result column="model_logical_id" jdbcType="BIGINT" property="modelLogicalId"/>
+        <result column="model_desgin_field_id" jdbcType="BIGINT" property="modelDesginFieldId"/>
+        <result column="data_type" jdbcType="VARCHAR" property="dataType"/>
+        <result column="product_period" jdbcType="VARCHAR" property="productPeriod"/>
+        <result column="caliber_calculate_function" jdbcType="VARCHAR" property="caliberCalculateFunction"/>
+        <result column="caliber_measure_unit" jdbcType="VARCHAR" property="caliberMeasureUnit"/>
+        <result column="caliber_precision" jdbcType="VARCHAR" property="caliberPrecision"/>
+        <result column="caliber_description" jdbcType="VARCHAR" property="caliberDescription"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_definition_index
+            (id,
+            str_id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            index_type,
+            index_name,
+            index_en_name,
+            index_code,
+            index_level,
+            process_id,
+            index_description,
+            model_logical_id,
+            model_desgin_field_id,
+            data_type,
+            product_period,
+            caliber_calculate_function,
+            caliber_measure_unit,
+            caliber_precision,
+            caliber_description,
+         project_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.strId},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.indexType},
+            #{item.indexName},
+            #{item.indexEnName},
+            #{item.indexCode},
+            #{item.indexLevel},
+            #{item.processId},
+            #{item.indexDescription},
+            #{item.modelLogicalId},
+            #{item.modelDesginFieldId},
+            #{item.dataType},
+            #{item.productPeriod},
+            #{item.caliberCalculateFunction},
+            #{item.caliberMeasureUnit},
+            #{item.caliberPrecision},
+            #{item.caliberDescription},
+            #{item.projectId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.DefinitionIndexMapper.inputFilterRef"/>
+        AND sdt_definition_index.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="definitionIndexFilter != null">
+            <if test="definitionIndexFilter.id != null">
+                AND sdt_definition_index.id = #{definitionIndexFilter.id}
+            </if>
+            <if test="definitionIndexFilter.strId != null and definitionIndexFilter.strId != ''">
+                AND sdt_definition_index.str_id = #{definitionIndexFilter.strId}
+            </if>
+            <if test="definitionIndexFilter.updateTimeStart != null and definitionIndexFilter.updateTimeStart != ''">
+                AND sdt_definition_index.update_time &gt;= #{definitionIndexFilter.updateTimeStart}
+            </if>
+            <if test="definitionIndexFilter.updateTimeEnd != null and definitionIndexFilter.updateTimeEnd != ''">
+                AND sdt_definition_index.update_time &lt;= #{definitionIndexFilter.updateTimeEnd}
+            </if>
+            <if test="definitionIndexFilter.createTimeStart != null and definitionIndexFilter.createTimeStart != ''">
+                AND sdt_definition_index.create_time &gt;= #{definitionIndexFilter.createTimeStart}
+            </if>
+            <if test="definitionIndexFilter.createTimeEnd != null and definitionIndexFilter.createTimeEnd != ''">
+                AND sdt_definition_index.create_time &lt;= #{definitionIndexFilter.createTimeEnd}
+            </if>
+            <if test="definitionIndexFilter.createUserId != null">
+                AND sdt_definition_index.create_user_id = #{definitionIndexFilter.createUserId}
+            </if>
+            <if test="definitionIndexFilter.updateUserId != null">
+                AND sdt_definition_index.update_user_id = #{definitionIndexFilter.updateUserId}
+            </if>
+            <if test="definitionIndexFilter.dataUserId != null">
+                AND sdt_definition_index.data_user_id = #{definitionIndexFilter.dataUserId}
+            </if>
+            <if test="definitionIndexFilter.dataDeptId != null">
+                AND sdt_definition_index.data_dept_id = #{definitionIndexFilter.dataDeptId}
+            </if>
+            <if test="definitionIndexFilter.projectId != null">
+                AND sdt_definition_index.project_id = #{definitionIndexFilter.projectId}
+            </if>
+            <if test="definitionIndexFilter.indexType != null and definitionIndexFilter.indexType != ''">
+                AND sdt_definition_index.index_type = #{definitionIndexFilter.indexType}
+            </if>
+            <if test="definitionIndexFilter.indexName != null and definitionIndexFilter.indexName != ''">
+                <bind name = "safeDefinitionIndexIndexName" value = "'%' + definitionIndexFilter.indexName + '%'" />
+                AND sdt_definition_index.index_name LIKE #{safeDefinitionIndexIndexName}
+            </if>
+            <if test="definitionIndexFilter.indexEnName != null and definitionIndexFilter.indexEnName != ''">
+                <bind name = "safeDefinitionIndexIndexEnName" value = "'%' + definitionIndexFilter.indexEnName + '%'" />
+                AND sdt_definition_index.index_en_name LIKE #{safeDefinitionIndexIndexEnName}
+            </if>
+            <if test="definitionIndexFilter.indexCode != null and definitionIndexFilter.indexCode != ''">
+                <bind name = "safeDefinitionIndexIndexCode" value = "'%' + definitionIndexFilter.indexCode + '%'" />
+                AND sdt_definition_index.index_code LIKE #{safeDefinitionIndexIndexCode}
+            </if>
+            <if test="definitionIndexFilter.indexLevel != null and definitionIndexFilter.indexLevel != ''">
+                AND sdt_definition_index.index_level = #{definitionIndexFilter.indexLevel}
+            </if>
+            <if test="definitionIndexFilter.processId != null">
+                AND sdt_definition_index.process_id = #{definitionIndexFilter.processId}
+            </if>
+            <if test="definitionIndexFilter.indexDescription != null and definitionIndexFilter.indexDescription != ''">
+                <bind name = "safeDefinitionIndexIndexDescription" value = "'%' + definitionIndexFilter.indexDescription + '%'" />
+                AND sdt_definition_index.index_description LIKE #{safeDefinitionIndexIndexDescription}
+            </if>
+            <if test="definitionIndexFilter.modelLogicalId != null">
+                AND sdt_definition_index.model_logical_id = #{definitionIndexFilter.modelLogicalId}
+            </if>
+            <if test="definitionIndexFilter.modelDesginFieldId != null">
+                AND sdt_definition_index.model_desgin_field_id = #{definitionIndexFilter.modelDesginFieldId}
+            </if>
+            <if test="definitionIndexFilter.dataType != null and definitionIndexFilter.dataType != ''">
+                AND sdt_definition_index.data_type = #{definitionIndexFilter.dataType}
+            </if>
+            <if test="definitionIndexFilter.productPeriod != null and definitionIndexFilter.productPeriod != ''">
+                AND sdt_definition_index.product_period = #{definitionIndexFilter.productPeriod}
+            </if>
+            <if test="definitionIndexFilter.caliberCalculateFunction != null and definitionIndexFilter.caliberCalculateFunction != ''">
+                <bind name = "safeDefinitionIndexCaliberCalculateFunction" value = "'%' + definitionIndexFilter.caliberCalculateFunction + '%'" />
+                AND sdt_definition_index.caliber_calculate_function LIKE #{safeDefinitionIndexCaliberCalculateFunction}
+            </if>
+            <if test="definitionIndexFilter.caliberMeasureUnit != null and definitionIndexFilter.caliberMeasureUnit != ''">
+                <bind name = "safeDefinitionIndexCaliberMeasureUnit" value = "'%' + definitionIndexFilter.caliberMeasureUnit + '%'" />
+                AND sdt_definition_index.caliber_measure_unit LIKE #{safeDefinitionIndexCaliberMeasureUnit}
+            </if>
+            <if test="definitionIndexFilter.caliberPrecision != null and definitionIndexFilter.caliberPrecision != ''">
+                <bind name = "safeDefinitionIndexCaliberPrecision" value = "'%' + definitionIndexFilter.caliberPrecision + '%'" />
+                AND sdt_definition_index.caliber_precision LIKE #{safeDefinitionIndexCaliberPrecision}
+            </if>
+            <if test="definitionIndexFilter.caliberDescription != null and definitionIndexFilter.caliberDescription != ''">
+                <bind name = "safeDefinitionIndexCaliberDescription" value = "'%' + definitionIndexFilter.caliberDescription + '%'" />
+                AND sdt_definition_index.caliber_description LIKE #{safeDefinitionIndexCaliberDescription}
+            </if>
+            <if test="definitionIndexFilter.searchString != null and definitionIndexFilter.searchString != ''">
+                <bind name = "safeDefinitionIndexSearchString" value = "'%' + definitionIndexFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_definition_index.index_type,''), IFNULL(sdt_definition_index.index_name,''), IFNULL(sdt_definition_index.index_en_name,''), IFNULL(sdt_definition_index.index_code,''), IFNULL(sdt_definition_index.index_level,''), IFNULL(sdt_definition_index.index_description,''), IFNULL(sdt_definition_index.data_type,''), IFNULL(sdt_definition_index.product_period,''), IFNULL(sdt_definition_index.caliber_calculate_function,''), IFNULL(sdt_definition_index.caliber_measure_unit,''), IFNULL(sdt_definition_index.caliber_precision,''), IFNULL(sdt_definition_index.caliber_description,'')) LIKE #{safeDefinitionIndexSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedDefinitionIndexList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DefinitionIndex">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_definition_index
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_definition_index
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getDefinitionIndexList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DefinitionIndex">
+        SELECT * FROM sdt_definition_index
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

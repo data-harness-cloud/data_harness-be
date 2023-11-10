@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.ModelLogicalMainMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.ModelLogicalMain">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+        <result column="process_id" jdbcType="BIGINT" property="processId"/>
+        <result column="model_name" jdbcType="VARCHAR" property="modelName"/>
+        <result column="model_code" jdbcType="VARCHAR" property="modelCode"/>
+        <result column="model_status" jdbcType="VARCHAR" property="modelStatus"/>
+        <result column="model_description" jdbcType="VARCHAR" property="modelDescription"/>
+        <result column="model_datasource_type" jdbcType="VARCHAR" property="modelDatasourceType"/>
+        <result column="model_class_type" jdbcType="VARCHAR" property="modelClassType"/>
+        <result column="model_theme_type" jdbcType="VARCHAR" property="modelThemeType"/>
+        <result column="model_layer_type" jdbcType="VARCHAR" property="modelLayerType"/>
+        <result column="model_table_type" jdbcType="VARCHAR" property="modelTableType"/>
+        <result column="model_update_cycle" jdbcType="VARCHAR" property="modelUpdateCycle"/>
+        <result column="model_warehouse_type" jdbcType="VARCHAR" property="modelWarehouseType"/>
+        <result column="model_table_permissions" jdbcType="VARCHAR" property="modelTablePermissions"/>
+        <result column="model_table_alias" jdbcType="VARCHAR" property="modelTableAlias"/>
+        <result column="model_table_level" jdbcType="VARCHAR" property="modelTableLevel"/>
+        <result column="model_life_cycle" jdbcType="VARCHAR" property="modelLifeCycle"/>
+        <result column="model_publish_status" jdbcType="VARCHAR" property="modelPublishStatus"/>
+        <result column="model_sql_script" jdbcType="LONGVARCHAR" property="modelSqlScript"/>
+        <result column="model_version" jdbcType="VARCHAR" property="modelVersion"/>
+        <result column="model_physical_database" jdbcType="VARCHAR" property="modelPhysicalDatabase"/>
+        <result column="model_datasource_id" jdbcType="BIGINT" property="modelDatasourceId"/>
+        <result column="model_public_type" jdbcType="VARCHAR" property="modelPublicType"/>
+        <result column="model_public_description" jdbcType="VARCHAR" property="modelPublicDescription"/>
+        <result column="warehouse_layer_id" jdbcType="BIGINT" property="warehouseLayerId"/>
+        <result column="model_table_custom_name" jdbcType="VARCHAR" property="modelTableCustomName"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_model_logical_main
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            project_id,
+            process_id,
+            model_name,
+            model_code,
+            model_status,
+            model_description,
+            model_datasource_type,
+            model_class_type,
+            model_theme_type,
+            model_layer_type,
+            model_table_type,
+            model_update_cycle,
+            model_warehouse_type,
+            model_table_permissions,
+            model_table_alias,
+            model_table_level,
+            model_life_cycle,
+            model_publish_status,
+            model_sql_script,
+            model_version,
+            model_physical_database,
+            model_datasource_id,
+            model_public_type,
+            model_public_description,
+            warehouse_layer_id,
+            model_table_custom_name)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.projectId},
+            #{item.processId},
+            #{item.modelName},
+            #{item.modelCode},
+            #{item.modelStatus},
+            #{item.modelDescription},
+            #{item.modelDatasourceType},
+            #{item.modelClassType},
+            #{item.modelThemeType},
+            #{item.modelLayerType},
+            #{item.modelTableType},
+            #{item.modelUpdateCycle},
+            #{item.modelWarehouseType},
+            #{item.modelTablePermissions},
+            #{item.modelTableAlias},
+            #{item.modelTableLevel},
+            #{item.modelLifeCycle},
+            #{item.modelPublishStatus},
+            #{item.modelSqlScript},
+            #{item.modelVersion},
+            #{item.modelPhysicalDatabase},
+            #{item.modelDatasourceId},
+            #{item.modelPublicType},
+            #{item.modelPublicDescription},
+            #{item.warehouseLayerId},
+            #{item.modelTableCustomName})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.ModelLogicalMainMapper.inputFilterRef"/>
+        AND sdt_model_logical_main.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="modelLogicalMainFilter != null">
+            <if test="modelLogicalMainFilter.id != null">
+                AND sdt_model_logical_main.id = #{modelLogicalMainFilter.id}
+            </if>
+            <if test="modelLogicalMainFilter.updateTimeStart != null and modelLogicalMainFilter.updateTimeStart != ''">
+                AND sdt_model_logical_main.update_time &gt;= #{modelLogicalMainFilter.updateTimeStart}
+            </if>
+            <if test="modelLogicalMainFilter.updateTimeEnd != null and modelLogicalMainFilter.updateTimeEnd != ''">
+                AND sdt_model_logical_main.update_time &lt;= #{modelLogicalMainFilter.updateTimeEnd}
+            </if>
+            <if test="modelLogicalMainFilter.createTimeStart != null and modelLogicalMainFilter.createTimeStart != ''">
+                AND sdt_model_logical_main.create_time &gt;= #{modelLogicalMainFilter.createTimeStart}
+            </if>
+            <if test="modelLogicalMainFilter.createTimeEnd != null and modelLogicalMainFilter.createTimeEnd != ''">
+                AND sdt_model_logical_main.create_time &lt;= #{modelLogicalMainFilter.createTimeEnd}
+            </if>
+            <if test="modelLogicalMainFilter.createUserId != null">
+                AND sdt_model_logical_main.create_user_id = #{modelLogicalMainFilter.createUserId}
+            </if>
+            <if test="modelLogicalMainFilter.updateUserId != null">
+                AND sdt_model_logical_main.update_user_id = #{modelLogicalMainFilter.updateUserId}
+            </if>
+            <if test="modelLogicalMainFilter.dataUserId != null">
+                AND sdt_model_logical_main.data_user_id = #{modelLogicalMainFilter.dataUserId}
+            </if>
+            <if test="modelLogicalMainFilter.dataDeptId != null">
+                AND sdt_model_logical_main.data_dept_id = #{modelLogicalMainFilter.dataDeptId}
+            </if>
+            <if test="modelLogicalMainFilter.projectId != null">
+                AND sdt_model_logical_main.project_id = #{modelLogicalMainFilter.projectId}
+            </if>
+            <if test="modelLogicalMainFilter.processId != null">
+                AND sdt_model_logical_main.process_id = #{modelLogicalMainFilter.processId}
+            </if>
+            <if test="modelLogicalMainFilter.modelName != null and modelLogicalMainFilter.modelName != ''">
+                <bind name = "safeModelLogicalMainModelName" value = "'%' + modelLogicalMainFilter.modelName + '%'" />
+                AND sdt_model_logical_main.model_name LIKE #{safeModelLogicalMainModelName}
+            </if>
+            <if test="modelLogicalMainFilter.modelCode != null and modelLogicalMainFilter.modelCode != ''">
+                <bind name = "safeModelLogicalMainModelCode" value = "'%' + modelLogicalMainFilter.modelCode + '%'" />
+                AND sdt_model_logical_main.model_code LIKE #{safeModelLogicalMainModelCode}
+            </if>
+            <if test="modelLogicalMainFilter.modelStatus != null and modelLogicalMainFilter.modelStatus != ''">
+                <bind name = "safeModelLogicalMainModelStatus" value = "'%' + modelLogicalMainFilter.modelStatus + '%'" />
+                AND sdt_model_logical_main.model_status LIKE #{safeModelLogicalMainModelStatus}
+            </if>
+            <if test="modelLogicalMainFilter.modelDescription != null and modelLogicalMainFilter.modelDescription != ''">
+                <bind name = "safeModelLogicalMainModelDescription" value = "'%' + modelLogicalMainFilter.modelDescription + '%'" />
+                AND sdt_model_logical_main.model_description LIKE #{safeModelLogicalMainModelDescription}
+            </if>
+            <if test="modelLogicalMainFilter.modelDatasourceType != null and modelLogicalMainFilter.modelDatasourceType != ''">
+                <bind name = "safeModelLogicalMainModelDatasourceType" value = "'%' + modelLogicalMainFilter.modelDatasourceType + '%'" />
+                AND sdt_model_logical_main.model_datasource_type LIKE #{safeModelLogicalMainModelDatasourceType}
+            </if>
+            <if test="modelLogicalMainFilter.modelClassType != null and modelLogicalMainFilter.modelClassType != ''">
+                <bind name = "safeModelLogicalMainModelClassType" value = "'%' + modelLogicalMainFilter.modelClassType + '%'" />
+                AND sdt_model_logical_main.model_class_type LIKE #{safeModelLogicalMainModelClassType}
+            </if>
+            <if test="modelLogicalMainFilter.modelThemeType != null and modelLogicalMainFilter.modelThemeType != ''">
+                <bind name = "safeModelLogicalMainModelThemeType" value = "'%' + modelLogicalMainFilter.modelThemeType + '%'" />
+                AND sdt_model_logical_main.model_theme_type LIKE #{safeModelLogicalMainModelThemeType}
+            </if>
+            <if test="modelLogicalMainFilter.modelLayerType != null and modelLogicalMainFilter.modelLayerType != ''">
+                <bind name = "safeModelLogicalMainModelLayerType" value = "'%' + modelLogicalMainFilter.modelLayerType + '%'" />
+                AND sdt_model_logical_main.model_layer_type LIKE #{safeModelLogicalMainModelLayerType}
+            </if>
+            <if test="modelLogicalMainFilter.modelTableType != null and modelLogicalMainFilter.modelTableType != ''">
+                <bind name = "safeModelLogicalMainModelTableType" value = "'%' + modelLogicalMainFilter.modelTableType + '%'" />
+                AND sdt_model_logical_main.model_table_type LIKE #{safeModelLogicalMainModelTableType}
+            </if>
+            <if test="modelLogicalMainFilter.modelUpdateCycle != null and modelLogicalMainFilter.modelUpdateCycle != ''">
+                <bind name = "safeModelLogicalMainModelUpdateCycle" value = "'%' + modelLogicalMainFilter.modelUpdateCycle + '%'" />
+                AND sdt_model_logical_main.model_update_cycle LIKE #{safeModelLogicalMainModelUpdateCycle}
+            </if>
+            <if test="modelLogicalMainFilter.modelWarehouseType != null and modelLogicalMainFilter.modelWarehouseType != ''">
+                <bind name = "safeModelLogicalMainModelWarehouseType" value = "'%' + modelLogicalMainFilter.modelWarehouseType + '%'" />
+                AND sdt_model_logical_main.model_warehouse_type LIKE #{safeModelLogicalMainModelWarehouseType}
+            </if>
+            <if test="modelLogicalMainFilter.modelTablePermissions != null and modelLogicalMainFilter.modelTablePermissions != ''">
+                <bind name = "safeModelLogicalMainModelTablePermissions" value = "'%' + modelLogicalMainFilter.modelTablePermissions + '%'" />
+                AND sdt_model_logical_main.model_table_permissions LIKE #{safeModelLogicalMainModelTablePermissions}
+            </if>
+            <if test="modelLogicalMainFilter.modelTableAlias != null and modelLogicalMainFilter.modelTableAlias != ''">
+                <bind name = "safeModelLogicalMainModelTableAlias" value = "'%' + modelLogicalMainFilter.modelTableAlias + '%'" />
+                AND sdt_model_logical_main.model_table_alias LIKE #{safeModelLogicalMainModelTableAlias}
+            </if>
+            <if test="modelLogicalMainFilter.modelTableLevel != null and modelLogicalMainFilter.modelTableLevel != ''">
+                <bind name = "safeModelLogicalMainModelTableLevel" value = "'%' + modelLogicalMainFilter.modelTableLevel + '%'" />
+                AND sdt_model_logical_main.model_table_level LIKE #{safeModelLogicalMainModelTableLevel}
+            </if>
+            <if test="modelLogicalMainFilter.modelLifeCycle != null and modelLogicalMainFilter.modelLifeCycle != ''">
+                <bind name = "safeModelLogicalMainModelLifeCycle" value = "'%' + modelLogicalMainFilter.modelLifeCycle + '%'" />
+                AND sdt_model_logical_main.model_life_cycle LIKE #{safeModelLogicalMainModelLifeCycle}
+            </if>
+            <if test="modelLogicalMainFilter.modelPublishStatus != null and modelLogicalMainFilter.modelPublishStatus != ''">
+                <bind name = "safeModelLogicalMainModelPublishStatus" value = "'%' + modelLogicalMainFilter.modelPublishStatus + '%'" />
+                AND sdt_model_logical_main.model_publish_status LIKE #{safeModelLogicalMainModelPublishStatus}
+            </if>
+            <if test="modelLogicalMainFilter.modelSqlScript != null and modelLogicalMainFilter.modelSqlScript != ''">
+                <bind name = "safeModelLogicalMainModelSqlScript" value = "'%' + modelLogicalMainFilter.modelSqlScript + '%'" />
+                AND sdt_model_logical_main.model_sql_script LIKE #{safeModelLogicalMainModelSqlScript}
+            </if>
+            <if test="modelLogicalMainFilter.modelVersion != null and modelLogicalMainFilter.modelVersion != ''">
+                <bind name = "safeModelLogicalMainModelVersion" value = "'%' + modelLogicalMainFilter.modelVersion + '%'" />
+                AND sdt_model_logical_main.model_version LIKE #{safeModelLogicalMainModelVersion}
+            </if>
+            <if test="modelLogicalMainFilter.modelPhysicalDatabase != null and modelLogicalMainFilter.modelPhysicalDatabase != ''">
+                <bind name = "safeModelLogicalMainModelPhysicalDatabase" value = "'%' + modelLogicalMainFilter.modelPhysicalDatabase + '%'" />
+                AND sdt_model_logical_main.model_physical_database LIKE #{safeModelLogicalMainModelPhysicalDatabase}
+            </if>
+            <if test="modelLogicalMainFilter.modelDatasourceId != null">
+                AND sdt_model_logical_main.model_datasource_id = #{modelLogicalMainFilter.modelDatasourceId}
+            </if>
+            <if test="modelLogicalMainFilter.modelPublicType != null and modelLogicalMainFilter.modelPublicType != ''">
+                <bind name = "safeModelLogicalMainModelPublicType" value = "'%' + modelLogicalMainFilter.modelPublicType + '%'" />
+                AND sdt_model_logical_main.model_public_type LIKE #{safeModelLogicalMainModelPublicType}
+            </if>
+            <if test="modelLogicalMainFilter.modelPublicDescription != null and modelLogicalMainFilter.modelPublicDescription != ''">
+                <bind name = "safeModelLogicalMainModelPublicDescription" value = "'%' + modelLogicalMainFilter.modelPublicDescription + '%'" />
+                AND sdt_model_logical_main.model_public_description LIKE #{safeModelLogicalMainModelPublicDescription}
+            </if>
+            <if test="modelLogicalMainFilter.searchString != null and modelLogicalMainFilter.searchString != ''">
+                <bind name = "safeModelLogicalMainSearchString" value = "'%' + modelLogicalMainFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_model_logical_main.model_name,''), IFNULL(sdt_model_logical_main.model_code,''), IFNULL(sdt_model_logical_main.model_status,''), IFNULL(sdt_model_logical_main.model_description,''), IFNULL(sdt_model_logical_main.model_datasource_type,''), IFNULL(sdt_model_logical_main.model_class_type,''), IFNULL(sdt_model_logical_main.model_theme_type,''), IFNULL(sdt_model_logical_main.model_layer_type,''), IFNULL(sdt_model_logical_main.model_table_type,''), IFNULL(sdt_model_logical_main.model_update_cycle,''), IFNULL(sdt_model_logical_main.model_warehouse_type,''), IFNULL(sdt_model_logical_main.model_table_permissions,''), IFNULL(sdt_model_logical_main.model_table_alias,''), IFNULL(sdt_model_logical_main.model_table_level,''), IFNULL(sdt_model_logical_main.model_life_cycle,''), IFNULL(sdt_model_logical_main.model_publish_status,''), IFNULL(sdt_model_logical_main.model_sql_script,''), IFNULL(sdt_model_logical_main.model_version,''), IFNULL(sdt_model_logical_main.model_physical_database,''), IFNULL(sdt_model_logical_main.model_public_type,''), IFNULL(sdt_model_logical_main.model_public_description,'')) LIKE #{safeModelLogicalMainSearchString}
+            </if>
+            <if test="modelLogicalMainFilter.warehouseLayerId != null">
+                AND sdt_model_logical_main.warehouse_layer_id = #{modelLogicalMainFilter.warehouseLayerId}
+            </if>
+            <if test="modelLogicalMainFilter.modelTableCustomName != null and modelLogicalMainFilter.modelTableCustomName != ''">
+                <bind name = "safeModelLogicalMainModelTableCustomName" value = "'%' + modelLogicalMainFilter.modelTableCustomName + '%'" />
+                AND sdt_model_logical_main.model_public_description LIKE #{safeModelLogicalMainModelTableCustomName}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedModelLogicalMainList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ModelLogicalMain">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_model_logical_main
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_model_logical_main
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getModelLogicalMainList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ModelLogicalMain">
+        SELECT * FROM sdt_model_logical_main
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

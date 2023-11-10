@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.DevLiteflowScriptMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.DevLiteflowScript">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="str_id" jdbcType="VARCHAR" property="strId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="application_name" jdbcType="VARCHAR" property="applicationName"/>
+        <result column="script_id" jdbcType="VARCHAR" property="scriptId"/>
+        <result column="script_name" jdbcType="VARCHAR" property="scriptName"/>
+        <result column="script_data" jdbcType="LONGVARCHAR" property="scriptData"/>
+        <result column="script_type" jdbcType="VARCHAR" property="scriptType"/>
+        <result column="script_language" jdbcType="VARCHAR" property="scriptLanguage"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_dev_liteflow_script
+            (id,
+            str_id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            application_name,
+            script_id,
+            script_name,
+            script_data,
+            script_type,
+            script_language)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.strId},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.applicationName},
+            #{item.scriptId},
+            #{item.scriptName},
+            #{item.scriptData},
+            #{item.scriptType},
+            #{item.scriptLanguage})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.DevLiteflowScriptMapper.inputFilterRef"/>
+        AND sdt_dev_liteflow_script.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="devLiteflowScriptFilter != null">
+            <if test="devLiteflowScriptFilter.id != null">
+                AND sdt_dev_liteflow_script.id = #{devLiteflowScriptFilter.id}
+            </if>
+            <if test="devLiteflowScriptFilter.strId != null and devLiteflowScriptFilter.strId != ''">
+                AND sdt_dev_liteflow_script.str_id = #{devLiteflowScriptFilter.strId}
+            </if>
+            <if test="devLiteflowScriptFilter.updateTimeStart != null and devLiteflowScriptFilter.updateTimeStart != ''">
+                AND sdt_dev_liteflow_script.update_time &gt;= #{devLiteflowScriptFilter.updateTimeStart}
+            </if>
+            <if test="devLiteflowScriptFilter.updateTimeEnd != null and devLiteflowScriptFilter.updateTimeEnd != ''">
+                AND sdt_dev_liteflow_script.update_time &lt;= #{devLiteflowScriptFilter.updateTimeEnd}
+            </if>
+            <if test="devLiteflowScriptFilter.createTimeStart != null and devLiteflowScriptFilter.createTimeStart != ''">
+                AND sdt_dev_liteflow_script.create_time &gt;= #{devLiteflowScriptFilter.createTimeStart}
+            </if>
+            <if test="devLiteflowScriptFilter.createTimeEnd != null and devLiteflowScriptFilter.createTimeEnd != ''">
+                AND sdt_dev_liteflow_script.create_time &lt;= #{devLiteflowScriptFilter.createTimeEnd}
+            </if>
+            <if test="devLiteflowScriptFilter.createUserId != null">
+                AND sdt_dev_liteflow_script.create_user_id = #{devLiteflowScriptFilter.createUserId}
+            </if>
+            <if test="devLiteflowScriptFilter.updateUserId != null">
+                AND sdt_dev_liteflow_script.update_user_id = #{devLiteflowScriptFilter.updateUserId}
+            </if>
+            <if test="devLiteflowScriptFilter.dataUserId != null">
+                AND sdt_dev_liteflow_script.data_user_id = #{devLiteflowScriptFilter.dataUserId}
+            </if>
+            <if test="devLiteflowScriptFilter.dataDeptId != null">
+                AND sdt_dev_liteflow_script.data_dept_id = #{devLiteflowScriptFilter.dataDeptId}
+            </if>
+            <if test="devLiteflowScriptFilter.applicationName != null and devLiteflowScriptFilter.applicationName != ''">
+                AND sdt_dev_liteflow_script.application_name = #{devLiteflowScriptFilter.applicationName}
+            </if>
+            <if test="devLiteflowScriptFilter.scriptId != null and devLiteflowScriptFilter.scriptId != ''">
+                AND sdt_dev_liteflow_script.script_id = #{devLiteflowScriptFilter.scriptId}
+            </if>
+            <if test="devLiteflowScriptFilter.scriptName != null and devLiteflowScriptFilter.scriptName != ''">
+                <bind name = "safeDevLiteflowScriptScriptName" value = "'%' + devLiteflowScriptFilter.scriptName + '%'" />
+                AND sdt_dev_liteflow_script.script_name LIKE #{safeDevLiteflowScriptScriptName}
+            </if>
+            <if test="devLiteflowScriptFilter.scriptType != null and devLiteflowScriptFilter.scriptType != ''">
+                <bind name = "safeDevLiteflowScriptScriptType" value = "'%' + devLiteflowScriptFilter.scriptType + '%'" />
+                AND sdt_dev_liteflow_script.script_type LIKE #{safeDevLiteflowScriptScriptType}
+            </if>
+            <if test="devLiteflowScriptFilter.scriptLanguage != null and devLiteflowScriptFilter.scriptLanguage != ''">
+                <bind name = "safeDevLiteflowScriptScriptLanguage" value = "'%' + devLiteflowScriptFilter.scriptLanguage + '%'" />
+                AND sdt_dev_liteflow_script.script_language LIKE #{safeDevLiteflowScriptScriptLanguage}
+            </if>
+            <if test="devLiteflowScriptFilter.searchString != null and devLiteflowScriptFilter.searchString != ''">
+                <bind name = "safeDevLiteflowScriptSearchString" value = "'%' + devLiteflowScriptFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_dev_liteflow_script.application_name,''), IFNULL(sdt_dev_liteflow_script.script_name,''), IFNULL(sdt_dev_liteflow_script.script_language,'')) LIKE #{safeDevLiteflowScriptSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getDevLiteflowScriptList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DevLiteflowScript">
+        SELECT * FROM sdt_dev_liteflow_script
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

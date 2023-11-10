@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.DevLiteflowRulerMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.DevLiteflowRuler">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="str_id" jdbcType="VARCHAR" property="strId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="application_name" jdbcType="VARCHAR" property="applicationName"/>
+        <result column="chain_name" jdbcType="VARCHAR" property="chainName"/>
+        <result column="chain_desc" jdbcType="VARCHAR" property="chainDesc"/>
+        <result column="el_data" jdbcType="LONGVARCHAR" property="elData"/>
+        <result column="chain_structure_json" jdbcType="LONGVARCHAR" property="chainStructureJson"/>
+        <result column="online_type" jdbcType="INTEGER" property="onlineType"/>
+        <result column="previous_version_id" jdbcType="BIGINT" property="previousVersionId"/>
+        <result column="process_id" jdbcType="BIGINT" property="processId"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_dev_liteflow_ruler
+            (id,
+            str_id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            application_name,
+            chain_name,
+            chain_desc,
+            el_data,
+            chain_structure_json,
+            online_type,
+            previous_version_id,
+            process_id,
+            project_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.strId},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.applicationName},
+            #{item.chainName},
+            #{item.chainDesc},
+            #{item.elData},
+            #{item.chainStructureJson},
+            #{item.onlineType},
+            #{item.previousVersionId},
+            #{item.processId},
+            #{item.projectId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.DevLiteflowRulerMapper.inputFilterRef"/>
+        AND sdt_dev_liteflow_ruler.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="devLiteflowRulerFilter != null">
+            <if test="devLiteflowRulerFilter.id != null">
+                AND sdt_dev_liteflow_ruler.id = #{devLiteflowRulerFilter.id}
+            </if>
+            <if test="devLiteflowRulerFilter.strId != null and devLiteflowRulerFilter.strId != ''">
+                AND sdt_dev_liteflow_ruler.str_id = #{devLiteflowRulerFilter.strId}
+            </if>
+            <if test="devLiteflowRulerFilter.updateTimeStart != null and devLiteflowRulerFilter.updateTimeStart != ''">
+                AND sdt_dev_liteflow_ruler.update_time &gt;= #{devLiteflowRulerFilter.updateTimeStart}
+            </if>
+            <if test="devLiteflowRulerFilter.updateTimeEnd != null and devLiteflowRulerFilter.updateTimeEnd != ''">
+                AND sdt_dev_liteflow_ruler.update_time &lt;= #{devLiteflowRulerFilter.updateTimeEnd}
+            </if>
+            <if test="devLiteflowRulerFilter.createTimeStart != null and devLiteflowRulerFilter.createTimeStart != ''">
+                AND sdt_dev_liteflow_ruler.create_time &gt;= #{devLiteflowRulerFilter.createTimeStart}
+            </if>
+            <if test="devLiteflowRulerFilter.createTimeEnd != null and devLiteflowRulerFilter.createTimeEnd != ''">
+                AND sdt_dev_liteflow_ruler.create_time &lt;= #{devLiteflowRulerFilter.createTimeEnd}
+            </if>
+            <if test="devLiteflowRulerFilter.createUserId != null">
+                AND sdt_dev_liteflow_ruler.create_user_id = #{devLiteflowRulerFilter.createUserId}
+            </if>
+            <if test="devLiteflowRulerFilter.updateUserId != null">
+                AND sdt_dev_liteflow_ruler.update_user_id = #{devLiteflowRulerFilter.updateUserId}
+            </if>
+            <if test="devLiteflowRulerFilter.dataUserId != null">
+                AND sdt_dev_liteflow_ruler.data_user_id = #{devLiteflowRulerFilter.dataUserId}
+            </if>
+            <if test="devLiteflowRulerFilter.dataDeptId != null">
+                AND sdt_dev_liteflow_ruler.data_dept_id = #{devLiteflowRulerFilter.dataDeptId}
+            </if>
+            <if test="devLiteflowRulerFilter.applicationName != null and devLiteflowRulerFilter.applicationName != ''">
+                <bind name = "safeDevLiteflowRulerApplicationName" value = "'%' + devLiteflowRulerFilter.applicationName + '%'" />
+                AND sdt_dev_liteflow_ruler.application_name LIKE #{safeDevLiteflowRulerApplicationName}
+            </if>
+            <if test="devLiteflowRulerFilter.chainName != null and devLiteflowRulerFilter.chainName != ''">
+                AND sdt_dev_liteflow_ruler.chain_name = #{devLiteflowRulerFilter.chainName}
+            </if>
+            <if test="devLiteflowRulerFilter.chainDesc != null and devLiteflowRulerFilter.chainDesc != ''">
+                AND sdt_dev_liteflow_ruler.chain_desc = #{devLiteflowRulerFilter.chainDesc}
+            </if>
+            <if test="devLiteflowRulerFilter.onlineType != null">
+                AND sdt_dev_liteflow_ruler.online_type = #{devLiteflowRulerFilter.onlineType}
+            </if>
+            <if test="devLiteflowRulerFilter.previousVersionId != null">
+                AND sdt_dev_liteflow_ruler.previous_version_id = #{devLiteflowRulerFilter.previousVersionId}
+            </if>
+            <if test="devLiteflowRulerFilter.processId != null">
+                AND sdt_dev_liteflow_ruler.process_id = #{devLiteflowRulerFilter.processId}
+            </if>
+            <if test="devLiteflowRulerFilter.projectId != null">
+                AND sdt_dev_liteflow_ruler.project_id = #{devLiteflowRulerFilter.projectId}
+            </if>
+            <if test="devLiteflowRulerFilter.searchString != null and devLiteflowRulerFilter.searchString != ''">
+                <bind name = "safeDevLiteflowRulerSearchString" value = "'%' + devLiteflowRulerFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_dev_liteflow_ruler.application_name,''), IFNULL(sdt_dev_liteflow_ruler.chain_name,'')) LIKE #{safeDevLiteflowRulerSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getDevLiteflowRulerList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DevLiteflowRuler">
+        SELECT * FROM sdt_dev_liteflow_ruler
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

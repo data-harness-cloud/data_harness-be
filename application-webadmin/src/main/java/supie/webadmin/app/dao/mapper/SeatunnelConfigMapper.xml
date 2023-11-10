@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.SeatunnelConfigMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.SeatunnelConfig">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="show_name" jdbcType="VARCHAR" property="showName"/>
+        <result column="call_mode" jdbcType="INTEGER" property="callMode"/>
+        <result column="remote_host_id" jdbcType="BIGINT" property="remoteHostId"/>
+        <result column="localhost_uri" jdbcType="VARCHAR" property="localhostUri"/>
+        <result column="seatunnel_path" jdbcType="VARCHAR" property="seatunnelPath"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="submit_job_url" jdbcType="VARCHAR" property="submitJobUrl"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_seatunnel_config
+            (id,
+            show_name,
+            call_mode,
+            remote_host_id,
+            localhost_uri,
+            seatunnel_path,
+            is_delete,
+            submit_job_url,
+            create_time,
+            create_user_id,
+            update_time,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            project_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.showName},
+            #{item.callMode},
+            #{item.remoteHostId},
+            #{item.localhostUri},
+            #{item.seatunnelPath},
+            #{item.isDelete},
+            #{item.submitJobUrl},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateTime},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.projectId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.SeatunnelConfigMapper.inputFilterRef"/>
+        AND sdt_seatunnel_config.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="seatunnelConfigFilter != null">
+            <if test="seatunnelConfigFilter.id != null">
+                AND sdt_seatunnel_config.id = #{seatunnelConfigFilter.id}
+            </if>
+            <if test="seatunnelConfigFilter.showName != null and seatunnelConfigFilter.showName != ''">
+                <bind name = "safeSeatunnelConfigShowName" value = "'%' + seatunnelConfigFilter.showName + '%'" />
+                AND sdt_seatunnel_config.show_name LIKE #{safeSeatunnelConfigShowName}
+            </if>
+            <if test="seatunnelConfigFilter.remoteHostId != null">
+                AND sdt_seatunnel_config.remote_host_id = #{seatunnelConfigFilter.remoteHostId}
+            </if>
+            <if test="seatunnelConfigFilter.seatunnelPath != null and seatunnelConfigFilter.seatunnelPath != ''">
+                <bind name = "safeSeatunnelConfigSeatunnelPath" value = "'%' + seatunnelConfigFilter.seatunnelPath + '%'" />
+                AND sdt_seatunnel_config.seatunnel_path LIKE #{safeSeatunnelConfigSeatunnelPath}
+            </if>
+            <if test="seatunnelConfigFilter.createTimeStart != null and seatunnelConfigFilter.createTimeStart != ''">
+                AND sdt_seatunnel_config.create_time &gt;= #{seatunnelConfigFilter.createTimeStart}
+            </if>
+            <if test="seatunnelConfigFilter.createTimeEnd != null and seatunnelConfigFilter.createTimeEnd != ''">
+                AND sdt_seatunnel_config.create_time &lt;= #{seatunnelConfigFilter.createTimeEnd}
+            </if>
+            <if test="seatunnelConfigFilter.createUserId != null">
+                AND sdt_seatunnel_config.create_user_id = #{seatunnelConfigFilter.createUserId}
+            </if>
+            <if test="seatunnelConfigFilter.updateTimeStart != null and seatunnelConfigFilter.updateTimeStart != ''">
+                AND sdt_seatunnel_config.update_time &gt;= #{seatunnelConfigFilter.updateTimeStart}
+            </if>
+            <if test="seatunnelConfigFilter.updateTimeEnd != null and seatunnelConfigFilter.updateTimeEnd != ''">
+                AND sdt_seatunnel_config.update_time &lt;= #{seatunnelConfigFilter.updateTimeEnd}
+            </if>
+            <if test="seatunnelConfigFilter.updateUserId != null">
+                AND sdt_seatunnel_config.update_user_id = #{seatunnelConfigFilter.updateUserId}
+            </if>
+            <if test="seatunnelConfigFilter.dataUserId != null">
+                AND sdt_seatunnel_config.data_user_id = #{seatunnelConfigFilter.dataUserId}
+            </if>
+            <if test="seatunnelConfigFilter.dataDeptId != null">
+                AND sdt_seatunnel_config.data_dept_id = #{seatunnelConfigFilter.dataDeptId}
+            </if>
+            <if test="seatunnelConfigFilter.projectId != null">
+                AND sdt_seatunnel_config.project_id = #{seatunnelConfigFilter.projectId}
+            </if>
+            <if test="seatunnelConfigFilter.searchString != null and seatunnelConfigFilter.searchString != ''">
+                <bind name = "safeSeatunnelConfigSearchString" value = "'%' + seatunnelConfigFilter.searchString + '%'" />
+                AND IFNULL(sdt_seatunnel_config.show_name,'') LIKE #{safeSeatunnelConfigSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getSeatunnelConfigList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.SeatunnelConfig">
+        SELECT * FROM sdt_seatunnel_config
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

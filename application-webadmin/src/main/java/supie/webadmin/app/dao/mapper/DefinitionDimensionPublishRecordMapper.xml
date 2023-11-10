@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.DefinitionDimensionPublishRecordMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.DefinitionDimensionPublishRecord">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="str_id" jdbcType="VARCHAR" property="strId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="dimension_id" jdbcType="BIGINT" property="dimensionId"/>
+        <result column="publish_database" jdbcType="VARCHAR" property="publishDatabase"/>
+        <result column="publish_database_type" jdbcType="VARCHAR" property="publishDatabaseType"/>
+        <result column="publish_type" jdbcType="VARCHAR" property="publishType"/>
+        <result column="physics_table_name" jdbcType="VARCHAR" property="physicsTableName"/>
+        <result column="publish_description" jdbcType="VARCHAR" property="publishDescription"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_definition_dimension_publish_record
+            (id,
+            str_id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            dimension_id,
+            publish_database,
+            publish_database_type,
+            publish_type,
+            physics_table_name,
+            publish_description)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.strId},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.dimensionId},
+            #{item.publishDatabase},
+            #{item.publishDatabaseType},
+            #{item.publishType},
+            #{item.physicsTableName},
+            #{item.publishDescription})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.DefinitionDimensionPublishRecordMapper.inputFilterRef"/>
+        AND sdt_definition_dimension_publish_record.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="definitionDimensionPublishRecordFilter != null">
+            <if test="definitionDimensionPublishRecordFilter.id != null">
+                AND sdt_definition_dimension_publish_record.id = #{definitionDimensionPublishRecordFilter.id}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.strId != null and definitionDimensionPublishRecordFilter.strId != ''">
+                AND sdt_definition_dimension_publish_record.str_id = #{definitionDimensionPublishRecordFilter.strId}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.updateTimeStart != null and definitionDimensionPublishRecordFilter.updateTimeStart != ''">
+                AND sdt_definition_dimension_publish_record.update_time &gt;= #{definitionDimensionPublishRecordFilter.updateTimeStart}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.updateTimeEnd != null and definitionDimensionPublishRecordFilter.updateTimeEnd != ''">
+                AND sdt_definition_dimension_publish_record.update_time &lt;= #{definitionDimensionPublishRecordFilter.updateTimeEnd}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.createTimeStart != null and definitionDimensionPublishRecordFilter.createTimeStart != ''">
+                AND sdt_definition_dimension_publish_record.create_time &gt;= #{definitionDimensionPublishRecordFilter.createTimeStart}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.createTimeEnd != null and definitionDimensionPublishRecordFilter.createTimeEnd != ''">
+                AND sdt_definition_dimension_publish_record.create_time &lt;= #{definitionDimensionPublishRecordFilter.createTimeEnd}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.createUserId != null">
+                AND sdt_definition_dimension_publish_record.create_user_id = #{definitionDimensionPublishRecordFilter.createUserId}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.updateUserId != null">
+                AND sdt_definition_dimension_publish_record.update_user_id = #{definitionDimensionPublishRecordFilter.updateUserId}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.dataUserId != null">
+                AND sdt_definition_dimension_publish_record.data_user_id = #{definitionDimensionPublishRecordFilter.dataUserId}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.dataDeptId != null">
+                AND sdt_definition_dimension_publish_record.data_dept_id = #{definitionDimensionPublishRecordFilter.dataDeptId}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.dimensionId != null">
+                AND sdt_definition_dimension_publish_record.dimension_id = #{definitionDimensionPublishRecordFilter.dimensionId}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.publishDatabase != null and definitionDimensionPublishRecordFilter.publishDatabase != ''">
+                <bind name = "safeDefinitionDimensionPublishRecordPublishDatabase" value = "'%' + definitionDimensionPublishRecordFilter.publishDatabase + '%'" />
+                AND sdt_definition_dimension_publish_record.publish_database LIKE #{safeDefinitionDimensionPublishRecordPublishDatabase}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.publishDatabaseType != null and definitionDimensionPublishRecordFilter.publishDatabaseType != ''">
+                AND sdt_definition_dimension_publish_record.publish_database_type = #{definitionDimensionPublishRecordFilter.publishDatabaseType}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.publishType != null and definitionDimensionPublishRecordFilter.publishType != ''">
+                AND sdt_definition_dimension_publish_record.publish_type = #{definitionDimensionPublishRecordFilter.publishType}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.physicsTableName != null and definitionDimensionPublishRecordFilter.physicsTableName != ''">
+                <bind name = "safeDefinitionDimensionPublishRecordPhysicsTableName" value = "'%' + definitionDimensionPublishRecordFilter.physicsTableName + '%'" />
+                AND sdt_definition_dimension_publish_record.physics_table_name LIKE #{safeDefinitionDimensionPublishRecordPhysicsTableName}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.publishDescription != null and definitionDimensionPublishRecordFilter.publishDescription != ''">
+                <bind name = "safeDefinitionDimensionPublishRecordPublishDescription" value = "'%' + definitionDimensionPublishRecordFilter.publishDescription + '%'" />
+                AND sdt_definition_dimension_publish_record.publish_description LIKE #{safeDefinitionDimensionPublishRecordPublishDescription}
+            </if>
+            <if test="definitionDimensionPublishRecordFilter.searchString != null and definitionDimensionPublishRecordFilter.searchString != ''">
+                <bind name = "safeDefinitionDimensionPublishRecordSearchString" value = "'%' + definitionDimensionPublishRecordFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_definition_dimension_publish_record.publish_database,''), IFNULL(sdt_definition_dimension_publish_record.publish_database_type,''), IFNULL(sdt_definition_dimension_publish_record.publish_type,''), IFNULL(sdt_definition_dimension_publish_record.physics_table_name,''), IFNULL(sdt_definition_dimension_publish_record.publish_description,'')) LIKE #{safeDefinitionDimensionPublishRecordSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedDefinitionDimensionPublishRecordList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DefinitionDimensionPublishRecord">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_definition_dimension_publish_record
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_definition_dimension_publish_record
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getDefinitionDimensionPublishRecordList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DefinitionDimensionPublishRecord">
+        SELECT * FROM sdt_definition_dimension_publish_record
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

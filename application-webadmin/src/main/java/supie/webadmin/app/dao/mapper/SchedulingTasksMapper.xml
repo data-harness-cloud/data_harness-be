@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.SchedulingTasksMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.SchedulingTasks">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="task_name" jdbcType="VARCHAR" property="taskName"/>
+        <result column="task_group" jdbcType="VARCHAR" property="taskGroup"/>
+        <result column="task_state" jdbcType="VARCHAR" property="taskState"/>
+        <result column="ruler_id" jdbcType="BIGINT" property="rulerId"/>
+        <result column="task_description" jdbcType="VARCHAR" property="taskDescription"/>
+        <result column="run_type" jdbcType="INTEGER" property="runType"/>
+        <result column="run_number" jdbcType="INTEGER" property="runNumber"/>
+        <result column="task_class_name" jdbcType="VARCHAR" property="taskClassName"/>
+        <result column="configuration_type" jdbcType="INTEGER" property="configurationType"/>
+        <result column="error_number" jdbcType="INTEGER" property="errorNumber"/>
+        <result column="cron_expression" jdbcType="VARCHAR" property="cronExpression"/>
+        <result column="cron_analytic_information" jdbcType="LONGVARCHAR" property="cronAnalyticInformation"/>
+        <result column="success_number" jdbcType="INTEGER" property="successNumber"/>
+        <result column="process_id" jdbcType="BIGINT" property="processId"/>
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
+        <result column="task_data_map" jdbcType="LONGVARCHAR" property="taskDataMap"/>
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+        <result column="error_msg" jdbcType="LONGVARCHAR" property="errorMsg"/>
+        <result column="classification_id" jdbcType="BIGINT" property="classificationId"/>
+        <result column="process_theme_id" jdbcType="BIGINT" property="processThemeId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_scheduling_tasks
+            (id,
+            create_time,
+            create_user_id,
+            update_time,
+            update_user_id,
+            data_dept_id,
+            data_user_id,
+            is_delete,
+            task_name,
+            task_group,
+            task_state,
+            ruler_id,
+            task_description,
+            run_type,
+            run_number,
+            task_class_name,
+            configuration_type,
+            error_number,
+            cron_expression,
+            cron_analytic_information,
+            success_number,
+            process_id,
+            start_time,
+            task_data_map,
+            end_time,
+            project_id,
+            error_msg,
+            classification_id,
+            process_theme_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateTime},
+            #{item.updateUserId},
+            #{item.dataDeptId},
+            #{item.dataUserId},
+            #{item.isDelete},
+            #{item.taskName},
+            #{item.taskGroup},
+            #{item.taskState},
+            #{item.rulerId},
+            #{item.taskDescription},
+            #{item.runType},
+            #{item.runNumber},
+            #{item.taskClassName},
+            #{item.configurationType},
+            #{item.errorNumber},
+            #{item.cronExpression},
+            #{item.cronAnalyticInformation},
+            #{item.successNumber},
+            #{item.processId},
+            #{item.startTime},
+            #{item.taskDataMap},
+            #{item.endTime},
+            #{item.projectId},
+            #{item.errorMsg},
+            #{item.classificationId},
+            #{item.processThemeId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.SchedulingTasksMapper.inputFilterRef"/>
+        AND sdt_scheduling_tasks.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="schedulingTasksFilter != null">
+            <if test="schedulingTasksFilter.id != null">
+                AND sdt_scheduling_tasks.id = #{schedulingTasksFilter.id}
+            </if>
+            <if test="schedulingTasksFilter.createTimeStart != null and schedulingTasksFilter.createTimeStart != ''">
+                AND sdt_scheduling_tasks.create_time &gt;= #{schedulingTasksFilter.createTimeStart}
+            </if>
+            <if test="schedulingTasksFilter.createTimeEnd != null and schedulingTasksFilter.createTimeEnd != ''">
+                AND sdt_scheduling_tasks.create_time &lt;= #{schedulingTasksFilter.createTimeEnd}
+            </if>
+            <if test="schedulingTasksFilter.createUserId != null">
+                AND sdt_scheduling_tasks.create_user_id = #{schedulingTasksFilter.createUserId}
+            </if>
+            <if test="schedulingTasksFilter.updateTimeStart != null and schedulingTasksFilter.updateTimeStart != ''">
+                AND sdt_scheduling_tasks.update_time &gt;= #{schedulingTasksFilter.updateTimeStart}
+            </if>
+            <if test="schedulingTasksFilter.updateTimeEnd != null and schedulingTasksFilter.updateTimeEnd != ''">
+                AND sdt_scheduling_tasks.update_time &lt;= #{schedulingTasksFilter.updateTimeEnd}
+            </if>
+            <if test="schedulingTasksFilter.updateUserId != null">
+                AND sdt_scheduling_tasks.update_user_id = #{schedulingTasksFilter.updateUserId}
+            </if>
+            <if test="schedulingTasksFilter.dataDeptId != null">
+                AND sdt_scheduling_tasks.data_dept_id = #{schedulingTasksFilter.dataDeptId}
+            </if>
+            <if test="schedulingTasksFilter.dataUserId != null">
+                AND sdt_scheduling_tasks.data_user_id = #{schedulingTasksFilter.dataUserId}
+            </if>
+            <if test="schedulingTasksFilter.taskName != null and schedulingTasksFilter.taskName != ''">
+                <bind name = "safeSchedulingTasksTaskName" value = "'%' + schedulingTasksFilter.taskName + '%'" />
+                AND sdt_scheduling_tasks.task_name LIKE #{safeSchedulingTasksTaskName}
+            </if>
+            <if test="schedulingTasksFilter.taskGroup != null and schedulingTasksFilter.taskGroup != ''">
+                AND sdt_scheduling_tasks.task_group = #{schedulingTasksFilter.taskGroup}
+            </if>
+            <if test="schedulingTasksFilter.taskState != null and schedulingTasksFilter.taskState != ''">
+                <bind name = "safeSchedulingTasksTaskState" value = "'%' + schedulingTasksFilter.taskState + '%'" />
+                AND sdt_scheduling_tasks.task_state LIKE #{safeSchedulingTasksTaskState}
+            </if>
+            <if test="schedulingTasksFilter.rulerId != null">
+                AND sdt_scheduling_tasks.ruler_id = #{schedulingTasksFilter.rulerId}
+            </if>
+            <if test="schedulingTasksFilter.taskDescription != null and schedulingTasksFilter.taskDescription != ''">
+                <bind name = "safeSchedulingTasksTaskDescription" value = "'%' + schedulingTasksFilter.taskDescription + '%'" />
+                AND sdt_scheduling_tasks.task_description LIKE #{safeSchedulingTasksTaskDescription}
+            </if>
+            <if test="schedulingTasksFilter.runType != null">
+                AND sdt_scheduling_tasks.run_type = #{schedulingTasksFilter.runType}
+            </if>
+            <if test="schedulingTasksFilter.runNumberStart != null">
+                AND sdt_scheduling_tasks.run_number &gt;= #{schedulingTasksFilter.runNumberStart}
+            </if>
+            <if test="schedulingTasksFilter.runNumberEnd != null">
+                AND sdt_scheduling_tasks.run_number &lt;= #{schedulingTasksFilter.runNumberEnd}
+            </if>
+            <if test="schedulingTasksFilter.taskClassName != null and schedulingTasksFilter.taskClassName != ''">
+                AND sdt_scheduling_tasks.task_class_name = #{schedulingTasksFilter.taskClassName}
+            </if>
+            <if test="schedulingTasksFilter.configurationType != null">
+                AND sdt_scheduling_tasks.configuration_type = #{schedulingTasksFilter.configurationType}
+            </if>
+            <if test="schedulingTasksFilter.errorNumberStart != null">
+                AND sdt_scheduling_tasks.error_number &gt;= #{schedulingTasksFilter.errorNumberStart}
+            </if>
+            <if test="schedulingTasksFilter.errorNumberEnd != null">
+                AND sdt_scheduling_tasks.error_number &lt;= #{schedulingTasksFilter.errorNumberEnd}
+            </if>
+            <if test="schedulingTasksFilter.successNumberStart != null">
+                AND sdt_scheduling_tasks.success_number &gt;= #{schedulingTasksFilter.successNumberStart}
+            </if>
+            <if test="schedulingTasksFilter.successNumberEnd != null">
+                AND sdt_scheduling_tasks.success_number &lt;= #{schedulingTasksFilter.successNumberEnd}
+            </if>
+            <if test="schedulingTasksFilter.processId != null">
+                AND sdt_scheduling_tasks.process_id = #{schedulingTasksFilter.processId}
+            </if>
+            <if test="schedulingTasksFilter.startTimeStart != null and schedulingTasksFilter.startTimeStart != ''">
+                AND sdt_scheduling_tasks.start_time &gt;= #{schedulingTasksFilter.startTimeStart}
+            </if>
+            <if test="schedulingTasksFilter.startTimeEnd != null and schedulingTasksFilter.startTimeEnd != ''">
+                AND sdt_scheduling_tasks.start_time &lt;= #{schedulingTasksFilter.startTimeEnd}
+            </if>
+            <if test="schedulingTasksFilter.endTimeStart != null and schedulingTasksFilter.endTimeStart != ''">
+                AND sdt_scheduling_tasks.end_time &gt;= #{schedulingTasksFilter.endTimeStart}
+            </if>
+            <if test="schedulingTasksFilter.endTimeEnd != null and schedulingTasksFilter.endTimeEnd != ''">
+                AND sdt_scheduling_tasks.end_time &lt;= #{schedulingTasksFilter.endTimeEnd}
+            </if>
+            <if test="schedulingTasksFilter.projectId != null">
+                AND sdt_scheduling_tasks.project_id = #{schedulingTasksFilter.projectId}
+            </if>
+            <if test="schedulingTasksFilter.errorMsg != null and schedulingTasksFilter.errorMsg != ''">
+                <bind name = "safeSchedulingTasksErrorMsg" value = "'%' + schedulingTasksFilter.errorMsg + '%'" />
+                AND sdt_scheduling_tasks.error_msg LIKE #{safeSchedulingTasksErrorMsg}
+            </if>
+            <if test="schedulingTasksFilter.cronAnalyticInformation != null and schedulingTasksFilter.cronAnalyticInformation != ''">
+                <bind name = "safeSchedulingTasksCronAnalyticInformation" value = "'%' + schedulingTasksFilter.errorMsg + '%'" />
+                AND sdt_scheduling_tasks.cron_analytic_information LIKE #{safeSchedulingTasksCronAnalyticInformation}
+            </if>
+            <if test="schedulingTasksFilter.classificationId != null">
+                AND sdt_scheduling_tasks.classification_id = #{schedulingTasksFilter.classificationId}
+            </if>
+            <if test="schedulingTasksFilter.processThemeId != null">
+                AND sdt_scheduling_tasks.process_theme_id = #{schedulingTasksFilter.processThemeId}
+            </if>
+            <if test="schedulingTasksFilter.searchString != null and schedulingTasksFilter.searchString != ''">
+                <bind name = "safeSchedulingTasksSearchString" value = "'%' + schedulingTasksFilter.searchString + '%'" />
+                AND IFNULL(sdt_scheduling_tasks.task_name,'') LIKE #{safeSchedulingTasksSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getSchedulingTasksList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.SchedulingTasks">
+        SELECT * FROM sdt_scheduling_tasks
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

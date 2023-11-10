@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.DevAiChatDialogueMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.DevAiChatDialogue">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="dialogue_name" jdbcType="VARCHAR" property="dialogueName"/>
+        <result column="dialogue_question" jdbcType="LONGVARCHAR" property="dialogueQuestion"/>
+        <result column="dialogue_answer" jdbcType="LONGVARCHAR" property="dialogueAnswer"/>
+        <result column="dialogue_type" jdbcType="VARCHAR" property="dialogueType"/>
+        <result column="dialogue_data_type" jdbcType="VARCHAR" property="dialogueDataType"/>
+        <result column="dialogue_role" jdbcType="VARCHAR" property="dialogueRole"/>
+        <result column="dialogue_prompt" jdbcType="VARCHAR" property="dialoguePrompt"/>
+        <result column="dialogue_str_id" jdbcType="VARCHAR" property="dialogueStrId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_dev_ai_chat_dialogue
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            dialogue_name,
+            dialogue_question,
+            dialogue_answer,
+            dialogue_type,
+            dialogue_data_type,
+            dialogue_role,
+            dialogue_prompt,
+            dialogue_str_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.dialogueName},
+            #{item.dialogueQuestion},
+            #{item.dialogueAnswer},
+            #{item.dialogueType},
+            #{item.dialogueDataType},
+            #{item.dialogueRole},
+            #{item.dialoguePrompt},
+            #{item.dialogueStrId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.DevAiChatDialogueMapper.inputFilterRef"/>
+        AND sdt_dev_ai_chat_dialogue.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="devAiChatDialogueFilter != null">
+            <if test="devAiChatDialogueFilter.id != null">
+                AND sdt_dev_ai_chat_dialogue.id = #{devAiChatDialogueFilter.id}
+            </if>
+            <if test="devAiChatDialogueFilter.updateTimeStart != null and devAiChatDialogueFilter.updateTimeStart != ''">
+                AND sdt_dev_ai_chat_dialogue.update_time &gt;= #{devAiChatDialogueFilter.updateTimeStart}
+            </if>
+            <if test="devAiChatDialogueFilter.updateTimeEnd != null and devAiChatDialogueFilter.updateTimeEnd != ''">
+                AND sdt_dev_ai_chat_dialogue.update_time &lt;= #{devAiChatDialogueFilter.updateTimeEnd}
+            </if>
+            <if test="devAiChatDialogueFilter.createTimeStart != null and devAiChatDialogueFilter.createTimeStart != ''">
+                AND sdt_dev_ai_chat_dialogue.create_time &gt;= #{devAiChatDialogueFilter.createTimeStart}
+            </if>
+            <if test="devAiChatDialogueFilter.createTimeEnd != null and devAiChatDialogueFilter.createTimeEnd != ''">
+                AND sdt_dev_ai_chat_dialogue.create_time &lt;= #{devAiChatDialogueFilter.createTimeEnd}
+            </if>
+            <if test="devAiChatDialogueFilter.createUserId != null">
+                AND sdt_dev_ai_chat_dialogue.create_user_id = #{devAiChatDialogueFilter.createUserId}
+            </if>
+            <if test="devAiChatDialogueFilter.updateUserId != null">
+                AND sdt_dev_ai_chat_dialogue.update_user_id = #{devAiChatDialogueFilter.updateUserId}
+            </if>
+            <if test="devAiChatDialogueFilter.dataUserId != null">
+                AND sdt_dev_ai_chat_dialogue.data_user_id = #{devAiChatDialogueFilter.dataUserId}
+            </if>
+            <if test="devAiChatDialogueFilter.dataDeptId != null">
+                AND sdt_dev_ai_chat_dialogue.data_dept_id = #{devAiChatDialogueFilter.dataDeptId}
+            </if>
+            <if test="devAiChatDialogueFilter.dialogueName != null and devAiChatDialogueFilter.dialogueName != ''">
+                <bind name = "safeDevAiChatDialogueDialogueName" value = "'%' + devAiChatDialogueFilter.dialogueName + '%'" />
+                AND sdt_dev_ai_chat_dialogue.dialogue_name LIKE #{safeDevAiChatDialogueDialogueName}
+            </if>
+            <if test="devAiChatDialogueFilter.dialogueQuestion != null and devAiChatDialogueFilter.dialogueQuestion != ''">
+                <bind name = "safeDevAiChatDialogueDialogueQuestion" value = "'%' + devAiChatDialogueFilter.dialogueQuestion + '%'" />
+                AND sdt_dev_ai_chat_dialogue.dialogue_question LIKE #{safeDevAiChatDialogueDialogueQuestion}
+            </if>
+            <if test="devAiChatDialogueFilter.dialogueAnswer != null and devAiChatDialogueFilter.dialogueAnswer != ''">
+                <bind name = "safeDevAiChatDialogueDialogueAnswer" value = "'%' + devAiChatDialogueFilter.dialogueAnswer + '%'" />
+                AND sdt_dev_ai_chat_dialogue.dialogue_answer LIKE #{safeDevAiChatDialogueDialogueAnswer}
+            </if>
+            <if test="devAiChatDialogueFilter.dialogueType != null and devAiChatDialogueFilter.dialogueType != ''">
+                <bind name = "safeDevAiChatDialogueDialogueType" value = "'%' + devAiChatDialogueFilter.dialogueType + '%'" />
+                AND sdt_dev_ai_chat_dialogue.dialogue_type LIKE #{safeDevAiChatDialogueDialogueType}
+            </if>
+            <if test="devAiChatDialogueFilter.dialogueDataType != null and devAiChatDialogueFilter.dialogueDataType != ''">
+                <bind name = "safeDevAiChatDialogueDialogueDataType" value = "'%' + devAiChatDialogueFilter.dialogueDataType + '%'" />
+                AND sdt_dev_ai_chat_dialogue.dialogue_data_type LIKE #{safeDevAiChatDialogueDialogueDataType}
+            </if>
+            <if test="devAiChatDialogueFilter.dialogueRole != null and devAiChatDialogueFilter.dialogueRole != ''">
+                AND sdt_dev_ai_chat_dialogue.dialogue_role = #{devAiChatDialogueFilter.dialogueRole}
+            </if>
+            <if test="devAiChatDialogueFilter.dialoguePrompt != null and devAiChatDialogueFilter.dialoguePrompt != ''">
+                <bind name = "safeDevAiChatDialogueDialoguePrompt" value = "'%' + devAiChatDialogueFilter.dialoguePrompt + '%'" />
+                AND sdt_dev_ai_chat_dialogue.dialogue_prompt LIKE #{safeDevAiChatDialogueDialoguePrompt}
+            </if>
+            <if test="devAiChatDialogueFilter.dialogueStrId != null and devAiChatDialogueFilter.dialogueStrId != ''">
+                AND sdt_dev_ai_chat_dialogue.dialogue_str_id = #{devAiChatDialogueFilter.dialogueStrId}
+            </if>
+            <if test="devAiChatDialogueFilter.searchString != null and devAiChatDialogueFilter.searchString != ''">
+                <bind name = "safeDevAiChatDialogueSearchString" value = "'%' + devAiChatDialogueFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_dev_ai_chat_dialogue.dialogue_name,''), IFNULL(sdt_dev_ai_chat_dialogue.dialogue_question,''), IFNULL(sdt_dev_ai_chat_dialogue.dialogue_answer,'')) LIKE #{safeDevAiChatDialogueSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getDevAiChatDialogueList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DevAiChatDialogue">
+        SELECT * FROM sdt_dev_ai_chat_dialogue
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

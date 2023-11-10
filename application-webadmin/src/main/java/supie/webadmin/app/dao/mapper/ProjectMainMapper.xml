@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.ProjectMainMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.ProjectMain">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="project_name" jdbcType="VARCHAR" property="projectName"/>
+        <result column="project_description" jdbcType="VARCHAR" property="projectDescription"/>
+        <result column="project_engine_id" jdbcType="BIGINT" property="projectEngineId"/>
+        <result column="project_currents_status" jdbcType="INTEGER" property="projectCurrentsStatus"/>
+        <result column="project_group_name" jdbcType="VARCHAR" property="projectGroupName"/>
+        <result column="project_header_id" jdbcType="BIGINT" property="projectHeaderId"/>
+        <result column="project_flow_status" jdbcType="BIGINT" property="projectFlowStatus"/>
+        <result column="project_flow_approve_status" jdbcType="BIGINT" property="projectFlowApproveStatus"/>
+        <result column="project_code" jdbcType="VARCHAR" property="projectCode"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_project_main
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            project_name,
+            project_description,
+            project_engine_id,
+            project_currents_status,
+            project_group_name,
+            project_header_id,
+            project_flow_status,
+            project_flow_approve_status,
+            project_code)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.projectName},
+            #{item.projectDescription},
+            #{item.projectEngineId},
+            #{item.projectCurrentsStatus},
+            #{item.projectGroupName},
+            #{item.projectHeaderId},
+            #{item.projectFlowStatus},
+            #{item.projectFlowApproveStatus},
+            #{item.projectCode})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.ProjectMainMapper.inputFilterRef"/>
+        AND sdt_project_main.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="projectMainFilter != null">
+            <if test="projectMainFilter.id != null">
+                AND sdt_project_main.id = #{projectMainFilter.id}
+            </if>
+            <if test="projectMainFilter.updateTimeStart != null and projectMainFilter.updateTimeStart != ''">
+                AND sdt_project_main.update_time &gt;= #{projectMainFilter.updateTimeStart}
+            </if>
+            <if test="projectMainFilter.updateTimeEnd != null and projectMainFilter.updateTimeEnd != ''">
+                AND sdt_project_main.update_time &lt;= #{projectMainFilter.updateTimeEnd}
+            </if>
+            <if test="projectMainFilter.createTimeStart != null and projectMainFilter.createTimeStart != ''">
+                AND sdt_project_main.create_time &gt;= #{projectMainFilter.createTimeStart}
+            </if>
+            <if test="projectMainFilter.createTimeEnd != null and projectMainFilter.createTimeEnd != ''">
+                AND sdt_project_main.create_time &lt;= #{projectMainFilter.createTimeEnd}
+            </if>
+            <if test="projectMainFilter.createUserId != null">
+                AND sdt_project_main.create_user_id = #{projectMainFilter.createUserId}
+            </if>
+            <if test="projectMainFilter.updateUserId != null">
+                AND sdt_project_main.update_user_id = #{projectMainFilter.updateUserId}
+            </if>
+            <if test="projectMainFilter.dataUserId != null">
+                AND sdt_project_main.data_user_id = #{projectMainFilter.dataUserId}
+            </if>
+            <if test="projectMainFilter.dataDeptId != null">
+                AND sdt_project_main.data_dept_id = #{projectMainFilter.dataDeptId}
+            </if>
+            <if test="projectMainFilter.projectName != null and projectMainFilter.projectName != ''">
+                <bind name = "safeProjectMainProjectName" value = "'%' + projectMainFilter.projectName + '%'" />
+                AND sdt_project_main.project_name LIKE #{safeProjectMainProjectName}
+            </if>
+            <if test="projectMainFilter.projectDescription != null and projectMainFilter.projectDescription != ''">
+                <bind name = "safeProjectMainProjectDescription" value = "'%' + projectMainFilter.projectDescription + '%'" />
+                AND sdt_project_main.project_description LIKE #{safeProjectMainProjectDescription}
+            </if>
+            <if test="projectMainFilter.projectEngineId != null">
+                AND sdt_project_main.project_engine_id = #{projectMainFilter.projectEngineId}
+            </if>
+            <if test="projectMainFilter.projectCurrentsStatus != null">
+                AND sdt_project_main.project_currents_status = #{projectMainFilter.projectCurrentsStatus}
+            </if>
+            <if test="projectMainFilter.projectGroupName != null and projectMainFilter.projectGroupName != ''">
+                <bind name = "safeProjectMainProjectGroupName" value = "'%' + projectMainFilter.projectGroupName + '%'" />
+                AND sdt_project_main.project_group_name LIKE #{safeProjectMainProjectGroupName}
+            </if>
+            <if test="projectMainFilter.projectHeaderId != null">
+                AND sdt_project_main.project_header_id = #{projectMainFilter.projectHeaderId}
+            </if>
+            <if test="projectMainFilter.projectFlowStatus != null">
+                AND sdt_project_main.project_flow_status = #{projectMainFilter.projectFlowStatus}
+            </if>
+            <if test="projectMainFilter.projectFlowApproveStatus != null">
+                AND sdt_project_main.project_flow_approve_status = #{projectMainFilter.projectFlowApproveStatus}
+            </if>
+            <if test="projectMainFilter.projectCode != null and projectMainFilter.projectCode != ''">
+                <bind name = "safeProjectMainProjectCode" value = "'%' + projectMainFilter.projectCode + '%'" />
+                AND sdt_project_main.project_code LIKE #{safeProjectMainProjectCode}
+            </if>
+            <if test="projectMainFilter.searchString != null and projectMainFilter.searchString != ''">
+                <bind name = "safeProjectMainSearchString" value = "'%' + projectMainFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_project_main.project_name,''), IFNULL(sdt_project_main.project_description,''), IFNULL(sdt_project_main.project_group_name,'')) LIKE #{safeProjectMainSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedProjectMainList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ProjectMain">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_project_main
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_project_main
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getProjectMainList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ProjectMain">
+        SELECT * FROM sdt_project_main
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <!-- 支持基于一对一或者一对多从表字段过滤的SQL_ID -->
+    <select id="getProjectMainListEx" resultMap="BaseResultMap" >
+        SELECT
+            sdt_project_main.*
+        FROM
+            sdt_project_main
+        <where>
+            <include refid="filterRef"/>
+            <if test="remoteHostFilter != null">
+                AND EXISTS (SELECT * FROM sdt_remote_host
+                <where>
+                    sdt_project_main.id = sdt_remote_host.project_id
+                    <include refid="supie.webadmin.app.dao.RemoteHostMapper.filterRef"/>
+                </where>)
+            </if>
+            <if test="seatunnelConfigFilter != null">
+                AND EXISTS (SELECT * FROM sdt_seatunnel_config
+                <where>
+                    sdt_project_main.id = sdt_seatunnel_config.project_id
+                    <include refid="supie.webadmin.app.dao.SeatunnelConfigMapper.filterRef"/>
+                </where>)
+            </if>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

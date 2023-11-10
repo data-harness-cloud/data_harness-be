@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.ProjectDatasourceTemplateDictMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.ProjectDatasourceTemplateDict">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="template_type" jdbcType="VARCHAR" property="templateType"/>
+        <result column="template_name" jdbcType="VARCHAR" property="templateName"/>
+        <result column="template_source" jdbcType="LONGVARCHAR" property="templateSource"/>
+        <result column="template_sink" jdbcType="LONGVARCHAR" property="templateSink"/>
+        <result column="template_trans" jdbcType="LONGVARCHAR" property="templateTrans"/>
+        <result column="template_icon" jdbcType="VARCHAR" property="templateIcon"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_project_datasource_template_dict
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            template_type,
+            template_name,
+            template_source,
+            template_sink,
+            template_trans,
+            template_icon)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.templateType},
+            #{item.templateName},
+            #{item.templateSource},
+            #{item.templateSink},
+            #{item.templateTrans},
+            #{item.templateIcon})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.ProjectDatasourceTemplateDictMapper.inputFilterRef"/>
+        AND sdt_project_datasource_template_dict.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="projectDatasourceTemplateDictFilter != null">
+            <if test="projectDatasourceTemplateDictFilter.id != null">
+                AND sdt_project_datasource_template_dict.id = #{projectDatasourceTemplateDictFilter.id}
+            </if>
+            <if test="projectDatasourceTemplateDictFilter.updateTimeStart != null and projectDatasourceTemplateDictFilter.updateTimeStart != ''">
+                AND sdt_project_datasource_template_dict.update_time &gt;= #{projectDatasourceTemplateDictFilter.updateTimeStart}
+            </if>
+            <if test="projectDatasourceTemplateDictFilter.updateTimeEnd != null and projectDatasourceTemplateDictFilter.updateTimeEnd != ''">
+                AND sdt_project_datasource_template_dict.update_time &lt;= #{projectDatasourceTemplateDictFilter.updateTimeEnd}
+            </if>
+            <if test="projectDatasourceTemplateDictFilter.createTimeStart != null and projectDatasourceTemplateDictFilter.createTimeStart != ''">
+                AND sdt_project_datasource_template_dict.create_time &gt;= #{projectDatasourceTemplateDictFilter.createTimeStart}
+            </if>
+            <if test="projectDatasourceTemplateDictFilter.createTimeEnd != null and projectDatasourceTemplateDictFilter.createTimeEnd != ''">
+                AND sdt_project_datasource_template_dict.create_time &lt;= #{projectDatasourceTemplateDictFilter.createTimeEnd}
+            </if>
+            <if test="projectDatasourceTemplateDictFilter.createUserId != null">
+                AND sdt_project_datasource_template_dict.create_user_id = #{projectDatasourceTemplateDictFilter.createUserId}
+            </if>
+            <if test="projectDatasourceTemplateDictFilter.updateUserId != null">
+                AND sdt_project_datasource_template_dict.update_user_id = #{projectDatasourceTemplateDictFilter.updateUserId}
+            </if>
+            <if test="projectDatasourceTemplateDictFilter.dataUserId != null">
+                AND sdt_project_datasource_template_dict.data_user_id = #{projectDatasourceTemplateDictFilter.dataUserId}
+            </if>
+            <if test="projectDatasourceTemplateDictFilter.dataDeptId != null">
+                AND sdt_project_datasource_template_dict.data_dept_id = #{projectDatasourceTemplateDictFilter.dataDeptId}
+            </if>
+            <if test="projectDatasourceTemplateDictFilter.templateType != null and projectDatasourceTemplateDictFilter.templateType != ''">
+                <bind name = "safeProjectDatasourceTemplateDictTemplateType" value = "'%' + projectDatasourceTemplateDictFilter.templateType + '%'" />
+                AND sdt_project_datasource_template_dict.template_type LIKE #{safeProjectDatasourceTemplateDictTemplateType}
+            </if>
+            <if test="projectDatasourceTemplateDictFilter.templateName != null and projectDatasourceTemplateDictFilter.templateName != ''">
+                <bind name = "safeProjectDatasourceTemplateDictTemplateName" value = "'%' + projectDatasourceTemplateDictFilter.templateName + '%'" />
+                AND sdt_project_datasource_template_dict.template_name LIKE #{safeProjectDatasourceTemplateDictTemplateName}
+            </if>
+            <if test="projectDatasourceTemplateDictFilter.searchString != null and projectDatasourceTemplateDictFilter.searchString != ''">
+                <bind name = "safeProjectDatasourceTemplateDictSearchString" value = "'%' + projectDatasourceTemplateDictFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_project_datasource_template_dict.template_type,''), IFNULL(sdt_project_datasource_template_dict.template_name,'')) LIKE #{safeProjectDatasourceTemplateDictSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getProjectDatasourceTemplateDictList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ProjectDatasourceTemplateDict">
+        SELECT * FROM sdt_project_datasource_template_dict
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.DevConsoleMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.DevConsole">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="query_console_name" jdbcType="VARCHAR" property="queryConsoleName"/>
+        <result column="query_statements" jdbcType="LONGVARCHAR" property="queryStatements"/>
+        <result column="response_results" jdbcType="LONGVARCHAR" property="responseResults"/>
+        <result column="query_database" jdbcType="VARCHAR" property="queryDatabase"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_dev_console
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            query_console_name,
+            query_statements,
+            response_results,
+            query_database)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.queryConsoleName},
+            #{item.queryStatements},
+            #{item.responseResults},
+            #{item.queryDatabase})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.DevConsoleMapper.inputFilterRef"/>
+        AND sdt_dev_console.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="devConsoleFilter != null">
+            <if test="devConsoleFilter.id != null">
+                AND sdt_dev_console.id = #{devConsoleFilter.id}
+            </if>
+            <if test="devConsoleFilter.updateTimeStart != null and devConsoleFilter.updateTimeStart != ''">
+                AND sdt_dev_console.update_time &gt;= #{devConsoleFilter.updateTimeStart}
+            </if>
+            <if test="devConsoleFilter.updateTimeEnd != null and devConsoleFilter.updateTimeEnd != ''">
+                AND sdt_dev_console.update_time &lt;= #{devConsoleFilter.updateTimeEnd}
+            </if>
+            <if test="devConsoleFilter.createTimeStart != null and devConsoleFilter.createTimeStart != ''">
+                AND sdt_dev_console.create_time &gt;= #{devConsoleFilter.createTimeStart}
+            </if>
+            <if test="devConsoleFilter.createTimeEnd != null and devConsoleFilter.createTimeEnd != ''">
+                AND sdt_dev_console.create_time &lt;= #{devConsoleFilter.createTimeEnd}
+            </if>
+            <if test="devConsoleFilter.createUserId != null">
+                AND sdt_dev_console.create_user_id = #{devConsoleFilter.createUserId}
+            </if>
+            <if test="devConsoleFilter.updateUserId != null">
+                AND sdt_dev_console.update_user_id = #{devConsoleFilter.updateUserId}
+            </if>
+            <if test="devConsoleFilter.dataUserId != null">
+                AND sdt_dev_console.data_user_id = #{devConsoleFilter.dataUserId}
+            </if>
+            <if test="devConsoleFilter.dataDeptId != null">
+                AND sdt_dev_console.data_dept_id = #{devConsoleFilter.dataDeptId}
+            </if>
+            <if test="devConsoleFilter.queryConsoleName != null and devConsoleFilter.queryConsoleName != ''">
+                <bind name = "safeDevConsoleQueryConsoleName" value = "'%' + devConsoleFilter.queryConsoleName + '%'" />
+                AND sdt_dev_console.query_console_name LIKE #{safeDevConsoleQueryConsoleName}
+            </if>
+            <if test="devConsoleFilter.queryDatabase != null and devConsoleFilter.queryDatabase != ''">
+                AND sdt_dev_console.query_database = #{devConsoleFilter.queryDatabase}
+            </if>
+            <if test="devConsoleFilter.searchString != null and devConsoleFilter.searchString != ''">
+                <bind name = "safeDevConsoleSearchString" value = "'%' + devConsoleFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_dev_console.query_console_name,''), IFNULL(sdt_dev_console.query_database,'')) LIKE #{safeDevConsoleSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getDevConsoleList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.DevConsole">
+        SELECT * FROM sdt_dev_console
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

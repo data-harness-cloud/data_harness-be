@@ -1,0 +1,235 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      # 数据库链接 [主数据源]
+      main:
+        url: jdbc:mysql://${DATA_HARNESS_MYSQL_HOST}:${DATA_HARNESS_MYSQL_PORT}/${DATA_HARNESS_MYSQL_DATABASE}?characterEncoding=utf8&useSSL=true&serverTimezone=${TZ:Asia/Shanghai}
+        username: ${DATA_HARNESS_MYSQL_USER}
+        password: ${DATA_HARNESS_MYSQL_PASSWORD}
+      # 默认生成的操作日志数据源配置。
+      operation-log:
+        url: jdbc:mysql://${DATA_HARNESS_MYSQL_HOST}:${DATA_HARNESS_MYSQL_PORT}/${DATA_HARNESS_MYSQL_DATABASE}?characterEncoding=utf8&useSSL=true&serverTimezone=${TZ:Asia/Shanghai}
+        username: ${DATA_HARNESS_MYSQL_USER}
+        password: ${DATA_HARNESS_MYSQL_PASSWORD}
+      driverClassName: com.mysql.cj.jdbc.Driver
+      name: application-webadmin
+      initialSize: 10
+      minIdle: 10
+      maxActive: 50
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 20
+      maxOpenPreparedStatements: 20
+      validationQuery: SELECT 'x'
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      filters: stat,wall
+      useGlobalDataSourceStat: true
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*,/actuator/*"
+      stat-view-servlet:
+        enabled: true
+        urlPattern: /druid/*
+        resetEnable: true
+
+
+application:
+  # Jwt令牌加密的签名值。该值的长度要超过10个字符(过短会报错)。
+  tokenSigningKey: SDT-signing-key
+  # Jwt令牌在Http Header中的键名称。
+  tokenHeaderKey: Authorization
+  # Jwt令牌刷新后在Http Header中的键名称。
+  refreshedTokenHeaderKey: RefreshedToken
+  # Jwt令牌过期时间(毫秒)。
+  expiration: 72000000
+  # 初始化密码。
+  defaultUserPassword: 123456
+  # 缺省的文件上传根目录。
+  uploadFileBaseDir: ./zz-resource/upload-files/app
+  # 跨域的IP(http://192.168.10.10:8086)白名单列表，多个IP之间逗号分隔(* 表示全部信任，空白表示禁用跨域信任)。
+  credentialIpList: "*"
+  # Session的用户和数据权限在Redis中的过期时间(秒)。
+  sessionExpiredSeconds: 86400
+  # 是否排他登录。
+  excludeLogin: false
+
+# 这里仅仅是一个第三方配置的示例，如果没有接入斯三方系统，
+# 这里的配置项也不会影响到系统的行为，如果觉得多余，也可以手动删除。
+third-party:
+  # 第三方系统接入的用户鉴权配置。
+  auth:
+  - appCode: orange-forms-default
+    # 访问第三方系统接口的URL前缀，橙单会根据功能添加接口路径的其余部分，
+    # 比如获取用户Token的接口 http://localhost:8083/orangePluginTest/getTokenData
+    baseUrl: http://localhost:8083/orangePlugin
+    # 第三方返回的用户Token数据的缓存过期时长，单位秒。
+    # 如果为0，则不缓存，每次涉及第三方的请求，都会发出http请求，交由第三方验证，这样对系统性能会有影响。
+    tokenExpiredSeconds: 60
+    # 第三方返回的权限数据的缓存过期时长，单位秒。
+    permExpiredSeconds: 86400
+
+# 这里仅仅是一个第三方配置的示例，如果没有接入斯三方系统，
+# 这里的配置项也不会影响到系统的行为，如果觉得多余，也可以手动删除。
+common-ext:
+  urlPrefix: /admin/commonext
+  # 这里可以配置多个第三方应用，这里的应用数量，通常会和上面third-party.auth的配置数量一致。
+  apps:
+    # 应用唯一编码，尽量不要使用中文。
+  - appCode: orange-forms-default
+    # 业务组件的数据源配置。
+    bizWidgetDatasources:
+    # 组件的类型，多个类型之间可以逗号分隔。
+    - types: upms_user,upms_dept
+      # 组件获取列表数据的接口地址。
+      listUrl: http://localhost:8083/orangePlugin/listBizWidgetData
+      # 组件获取详情数据的接口地址。
+      viewUrl: http://localhost:8083/orangePlugin/viewBizWidgetData
+
+sequence:
+  # Snowflake 分布式Id生成算法所需的WorkNode参数值。
+  snowflakeWorkNode: 1
+
+# 存储session数据的Redis，所有服务均需要，因此放到公共配置中。
+# 根据实际情况，该Redis也可以用于存储其他数据。
+redis:
+  # redisson的配置。每个服务可以自己的配置文件中覆盖此选项。
+  redisson:
+    # 如果该值为false，系统将不会创建RedissionClient的bean。
+    enabled: true
+    # mode的可用值为，single/cluster/sentinel/master-slave
+    mode: single
+    # single: 单机模式
+    #   address: redis://localhost:6379
+    # cluster: 集群模式
+    #   每个节点逗号分隔，同时每个节点前必须以redis://开头。
+    #   address: redis://localhost:6379,redis://localhost:6378,...
+    # sentinel:
+    #   每个节点逗号分隔，同时每个节点前必须以redis://开头。
+    #   address: redis://localhost:6379,redis://localhost:6378,...
+    # master-slave:
+    #   每个节点逗号分隔，第一个为主节点，其余为从节点。同时每个节点前必须以redis://开头。
+    #   address: redis://localhost:6379,redis://localhost:6378,...
+    address: redis://${DATA_HARNESS_REDIS_HOST}:${DATA_HARNESS_REDIS_PORT}
+    # 链接超时，单位毫秒。
+    timeout: 6000
+    # 单位毫秒。分布式锁的超时检测时长。
+    # 如果一次锁内操作超该毫秒数，或在释放锁之前异常退出，Redis会在该时长之后主动删除该锁使用的key。
+    lockWatchdogTimeout: 60000
+    # redis 密码，空可以不填。
+#    password:
+    password: ${DATA_HARNESS_REDIS_PASSWORD}
+    pool:
+      # 连接池数量。
+      poolSize: 20
+      # 连接池中最小空闲数量。
+      minIdle: 5
+
+common-report:
+  # 注意不要以反斜杠(/)结尾。
+  urlPrefix: /admin/report
+  # 如果为false，报表模块的所有Controller中的接口将不能使用。
+  operationEnabled: true
+  # 该配置项仅当打印模板中，打印图片字段时，才会需要。
+  # 这里的url配置只是一个示例，并不能保证开箱即用，代码示例和说明可参考common-report模块
+  # example包内的ReportExampleController中的代码和详细说明。
+  imageDownloadUrl: "http://localhost:8082/admin/report/example/downloadDirectly"
+  # 该配置用于报表部分的数据权限过滤功能。
+  # 当前数据权限需要获取指定部门Ids的所有下级子部门Ids的时候，会调用该接口。
+  dataPermAllChildrenDeptIdUrl: "http://localhost:8082/admin/upms/sysDept/listAllChildDeptIdByParentIds"
+  # 当前服务是否为可视化后台服务。
+  isVisualization: false
+  # 下面的url列表，请保持反斜杠(/)结尾。
+  viewUrlList:
+  - ${common-report.urlPrefix}/reportOperation/listData/
+
+  # quartz相关配置
+  quartz:
+    job-store-type: jdbc
+    overwrite-existing-jobs: true
+    wait-for-jobs-to-complete-on-shutdown: true
+    jdbc:
+      initialize-schema: never
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: DemoQuartz
+            instanceId: AUTO
+          jobStore:
+            class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            isClustered: true
+            clusterCheckinInterval: 10000
+            useProperties: false
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 20
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
+
+minio:
+  enabled: true
+  endpoint: ${DATA_HARNESS_MINIO_URL}
+  accessKey: ${DATA_HARNESS_MINIO_ACCESS_KEY}
+  secretKey: ${DATA_HARNESS_MINIO_SECRET_KEY}
+  bucketName: ${DATA_HARNESS_MINIO_BUCKET}
+
+#liteflow配置
+liteflow:
+  rule-source-ext-data-map:
+    url: jdbc:mysql://${DATA_HARNESS_MYSQL_HOST}:${DATA_HARNESS_MYSQL_PORT}/${DATA_HARNESS_MYSQL_DATABASE}
+    username: ${DATA_HARNESS_MYSQL_USER}
+    password: ${DATA_HARNESS_MYSQL_PASSWORD}
+    driverClassName: com.mysql.cj.jdbc.Driver
+    applicationName: sdt
+    #是否开启SQL日志
+    sqlLogEnabled: true
+    #是否开启SQL数据轮询自动刷新机制 默认不开启
+    pollingEnabled: true
+    pollingIntervalSeconds: 60
+    pollingStartSeconds: 60
+    #以下是chain表的配置，这个一定得有
+    chainTableName: sdt_dev_liteflow_ruler
+    chainApplicationNameField: application_name
+    chainNameField: id
+    elDataField: el_data
+    #以下是script表的配置，如果你没使用到脚本，下面可以不配置
+    scriptTableName: sdt_dev_liteflow_script
+    scriptApplicationNameField: application_name
+    scriptIdField: script_id
+    scriptNameField: script_name
+    scriptDataField: script_data
+    scriptTypeField: script_type
+    scriptLanguageField: script_language
+
+# forest配置项
+forest:
+  backend: okhttp3             # 后端HTTP框架（默认为 okhttp3）
+  max-connections: 1000        # 连接池最大连接数（默认为 500）
+  max-route-connections: 500   # 每个路由的最大连接数（默认为 500）
+  max-request-queue-size: 100  # [自v1.5.22版本起可用] 最大请求等待队列大小
+  max-async-thread-size: 300   # [自v1.5.21版本起可用] 最大异步线程数
+  max-async-queue-size: 16     # [自v1.5.22版本起可用] 最大异步线程池队列大小
+  connect-timeout: 3000        # 连接超时时间，单位为毫秒（默认为 timeout）
+  read-timeout: 3000           # 数据读取超时时间，单位为毫秒（默认为 timeout）
+  max-retry-count: 0           # 请求失败后重试次数（默认为 0 次不重试）
+  ssl-protocol: TLS            # 单向验证的HTTPS的默认TLS协议（默认为 TLS）
+  log-enabled: true            # 打开或关闭日志（默认为 true）
+  log-request: true            # 打开/关闭Forest请求日志（默认为 true）
+  log-response-status: true    # 打开/关闭Forest响应状态日志（默认为 true）
+  log-response-content: true   # 打开/关闭Forest响应内容日志（默认为 false）
+  async-mode: platform         # [自v1.5.27版本起可用] 异步模式（默认为 platform）# 配置后端HTTP API为 okhttp3
+  # 配置变量
+  variables:
+    baseurl: 127.0.0.1
+    port: 12345
+
+
