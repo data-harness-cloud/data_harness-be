@@ -5,7 +5,6 @@ import supie.common.core.annotation.NoAuthInterface;
 import supie.common.log.annotation.OperationLog;
 import supie.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
-import supie.webadmin.app.util.remoteshell.JschUtil;
 import supie.webadmin.app.vo.*;
 import supie.webadmin.app.dto.*;
 import supie.webadmin.app.model.*;
@@ -173,17 +172,17 @@ public class RemoteHostController {
         return ResponseResult.success();
     }
 
-
     @PostMapping("/testConnection")
-    @ApiOperation("测试shh连接测试")
-    public ResponseResult<String> testConnection(@MyRequestBody RemoteHostDto remoteHostDtoFilter,@MyRequestBody String commands) {
-
+    @ApiOperation("ssh连接测试")
+    public ResponseResult<String> testConnection(
+            @MyRequestBody RemoteHostDto remoteHostDtoFilter, @MyRequestBody List<String> commandList) {
         RemoteHost remoteHostFilter = MyModelUtil.copyTo(remoteHostDtoFilter, RemoteHost.class);
-
-        String data= remoteHostService.testConnection("",remoteHostFilter,commands);
-        if (data.isEmpty()){
-            return ResponseResult.error("500","请联系管理员");
+        String resultMessage;
+        try {
+            resultMessage = remoteHostService.testConnection(remoteHostFilter, commandList);
+        } catch (Exception e) {
+            return ResponseResult.error(ErrorCodeEnum.NO_ERROR, e.getMessage());
         }
-        return ResponseResult.success("成功");
+        return ResponseResult.success(resultMessage);
     }
 }

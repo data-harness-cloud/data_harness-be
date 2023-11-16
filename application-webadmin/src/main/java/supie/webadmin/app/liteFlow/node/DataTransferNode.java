@@ -8,7 +8,6 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.yomahub.liteflow.annotation.LiteflowComponent;
-import com.yomahub.liteflow.core.NodeComponent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,19 +17,17 @@ import supie.webadmin.app.liteFlow.model.DataTransferModel;
 import supie.webadmin.app.liteFlow.model.ErrorMessageModel;
 import supie.webadmin.app.liteFlow.model.LiteFlowNodeLogModel;
 import supie.webadmin.app.model.*;
-import supie.webadmin.app.util.remoteshell.JschUtil;
-import supie.webadmin.app.util.remoteshell.SSHConfig;
+import supie.webadmin.app.util.remoteshell.RemoteShell;
+import supie.webadmin.app.util.remoteshell.impl.RemoteShellSshjImpl;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
- * 描述：
+ * 描述:
  *
  * @author 王立宏
  * @date 2023/10/22 9:09
@@ -63,12 +60,12 @@ public class DataTransferNode extends BaseNode {
     public void beforeProcess() {
         dataTransferModel = JSONUtil.toBean(devLiteflowNode.getFieldJsonData(), DataTransferModel.class);
         if (dataTransferModel.getSeaTunnelId() == null) {
-            nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "未配置该节点需要的SeaTunnel！"));
+            nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "未配置该节点需要的SeaTunnel!"));
         }
         seatunnelConfigModel = seatunnelConfigMapper.selectById(dataTransferModel.getSeaTunnelId());
         if (seatunnelConfigModel == null) {
             nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag,
-                    "未查询到ID为[" + dataTransferModel.getSeaTunnelId() + "]的SeaTunnel配置数据！"));
+                    "未查询到ID为[" + dataTransferModel.getSeaTunnelId() + "]的SeaTunnel配置数据!"));
         }
     }
 
@@ -90,7 +87,7 @@ public class DataTransferNode extends BaseNode {
         if (seatunnelConfigModel.getSubmitJobUrl() == null) {
             seatunnelConfigModel.setSubmitJobUrl(new SeatunnelConfig().getSubmitJobUrl());
             nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag,
-                    "未配置Seatunnel提交Job的接口地址，使用默认地址：" + seatunnelConfigModel.getSubmitJobUrl()));
+                    "未配置Seatunnel提交Job的接口地址，使用默认地址:" + seatunnelConfigModel.getSubmitJobUrl()));
         }
         StringBuilder url = new StringBuilder(seatunnelConfigModel.getLocalhostUri());
         // 判断字符串第一个字符是否为"/"
@@ -110,56 +107,55 @@ public class DataTransferNode extends BaseNode {
         if (dataTransferModel.getIsStartWithSavePoint() != null) {
             url.append("isStartWithSavePoint=").append(dataTransferModel.getIsStartWithSavePoint());
         }
-        nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag, "提交Job：" + url.toString()));
+        nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag, "提交Job:" + url.toString()));
         HttpResponse execute = null;
         try {
             execute = HttpRequest.post(url.toString())
                     .body(dataTransferModel.getSeaTunnelConfig())
                     .execute();
         } catch (Exception e) {
-            String errorMessage = "RestApi(" + url.toString() + ")调用报错：" + e.getMessage();
-            nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "执行失败：" + errorMessage));
+            String errorMessage = "RestApi(" + url.toString() + ")调用报错:" + e.getMessage();
+            nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "执行失败:" + errorMessage));
             throw new MyLiteFlowException(new ErrorMessageModel(getClass(), errorMessage));
         }
         String body = URLUtil.decode(execute.body());
         // 存储执行信息
-        if (body == null) body = "无回执结果信息！";
+        if (body == null) body = "无回执结果信息!";
         devLiteflowNodeMapper.setExecutionMessage(this.rulerId, this.nodeId, this.nodeTag, body);
         if (!execute.isOk()) {
             // 失败
-            nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "执行失败：" + body));
+            nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "执行失败:" + body));
             throw new MyLiteFlowException(new ErrorMessageModel(getClass(), body));
         } else {
-            nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag, "执行成功：" + body));
+            nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag, "执行成功:" + body));
         }
     }
 
     private void sshSubmitJob() {
         RemoteHost remoteHost = remoteHostMapper.selectById(seatunnelConfigModel.getRemoteHostId());
         // 根据项目ID 获取到该项目的远程服务器的配置
-        SSHConfig sshConfig = new SSHConfig();
-        sshConfig.setIp(remoteHost.getHostIp());
-        sshConfig.setPort(Integer.parseInt(remoteHost.getHostPort()));
-        sshConfig.setPassword(remoteHost.getPassword());
-        JschUtil jschUtil = new JschUtil(sshConfig);
+        RemoteShell remoteShell = new RemoteShellSshjImpl(
+                remoteHost.getHostIp(), remoteHost.getHostPort(),
+                remoteHost.getLoginName(), remoteHost.getPassword(), null);
+
         tempFilePath = "./tempFolder/" + DateUtil.format(new Date(), "yyyy-MM-dd-HH-mm-ss-SSS-")
                 + RandomUtil.randomString(5) + "-config.json";
         contentWriteToFile(tempFilePath, JSONUtil.toJsonStr(dataTransferModel.getSeaTunnelConfig()));
         // 上传配置文件（v2.batch.config.template）至 seatunnel 的 ./config/ 中
         String remoteConfigName = "v2.supie.config.json";
         String remoteFilePath = seatunnelConfigModel.getSeatunnelPath() + "/config/" + remoteConfigName;
-        nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag, "上传Seatunnel配置文件，remoteFilePath：" + remoteFilePath + "。"));
-        jschUtil.uploadFile(tempFilePath, remoteFilePath);
+        nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag, "上传Seatunnel配置文件，remoteFilePath:" + remoteFilePath + "。"));
+        remoteShell.uploadFile(tempFilePath, remoteFilePath);
         // 执行命令
         nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag,
-                "开始执行Seatunnel命令：[\"cd " + seatunnelConfigModel.getSeatunnelPath() +
+                "开始执行Seatunnel命令:[\"cd " + seatunnelConfigModel.getSeatunnelPath() +
                         "\", \"sh bin/seatunnel.sh --config config/" + remoteConfigName + " -e local\"]"));
-        String resultMsg = jschUtil.executeRemoteCommand(
-                null,
+        String resultMsg = remoteShell.execCommands(
                 "cd " + seatunnelConfigModel.getSeatunnelPath(),
                 "sh bin/seatunnel.sh --config config/" + remoteConfigName + " -e local");
+        remoteShell.close();
         // 存储执行结果信息
-        if (resultMsg == null) resultMsg = "无回执结果信息！";
+        if (resultMsg == null) resultMsg = "无回执结果信息!";
         nodeLog.add(LiteFlowNodeLogModel.warn(nodeId, nodeTag, resultMsg));
         devLiteflowNodeMapper.setExecutionMessage(this.rulerId, this.nodeId, this.nodeTag, resultMsg);
         // 删除创建的临时文件

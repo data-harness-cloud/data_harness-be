@@ -50,7 +50,7 @@ public class DatabaseManagementController {
             strategy.closeAll();
         } catch (Exception e) {
             log.error("数据源连接失败", e);
-            return  ResponseResult.error("500", "连接失败："+e.getMessage());
+            return ResponseResult.error("500", "连接失败："+e.getMessage());
         }
         return ResponseResult.success("连接成功！");
     }
@@ -69,11 +69,11 @@ public class DatabaseManagementController {
             Strategy strategy = strategyFactory.getStrategy(
                     databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
                     databaseManagement.getDatabaseName(), databaseManagement.getUsername(), databaseManagement.getPassword());
-            price = strategy.queryDatabaseTable(databaseManagement);
+            price = strategy.queryDatabaseTable(databaseManagement.getDatabaseName());
             strategy.closeAll();
         } catch (Exception e) {
             log.error("数据源连接失败", e);
-            return  ResponseResult.error("500", e.getMessage());
+            return ResponseResult.error("500", e.getMessage());
         }
         return ResponseResult.success(price);
     }
@@ -92,11 +92,11 @@ public class DatabaseManagementController {
             Strategy strategy = strategyFactory.getStrategy(
                     databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
                     databaseManagement.getDatabaseName(), databaseManagement.getUsername(), databaseManagement.getPassword());
-            price = strategy.queryTableFields(databaseManagement);
+            price = strategy.queryTableFields(databaseManagement.getDatabaseName(), databaseManagement.getTableName());
             strategy.closeAll();
         } catch (Exception e) {
-            log.error("数据源连接失败",e);
-            return  ResponseResult.error("500",e.getMessage());
+            log.error("数据源连接失败", e);
+            return ResponseResult.error("500", e.getMessage());
         }
         return ResponseResult.success(price);
     }
@@ -112,13 +112,21 @@ public class DatabaseManagementController {
             resultData = strategy.executeSqlList(sql);
             strategy.closeAll();
         } catch (Exception e) {
-            log.error("数据源连接失败",e);
-            return  ResponseResult.error("500", e.getMessage());
+            log.error("数据源连接失败", e);
+            return ResponseResult.error("500", e.getMessage());
         }
         return ResponseResult.success(resultData);
     }
 
+    @PostMapping("/getAllDatabaseName")
+    @ApiOperation("获取可操作的所有数据库名称")
+    public ResponseResult<List<String>> getAllDatabaseName(@MyRequestBody DatabaseManagement databaseManagement){
+        Strategy strategy = strategyFactory.getStrategy(
+                databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
+                databaseManagement.getDatabaseName(), databaseManagement.getUsername(), databaseManagement.getPassword());
+        List<String> resultData = strategy.queryAllDatabaseName();
+        strategy.closeAll();
+        return ResponseResult.success(resultData);
+    }
+
 }
-
-
-

@@ -1,5 +1,6 @@
 package supie.webadmin.app.service.databasemanagement.strategyImpl;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,11 @@ public class DataSourceSapHana extends BaseDataSource implements Strategy {
     public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password) {
         this.databaseType = DataBaseTypeEnum.DATASOURCE_SAP_HANA;
         this.jdbcDriver = "com.sap.db.jdbc.Driver";
-        this.jdbcUrl = "jdbc:sap://" + hostIp + ":" + hostPort + ";DatabaseName=" + databaseName;
+        if (StrUtil.isBlank(databaseName)) {
+            this.jdbcUrl = "jdbc:sap://" + hostIp + ":" + hostPort;
+        } else {
+            this.jdbcUrl = "jdbc:sap://" + hostIp + ":" + hostPort + "/" + databaseName;
+        }
         this.hostIp = hostIp;
         this.hostPort = hostPort;
         this.databaseName = databaseName;
@@ -39,53 +44,4 @@ public class DataSourceSapHana extends BaseDataSource implements Strategy {
         initConnection();
     }
 
-    @Override
-    public List<Map<String,Object>> queryDatabaseTable(DatabaseManagement databaseManagement) throws Exception {
-        return null;
-    }
-
-    @Override
-    public List<Map<String, Object>> queryTableFields(DatabaseManagement databaseManagement) throws Exception {
-        return null;
-    }
-
-    /**
-     * 创建数据库
-     *
-     * @param databaseName 创建的数据库的名称
-     * @author 王立宏
-     * @date 2023/11/02 04:30
-     */
-    @Override
-    public void createDatabase(String databaseName) {
-
-    }
-
-    /**
-     * 获取表结构
-     *
-     * @param tableName 表名
-     */
-    @Override
-    public List<Map<String, Object>> queryTableStructure(String tableName) {
-        return null;
-    }
-
-//    public static String initSapHana(String jdbcUrl, String userName, String passWord, boolean autoCommit) {
-//        Connection conn = null;
-//        try {
-//            Class.forName("com.sap.db.jdbc.Driver");
-//            //连接数据库
-//            conn = DriverManager.getConnection(jdbcUrl, userName, passWord);
-//            conn.setAutoCommit(autoCommit);
-//            return "SAP HANA连接成功!";
-//        } catch (ClassNotFoundException e) {
-//            System.out.println("找不到驱动程序类");
-//            return "找不到驱动程序类!";
-//        } catch (SQLException se) {
-//            //连接失败
-//            logger.error("SAP HANA连接失败", se);
-//            return "SAP HANA连接失败" + se;
-//        }
-//    }
 }

@@ -83,6 +83,7 @@ public class QuartzJobCheckCycle implements Job {
         if (response.isSuccess()) {
             Integer successNumber = schedulingTasks.getSuccessNumber();
             if (null == successNumber) successNumber = 0;
+            schedulingTasks.setTaskState("正常");
             schedulingTasks.setSuccessNumber(successNumber + 1);
             liteflowLog.setRunResult("成功");
             String successMessage = "任务[" + schedulingTasksId + "]的规则链[" + rulerId + "]执行成功!";

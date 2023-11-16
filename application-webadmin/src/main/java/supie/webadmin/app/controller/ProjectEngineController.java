@@ -1,8 +1,14 @@
 package supie.webadmin.app.controller;
 
+import cn.hutool.core.util.StrUtil;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import supie.common.log.annotation.OperationLog;
 import supie.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
+import supie.webadmin.app.service.databasemanagement.Strategy;
+import supie.webadmin.app.service.databasemanagement.StrategyFactory;
 import supie.webadmin.app.vo.*;
 import supie.webadmin.app.dto.*;
 import supie.webadmin.app.model.*;
@@ -33,6 +39,10 @@ public class ProjectEngineController {
 
     @Autowired
     private ProjectEngineService projectEngineService;
+    @Autowired
+    private ProjectMainService projectMainService;
+    @Autowired
+    private StrategyFactory strategyFactory;
 
     /**
      * 新增数据项目-存算引擎表数据。
@@ -198,4 +208,64 @@ public class ProjectEngineController {
         }
         return ResponseResult.success();
     }
+
+    /**
+     * 获取可操作的数据库集
+     *
+     * @param projectId 项目 ID
+     * @return 返回结果
+     * @author 王立宏
+     * @date 2023/11/14 05:30
+     */
+    @PostMapping("/getAllDatabaseName")
+    @ApiOperation("获取可操作的所有数据库名称")
+    public ResponseResult<List<String>> getAllDatabaseName(@MyRequestBody Long projectId){
+        if (projectId == null) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        ProjectMain projectMain = projectMainService.getByIdWithRelation(projectId, MyRelationParam.full());
+        if (projectMain == null || projectMain.getProjectEngineId() == null || projectMain.getProjectEngine() == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST,
+                    "数据验证失败，当前 [数据] 并不存在，请刷新后重试！");
+        }
+        ProjectEngine projectEngine = projectMain.getProjectEngine();
+        Strategy strategy = strategyFactory.getStrategy(
+                projectEngine.getEngineType(), projectEngine.getEngineHost(), projectEngine.getEnginePort(),
+                null, projectEngine.getEngineUsername(), projectEngine.getEnginePassword());
+        List<String> resultData = strategy.queryAllDatabaseName();
+        strategy.closeAll();
+        return ResponseResult.success(resultData);
+    }
+
+    /**
+     * 执行 SQL
+     *
+     * @param sql          SQL语句
+     * @param databaseName 目标数据库名称
+     * @param projectId    项目 ID
+     * @return 响应结果
+     * @author 王立宏
+     * @date 2023/11/14 05:30
+     */
+    @ApiOperation("执行sql接口")
+    @PostMapping("/executeSql")
+    public ResponseResult<List<Map<String, Object>>> executeSql(
+            @MyRequestBody String sql, @MyRequestBody String databaseName, @MyRequestBody Long projectId){
+        if (projectId == null || StrUtil.isBlank(sql) || StrUtil.isBlank(databaseName)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        ProjectMain projectMain = projectMainService.getByIdWithRelation(projectId, MyRelationParam.full());
+        if (projectMain == null || projectMain.getProjectEngineId() == null || projectMain.getProjectEngine() == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST,
+                    "数据验证失败，当前 [数据] 并不存在，请刷新后重试！");
+        }
+        ProjectEngine projectEngine = projectMain.getProjectEngine();
+        Strategy strategy = strategyFactory.getStrategy(
+                projectEngine.getEngineType(), projectEngine.getEngineHost(), projectEngine.getEnginePort(),
+                databaseName, projectEngine.getEngineUsername(), projectEngine.getEnginePassword());
+        List<Map<String, Object>> resultData = strategy.executeSqlList(sql);
+        strategy.closeAll();
+        return ResponseResult.success(resultData);
+    }
+
 }
