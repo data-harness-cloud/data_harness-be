@@ -39,6 +39,13 @@ public interface Strategy {
     List<Map<String,Object>> queryTableFields(String databaseName, String tableName);
 
     /**
+     * 执行单条SQL语句
+     * @param sqlScript
+     * @return
+     */
+    Map<String, Object> executeSql(String sqlScript);
+
+    /**
      * 执行位置数量的SQL
      * @param sql 字符（会将SQl以“;”切开成List来执行，结果也会按照语句的顺序来显示）
      * @return [

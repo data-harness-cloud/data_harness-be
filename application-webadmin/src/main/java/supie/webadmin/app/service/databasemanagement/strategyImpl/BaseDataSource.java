@@ -87,6 +87,72 @@ public class BaseDataSource {
     }
 
     /**
+     * 执行单条SQL语句
+     *
+     * @param sqlScript
+     * @return
+     */
+    public Map<String, Object> executeSql(String sqlScript) {
+        Map<String, Object> resultMapData = new HashMap<>();
+        try {
+            Statement statement = connection.createStatement();
+            resultMapData.put("sql", sqlScript);
+            try {
+                boolean result = statement.execute(sqlScript);
+                if (result) {
+                    ResultSet resultSet = statement.getResultSet(); // 查询结果
+                    ResultSetMetaData metaData = resultSet.getMetaData();
+                    Map<String, LinkedList> queryResultData = new LinkedHashMap<>();
+
+                    LinkedList<String> fieldList = null;
+                    LinkedList<Map<String, Object>> queryDataList = new LinkedList<>();
+                    while (resultSet.next()) {
+                        // 获取字段数量
+                        int columnCount = metaData.getColumnCount();
+                        // 遍历每个字段
+                        Map<String, Object> queryDataMap = new LinkedHashMap<>();
+                        Boolean setFieldList = false;
+                        if (fieldList == null) {
+                            fieldList = new LinkedList<>();
+                            setFieldList = true;
+                        }
+                        for (int i = 1; i <= columnCount; i++) {
+                            // 获取字段名
+                            String columnName = metaData.getColumnName(i);
+                            if (StrUtil.isBlankIfStr(columnName)) continue;
+                            if (StrUtil.isBlankIfStr(resultSet)) {
+                                throw new RuntimeException("resultSet为空");
+                            }
+                            // 获取字段值
+                            Object columnValue = resultSet.getObject(columnName);
+                            // 存入字段名和字段值
+                            if (setFieldList) fieldList.add(columnName);
+                            queryDataMap.put(columnName, columnValue);
+                        }
+                        queryDataList.add(queryDataMap);
+                    }
+                    resultSet.close();
+                    queryResultData.put("fieldList", fieldList);
+                    queryResultData.put("queryDataList", queryDataList);
+                    resultMapData.put("queryResultData", queryResultData);
+                } else {
+                    int affectedDataNumber = statement.getUpdateCount(); // 影响的行数
+                    resultMapData.put("updateResultData", affectedDataNumber);
+                }
+                resultMapData.put("isSuccess", true);
+                resultMapData.put("message", "SUCCESS");
+            } catch (SQLException e) {
+                resultMapData.put("isSuccess", false);
+                resultMapData.put("message", e.getMessage());
+            }
+            statement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return resultMapData;
+    }
+
+    /**
      * 执行位置数量的SQL
      * @param sql 字符（会将SQl以“;”切开成List来执行，结果也会按照语句的顺序来显示）
      * @return [
