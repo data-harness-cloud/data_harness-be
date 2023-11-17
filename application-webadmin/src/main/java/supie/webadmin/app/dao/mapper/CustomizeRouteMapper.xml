@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.CustomizeRouteMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.CustomizeRoute">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="route_describe" jdbcType="VARCHAR" property="routeDescribe"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="request_type" jdbcType="INTEGER" property="requestType"/>
+        <result column="state" jdbcType="INTEGER" property="state"/>
+        <result column="project_id" jdbcType="BIGINT" property="projectId"/>
+        <result column="database_name" jdbcType="VARCHAR" property="databaseName"/>
+        <result column="sql_script" jdbcType="VARCHAR" property="sqlScript"/>
+        <result column="parameter" jdbcType="LONGVARCHAR" property="parameter"/>
+        <result column="process_id" jdbcType="BIGINT" property="processId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_customize_route
+            (id,
+            name,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            route_describe,
+            url,
+            request_type,
+            state,
+            project_id,
+            database_name,
+            sql_script,
+            parameter,
+            process_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.name},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.routeDescribe},
+            #{item.url},
+            #{item.requestType},
+            #{item.state},
+            #{item.projectId},
+            #{item.databaseName},
+            #{item.sqlScript},
+            #{item.parameter},
+            #{item.processId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.CustomizeRouteMapper.inputFilterRef"/>
+        AND sdt_customize_route.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="customizeRouteFilter != null">
+            <if test="customizeRouteFilter.id != null">
+                AND sdt_customize_route.id = #{customizeRouteFilter.id}
+            </if>
+            <if test="customizeRouteFilter.name != null and customizeRouteFilter.name != ''">
+                <bind name = "safeCustomizeRouteName" value = "'%' + customizeRouteFilter.name + '%'" />
+                AND sdt_customize_route.name LIKE #{safeCustomizeRouteName}
+            </if>
+            <if test="customizeRouteFilter.updateTimeStart != null and customizeRouteFilter.updateTimeStart != ''">
+                AND sdt_customize_route.update_time &gt;= #{customizeRouteFilter.updateTimeStart}
+            </if>
+            <if test="customizeRouteFilter.updateTimeEnd != null and customizeRouteFilter.updateTimeEnd != ''">
+                AND sdt_customize_route.update_time &lt;= #{customizeRouteFilter.updateTimeEnd}
+            </if>
+            <if test="customizeRouteFilter.createTimeStart != null and customizeRouteFilter.createTimeStart != ''">
+                AND sdt_customize_route.create_time &gt;= #{customizeRouteFilter.createTimeStart}
+            </if>
+            <if test="customizeRouteFilter.createTimeEnd != null and customizeRouteFilter.createTimeEnd != ''">
+                AND sdt_customize_route.create_time &lt;= #{customizeRouteFilter.createTimeEnd}
+            </if>
+            <if test="customizeRouteFilter.createUserId != null">
+                AND sdt_customize_route.create_user_id = #{customizeRouteFilter.createUserId}
+            </if>
+            <if test="customizeRouteFilter.updateUserId != null">
+                AND sdt_customize_route.update_user_id = #{customizeRouteFilter.updateUserId}
+            </if>
+            <if test="customizeRouteFilter.dataUserId != null">
+                AND sdt_customize_route.data_user_id = #{customizeRouteFilter.dataUserId}
+            </if>
+            <if test="customizeRouteFilter.dataDeptId != null">
+                AND sdt_customize_route.data_dept_id = #{customizeRouteFilter.dataDeptId}
+            </if>
+            <if test="customizeRouteFilter.routeDescribe != null and customizeRouteFilter.routeDescribe != ''">
+                <bind name = "safeCustomizeRouteDescribe" value = "'%' + customizeRouteFilter.routeDescribe + '%'" />
+                AND sdt_customize_route.route_describe LIKE #{safeCustomizeRouteDescribe}
+            </if>
+            <if test="customizeRouteFilter.url != null and customizeRouteFilter.url != ''">
+                <bind name = "safeCustomizeRouteUrl" value = "'%' + customizeRouteFilter.url + '%'" />
+                AND sdt_customize_route.url LIKE #{safeCustomizeRouteUrl}
+            </if>
+            <if test="customizeRouteFilter.requestType != null">
+                AND sdt_customize_route.request_type = #{customizeRouteFilter.requestType}
+            </if>
+            <if test="customizeRouteFilter.state != null">
+                AND sdt_customize_route.state = #{customizeRouteFilter.state}
+            </if>
+            <if test="customizeRouteFilter.projectId != null">
+                AND sdt_customize_route.project_id = #{customizeRouteFilter.projectId}
+            </if>
+            <if test="customizeRouteFilter.databaseName != null and customizeRouteFilter.databaseName != ''">
+                <bind name = "safeCustomizeRouteDatabaseName" value = "'%' + customizeRouteFilter.databaseName + '%'" />
+                AND sdt_customize_route.database_name LIKE #{safeCustomizeRouteDatabaseName}
+            </if>
+            <if test="customizeRouteFilter.sqlScript != null and customizeRouteFilter.sqlScript != ''">
+                <bind name = "safeCustomizeRouteSqlScript" value = "'%' + customizeRouteFilter.sqlScript + '%'" />
+                AND sdt_customize_route.sql_script LIKE #{safeCustomizeRouteSqlScript}
+            </if>
+            <if test="customizeRouteFilter.parameter != null and customizeRouteFilter.parameter != ''">
+                <bind name = "safeCustomizeRouteParameter" value = "'%' + customizeRouteFilter.parameter + '%'" />
+                AND sdt_customize_route.parameter LIKE #{safeCustomizeRouteParameter}
+            </if>
+            <if test="customizeRouteFilter.processId != null">
+                AND sdt_customize_route.process_id = #{customizeRouteFilter.processId}
+            </if>
+            <if test="customizeRouteFilter.searchString != null and customizeRouteFilter.searchString != ''">
+                <bind name = "safeCustomizeRouteSearchString" value = "'%' + customizeRouteFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_customize_route.name,''), IFNULL(sdt_customize_route.route_describe,''), IFNULL(sdt_customize_route.url,''), IFNULL(sdt_customize_route.database_name,''), IFNULL(sdt_customize_route.sql_script,''), IFNULL(sdt_customize_route.parameter,'')) LIKE #{safeCustomizeRouteSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedCustomizeRouteList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.CustomizeRoute">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_customize_route
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_customize_route
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getCustomizeRouteList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.CustomizeRoute">
+        SELECT * FROM sdt_customize_route
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="queryRegisterApi" resultMap="BaseResultMap">
+        SELECT * FROM sdt_customize_route
+        WHERE sdt_customize_route.state = 1
+        AND sdt_customize_route.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </select>
+</mapper>

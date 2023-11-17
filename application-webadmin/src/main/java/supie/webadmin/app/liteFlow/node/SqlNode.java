@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 描述：用于执行客户自定义的SQL语句
+ * 描述:用于执行客户自定义的SQL语句
  *
  * @author 王立宏
  * @date 2023/10/22 14:32
@@ -40,35 +40,35 @@ public class SqlNode extends BaseNode {
 
     @Override
     public void beforeProcess() {
-        nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag, "进入SqlNode-beforeProcess！"));
+        nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag, "进入SqlNode-beforeProcess!"));
         sqlAndShellModel = JSONUtil.toBean(devLiteflowNode.getFieldJsonData(), SqlAndShellModel.class);
         if (sqlAndShellModel.getSourceId() == null) {
-            nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "未关联数据源！"));
-            throw new MyLiteFlowException(new ErrorMessageModel(getClass(), "未关联数据源！"));
+            nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "未关联数据源!"));
+            throw new MyLiteFlowException(new ErrorMessageModel(getClass(), "未关联数据源!"));
         }
         projectDatasource = projectDatasourceMapper.selectById(sqlAndShellModel.getSourceId());
         if (projectDatasource == null) {
-            nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "未找到数据源！"));
-            throw new MyLiteFlowException(new ErrorMessageModel(getClass(), "未找到数据源！"));
+            nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "未找到数据源!"));
+            throw new MyLiteFlowException(new ErrorMessageModel(getClass(), "未找到数据源!"));
         }
         datasourceContentModel = JSONUtil.toBean(projectDatasource.getDatasourceContent(), DatasourceContentModel.class);
     }
 
     @Override
     public void process() throws Exception {
-        nodeLog.add(LiteFlowNodeLogModel.warn(nodeId, nodeTag, "进入SqlNode-process！"));
+        nodeLog.add(LiteFlowNodeLogModel.warn(nodeId, nodeTag, "进入SqlNode-process!"));
         Strategy strategy = null;
         try {
             strategy = strategyFactory.getStrategy(
                     datasourceContentModel.getDatabaseType(), datasourceContentModel.getIp(), datasourceContentModel.getPort(),
                     datasourceContentModel.getDatabaseName(), datasourceContentModel.getUsername(), datasourceContentModel.getPassword());
         } catch (Exception e) {
-            nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "获取数据库连接失败！" + e));
-            throw new MyLiteFlowException(new ErrorMessageModel(getClass(), "获取数据库连接失败！" + e));
+            nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "获取数据库连接失败!" + e));
+            throw new MyLiteFlowException(new ErrorMessageModel(getClass(), "获取数据库连接失败!" + e));
         }
         List<Map<String, Object>> resultData = strategy.executeSqlList(sqlAndShellModel.getScript());
         strategy.closeAll();
-        nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag, "SQL执行结果为：" + JSONUtil.toJsonStr(resultData)));
+        nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag, "SQL执行结果为:" + JSONUtil.toJsonStr(resultData)));
         devLiteflowNodeMapper.setExecutionMessage(rulerId, nodeId, nodeTag, JSONUtil.toJsonStr(resultData));
     }
 

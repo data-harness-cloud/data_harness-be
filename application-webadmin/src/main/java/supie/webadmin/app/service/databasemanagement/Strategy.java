@@ -24,15 +24,26 @@ public interface Strategy {
     void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password);
 
     /**
+     * 关闭连接
+     */
+    void closeAll();
+
+    /**
      * 查询数据库数据表名及类型
      */
-    List<Map<String,Object>> queryDatabaseTable(DatabaseManagement databaseManagement) throws Exception;
-
+    List<Map<String,Object>> queryDatabaseTable(String databaseName);
 
     /**
      * 查询数据库数据的字段名及类型
      */
-    List<Map<String,Object>> queryTableFields(DatabaseManagement databaseManagement) throws Exception;
+    List<Map<String,Object>> queryTableFields(String databaseName, String tableName);
+
+    /**
+     * 执行单条SQL语句
+     * @param sqlScript
+     * @return
+     */
+    Map<String, Object> executeSql(String sqlScript);
 
     /**
      * 执行位置数量的SQL
@@ -50,6 +61,15 @@ public interface Strategy {
     List<Map<String, Object>> executeSqlList(String sql);
 
     /**
+     * 查询可操作的所有数据库名称
+     *
+     * @return 该账户可操作的所有数据库集
+     * @author 王立宏
+     * @date 2023/11/14 03:57
+     */
+    List<String> queryAllDatabaseName();
+
+    /**
      * 创建数据库
      *
      * @param databaseName 创建的数据库的名称
@@ -57,11 +77,6 @@ public interface Strategy {
      * @date 2023/11/02 04:30
      */
     void createDatabase(String databaseName);
-
-    /**
-     * 关闭连接
-     */
-    void closeAll();
 
     /**
      * 获取表结构

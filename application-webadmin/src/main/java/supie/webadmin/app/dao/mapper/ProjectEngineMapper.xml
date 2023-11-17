@@ -153,4 +153,13 @@
             ORDER BY ${orderBy}
         </if>
     </select>
+
+    <select id="selectByProjectId" resultMap="BaseResultMap">
+        SELECT sdt_project_engine.* FROM sdt_project_engine
+        LEFT JOIN sdt_project_main ON sdt_project_main.project_engine_id = sdt_project_engine.id
+        WHERE sdt_project_main.id = ${projectId}
+        AND sdt_project_engine.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+        AND sdt_project_main.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </select>
+
 </mapper>

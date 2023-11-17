@@ -9,7 +9,6 @@ import java.sql.*;
 import java.util.*;
 
 import static cn.hutool.db.DbUtil.close;
-import static supie.application.common.constant.DataSource.*;
 
 /**
  * 描述：
@@ -58,9 +57,9 @@ public class BaseDataSource {
      * 数据库连接对象
      */
     protected Connection connection = null;
-    protected Statement statement = null;
-    protected PreparedStatement preparedStatement = null;
-    protected ResultSet resultSet = null;
+//    protected Statement statement = null;
+//    protected PreparedStatement preparedStatement = null;
+//    protected ResultSet resultSet = null;
 
     /**
      * 连接数据库
@@ -83,7 +82,74 @@ public class BaseDataSource {
      * @date 2023/10/30 10:58
      */
     public void closeAll() {
-        close(resultSet, preparedStatement, statement, connection);
+//        close(resultSet, preparedStatement, statement, connection);
+        close(connection);
+    }
+
+    /**
+     * 执行单条SQL语句
+     *
+     * @param sqlScript
+     * @return
+     */
+    public Map<String, Object> executeSql(String sqlScript) {
+        Map<String, Object> resultMapData = new HashMap<>();
+        try {
+            Statement statement = connection.createStatement();
+            resultMapData.put("sql", sqlScript);
+            try {
+                boolean result = statement.execute(sqlScript);
+                if (result) {
+                    ResultSet resultSet = statement.getResultSet(); // 查询结果
+                    ResultSetMetaData metaData = resultSet.getMetaData();
+                    Map<String, LinkedList> queryResultData = new LinkedHashMap<>();
+
+                    LinkedList<String> fieldList = null;
+                    LinkedList<Map<String, Object>> queryDataList = new LinkedList<>();
+                    while (resultSet.next()) {
+                        // 获取字段数量
+                        int columnCount = metaData.getColumnCount();
+                        // 遍历每个字段
+                        Map<String, Object> queryDataMap = new LinkedHashMap<>();
+                        Boolean setFieldList = false;
+                        if (fieldList == null) {
+                            fieldList = new LinkedList<>();
+                            setFieldList = true;
+                        }
+                        for (int i = 1; i <= columnCount; i++) {
+                            // 获取字段名
+                            String columnName = metaData.getColumnName(i);
+                            if (StrUtil.isBlankIfStr(columnName)) continue;
+                            if (StrUtil.isBlankIfStr(resultSet)) {
+                                throw new RuntimeException("resultSet为空");
+                            }
+                            // 获取字段值
+                            Object columnValue = resultSet.getObject(columnName);
+                            // 存入字段名和字段值
+                            if (setFieldList) fieldList.add(columnName);
+                            queryDataMap.put(columnName, columnValue);
+                        }
+                        queryDataList.add(queryDataMap);
+                    }
+                    resultSet.close();
+                    queryResultData.put("fieldList", fieldList);
+                    queryResultData.put("queryDataList", queryDataList);
+                    resultMapData.put("queryResultData", queryResultData);
+                } else {
+                    int affectedDataNumber = statement.getUpdateCount(); // 影响的行数
+                    resultMapData.put("updateResultData", affectedDataNumber);
+                }
+                resultMapData.put("isSuccess", true);
+                resultMapData.put("message", "SUCCESS");
+            } catch (SQLException e) {
+                resultMapData.put("isSuccess", false);
+                resultMapData.put("message", e.getMessage());
+            }
+            statement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return resultMapData;
     }
 
     /**
@@ -103,14 +169,14 @@ public class BaseDataSource {
         List<String> sqlList = StrSplitter.split(sql, ";", 0, true, true);
         List<Map<String, Object>> resultDataList = new LinkedList<>();
         try {
-            statement = connection.createStatement();
+            Statement statement = connection.createStatement();
             for (String sqlOne : sqlList) {
                 Map<String, Object> resultMapData = new HashMap<>();
                 resultMapData.put("sql", sqlOne);
                 try {
                     boolean result = statement.execute(sqlOne);
                     if (result) {
-                        resultSet = statement.getResultSet(); // 查询结果
+                        ResultSet resultSet = statement.getResultSet(); // 查询结果
                         ResultSetMetaData metaData = resultSet.getMetaData();
                         Map<String, LinkedList> queryResultData = new LinkedHashMap<>();
 
@@ -129,10 +195,13 @@ public class BaseDataSource {
                             for (int i = 1; i <= columnCount; i++) {
                                 // 获取字段名
                                 String columnName = metaData.getColumnName(i);
-                                // 获取字段值
-                                Object columnValue = resultSet.getObject(i);
-                                // 存入字段名和字段值
                                 if (StrUtil.isBlankIfStr(columnName)) continue;
+                                if (StrUtil.isBlankIfStr(resultSet)) {
+                                    throw new RuntimeException("resultSet为空");
+                                }
+                                // 获取字段值
+                                Object columnValue = resultSet.getObject(columnName);
+                                // 存入字段名和字段值
                                 if (setFieldList) fieldList.add(columnName);
                                 queryDataMap.put(columnName, columnValue);
                             }
@@ -160,6 +229,146 @@ public class BaseDataSource {
             throw new RuntimeException(e);
         }
         return resultDataList;
+    }
+
+    /**
+     * 创建数据库
+     *
+     * @param databaseName 创建的数据库的名称
+     * @author 王立宏
+     * @date 2023/11/02 04:30
+     */
+    public void createDatabase(String databaseName) {
+        String createDatabaseSql = "CREATE DATABASE " + databaseName + ";";
+        List<Map<String, Object>> resultDataList = executeSqlList(createDatabaseSql);
+        Map<String, Object> resultMap = resultDataList.get(0);
+        if (Boolean.TRUE.equals(resultMap.get("isSuccess")) && ((int) resultMap.get("updateResultData") == 1)) return;
+        throw new RuntimeException("数据库创建[" + resultMap.get("sql") + "]失败！" + resultMap.get("message").toString());
+    }
+
+    /**
+     * 查询数据库数据表名及类型
+     * @param databaseName
+     * @return
+     */
+    public List<Map<String, Object>> queryDatabaseTable(String databaseName) {
+        ArrayList<Map<String, Object>> tableList = new ArrayList<>();
+        try {
+            DatabaseMetaData metaData = connection.getMetaData();
+            ResultSet resultSet = metaData.getTables(databaseName, null, null, new String[]{"TABLE"});
+
+            // 循环TABLE，将结果记录在Map中
+            while (resultSet.next()) {
+                HashMap<String, Object> tableMap = new HashMap<>();
+                // 表名
+                String tableName = resultSet.getString("TABLE_NAME");
+                // 注释
+                String tableComment = resultSet.getString("REMARKS");
+                tableMap.put("tableName",tableName);
+                tableMap.put("remarks",tableComment);
+                tableList.add(tableMap);
+            }
+            resultSet.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return tableList;
+    }
+
+    /**
+     * 查询数据库数据的字段名及类型
+     * @param databaseName
+     * @param tableName
+     * @return
+     */
+    public List<Map<String, Object>> queryTableFields(String databaseName, String tableName) {
+        List<Map<String, Object>> resultData = null;
+        try {
+            DatabaseMetaData metaData = connection.getMetaData();
+            // 字段
+            ResultSet resultSet = metaData.getColumns(databaseName, null, tableName, null);
+            resultData = new ArrayList<>();
+            while (resultSet.next()) {
+                HashMap<String, Object> dataTypeMap = new HashMap<>();
+                // 字段名
+                String columnName = resultSet.getString("COLUMN_NAME");
+                // 字段类型
+                String dataType = resultSet.getString("TYPE_NAME");
+                // 字段大小
+                int columnSize = resultSet.getInt("COLUMN_SIZE");
+                // 字段注释
+                String columnComment = resultSet.getString("REMARKS");
+                //            下面是获取关于列级别的信息
+                //            获取列的名称：resultSet.getString("COLUMN_NAME")
+                //            获取列的标签（别名）：resultSet.getString("LABEL")
+                //            获取列的显示大小：resultSet.getInt("COLUMN_DISPLAY_SIZE")
+                //            获取列的数据类型的编号：resultSet.getInt("DATA_TYPE")
+                //            获取列的数据类型的名称：resultSet.getString("TYPE_NAME")
+                //            获取列的精度：resultSet.getInt("PRECISION")
+                //            获取列的小数位数：resultSet.getInt("SCALE")
+                //            获取列是否为只读：resultSet.getBoolean("IS_READONLY")
+                //            获取列是否自动递增：resultSet.getBoolean("IS_AUTOINCREMENT")
+
+                dataTypeMap.put("fieldName",columnName);
+                dataTypeMap.put("typeName",dataType);
+                dataTypeMap.put("columnSize",columnSize);
+                dataTypeMap.put("remarks",columnComment);
+                resultData.add(dataTypeMap);
+            }
+            resultSet.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return resultData;
+    }
+
+    public List<String> queryAllDatabaseName() {
+        List<String> databaseNameList = new ArrayList<>();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SHOW DATABASES;");
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            while (resultSet.next()) {
+                databaseNameList.add(resultSet.getString(1));
+            }
+            resultSet.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return databaseNameList;
+    }
+
+    /**
+     * 获取表结构
+     *
+     * @param tableName 表名
+     */
+    public List<Map<String, Object>> queryTableStructure(String tableName) {
+        List<Map<String, Object>> resultData = new ArrayList<>();
+        try {
+            DatabaseMetaData metaData = connection.getMetaData();
+            ResultSet resultSet = metaData.getColumns(null, null, tableName, null);
+            // 5. 处理结果集，提取表结构信息
+            while (resultSet.next()) {
+                Map<String, Object> fieldMap = new HashMap<>();
+                ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+                // 获取字段数量
+                int columnCount = resultSetMetaData.getColumnCount();
+                // 遍历每个字段
+                for (int i = 1; i <= columnCount; i++) {
+                    // 获取字段名
+                    String columnName = resultSetMetaData.getColumnName(i);
+                    // 获取字段值
+                    Object columnValue = resultSet.getObject(i);
+                    fieldMap.put(columnName, columnValue);
+                }
+                resultData.add(fieldMap);
+            }
+            resultSet.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return resultData;
     }
 
 }

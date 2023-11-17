@@ -55,7 +55,7 @@ public abstract class BaseNode extends NodeComponent{
         nodeLog = this.getContextBean(LinkedList.class);
         devLiteflowNode = devLiteflowNodeMapper.queryNode(rulerId, nodeId, nodeTag);
         int status = devLiteflowNode.getStatus();
-        nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag, "节点[" + nodeId + ".tag(" + nodeTag + ")]的启用状态：" + (status == 1)));
+        nodeLog.add(LiteFlowNodeLogModel.info(nodeId, nodeTag, "节点[" + nodeId + ".tag(" + nodeTag + ")]的启用状态:" + (status == 1)));
         return status == 1;
     }
 

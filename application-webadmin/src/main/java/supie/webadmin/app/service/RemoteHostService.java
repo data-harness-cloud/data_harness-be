@@ -82,5 +82,5 @@ public interface RemoteHostService extends IBaseService<RemoteHost, Long> {
      */
     List<RemoteHost> getRemoteHostListWithRelation(RemoteHost filter, String orderBy);
 
-    String testConnection(String logFilePath, RemoteHost remoteHost, String commands);
+    String testConnection(RemoteHost remoteHostFilter, List<String> commandList);
 }

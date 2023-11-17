@@ -6,7 +6,8 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import supie.webadmin.app.service.*;
 import supie.webadmin.app.dao.*;
 import supie.webadmin.app.model.*;
-import supie.webadmin.app.util.remoteshell.JschUtil;
+import supie.webadmin.app.util.remoteshell.RemoteShell;
+import supie.webadmin.app.util.remoteshell.impl.RemoteShellSshjImpl;
 import supie.webadmin.upms.service.SysUserService;
 import supie.webadmin.upms.service.SysDeptService;
 import supie.common.core.base.dao.BaseDaoMapper;
@@ -22,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -209,12 +209,13 @@ public class RemoteHostServiceImpl extends BaseService<RemoteHost, Long> impleme
         return remoteHost;
     }
 
-
     @Override
-    public String testConnection(String logFilePath, RemoteHost remoteHost, String commands) {
-
-        JschUtil jschUtil = new JschUtil();
-        String data = jschUtil.testConnection(logFilePath,remoteHost, commands);
-        return data;
+    public String testConnection(RemoteHost remoteHostFilter, List<String> commandList) {
+        RemoteShell remoteShell = new RemoteShellSshjImpl(
+                remoteHostFilter.getHostIp(), remoteHostFilter.getHostPort(),
+                remoteHostFilter.getLoginName(), remoteHostFilter.getPassword(), null);
+        String resultMessage = remoteShell.execCommands(commandList.toArray(new String[0]));
+        remoteShell.close();
+        return resultMessage;
     }
 }

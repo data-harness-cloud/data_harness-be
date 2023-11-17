@@ -1,5 +1,6 @@
 package supie.webadmin.app.service.databasemanagement.strategyImpl;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,11 @@ public class DataSourceDM extends BaseDataSource implements Strategy {
     public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password) {
         this.databaseType = DataBaseTypeEnum.DATASOURCE_DM;
         this.jdbcDriver = "dm.jdbc.driver.DmDriver";
-        this.jdbcUrl = "jdbc:dm://" + hostIp + ":" + hostPort + ";DatabaseName=" + databaseName;
+        if (StrUtil.isBlank(databaseName)) {
+            this.jdbcUrl = "jdbc:dm://" + hostIp + ":" + hostPort;
+        } else {
+            this.jdbcUrl = "jdbc:dm://" + hostIp + ":" + hostPort + "/" + databaseName;
+        }
         this.hostIp = hostIp;
         this.hostPort = hostPort;
         this.databaseName = databaseName;
@@ -41,38 +46,6 @@ public class DataSourceDM extends BaseDataSource implements Strategy {
         this.password = password;
         // 获取数据库连接，使数据库连接在该对象存在前都保持住
         initConnection();
-    }
-
-    @Override
-    public List<Map<String,Object>> queryDatabaseTable(DatabaseManagement databaseManagement) throws Exception {
-        return null;
-    }
-
-    @Override
-    public List<Map<String, Object>> queryTableFields(DatabaseManagement databaseManagement) throws Exception {
-        return null;
-    }
-
-    /**
-     * 创建数据库
-     *
-     * @param databaseName 创建的数据库的名称
-     * @author 王立宏
-     * @date 2023/11/02 04:30
-     */
-    @Override
-    public void createDatabase(String databaseName) {
-
-    }
-
-    /**
-     * 获取表结构
-     *
-     * @param tableName 表名
-     */
-    @Override
-    public List<Map<String, Object>> queryTableStructure(String tableName) {
-        return null;
     }
 
 }

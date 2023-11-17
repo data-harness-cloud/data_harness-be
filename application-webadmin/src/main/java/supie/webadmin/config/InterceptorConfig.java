@@ -1,5 +1,6 @@
 package supie.webadmin.config;
 
+import supie.webadmin.interceptor.ApiAuthenticationInterceptor;
 import supie.webadmin.interceptor.AuthenticationInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -17,5 +18,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new AuthenticationInterceptor()).addPathPatterns("/admin/**");
+        registry.addInterceptor(new ApiAuthenticationInterceptor()).addPathPatterns("/api/**");
     }
 }

@@ -7,6 +7,18 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import io.jsonwebtoken.Claims;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBucket;
+import org.redisson.api.RSet;
+import org.redisson.api.RedissonClient;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.util.Assert;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
 import supie.common.core.annotation.NoAuthInterface;
 import supie.common.core.cache.CacheConfig;
 import supie.common.core.constant.ApplicationConstant;
@@ -20,18 +32,6 @@ import supie.common.core.util.JwtUtil;
 import supie.common.core.util.RedisKeyUtil;
 import supie.webadmin.config.ApplicationConfig;
 import supie.webadmin.config.ThirdPartyAuthConfig;
-import io.jsonwebtoken.Claims;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RBucket;
-import org.redisson.api.RSet;
-import org.redisson.api.RedissonClient;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.util.Assert;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,13 +42,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * 登录用户Token验证、生成和权限验证的拦截器。
+ * 描述：
  *
- * @author rm -rf .bug
- * @date 2020-11-12
+ * @author 王立宏
+ * @date 2023/11/16 16:50
+ * @path SDT-supie.webadmin.interceptor-ApiAuthenticationInterceptor
  */
 @Slf4j
-public class AuthenticationInterceptor implements HandlerInterceptor {
+public class ApiAuthenticationInterceptor implements HandlerInterceptor {
 
     private final ApplicationConfig appConfig =
             ApplicationContextHolder.getBean("applicationConfig");
@@ -64,54 +65,57 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         String url = request.getRequestURI();
-        String token = this.getTokenFromRequest(request);
-        boolean noLoginUrl = this.isNoAuthInterface(handler);
-        // 如果接口方法标记NoAuthInterface注解，可以直接跳过Token鉴权验证，这里主要为了测试接口方便
-        if (noLoginUrl && StrUtil.isBlank(token)) {
-            return true;
-        }
-        String appCode = this.getAppCodeFromRequest(request);
-        if (StrUtil.isNotBlank(appCode)) {
-            return this.handleThirdPartyRequest(appCode, token, url, response);
-        }
-        Claims c = JwtUtil.parseToken(token, appConfig.getTokenSigningKey());
-        if (JwtUtil.isNullOrExpired(c)) {
-            // 如果免登陆接口携带的是过期的Token，这个时候直接返回给Controller即可。
-            // 这样可以规避不必要的重新登录，而对于Controller，可以将本次请求视为未登录用户的请求。
-            if (noLoginUrl) {
-                return true;
-            }
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            this.outputResponseMessage(response,
-                    ResponseResult.error(ErrorCodeEnum.UNAUTHORIZED_LOGIN, "用户会话已过期或尚未登录，请重新登录！"));
-            return false;
-        }
-        String sessionId = (String) c.get("sessionId");
-        String sessionIdKey = RedisKeyUtil.makeSessionIdKey(sessionId);
-        RBucket<String> sessionData = redissonClient.getBucket(sessionIdKey);
-        TokenData tokenData = null;
-        if (sessionData.isExists()) {
-            tokenData = JSON.parseObject(sessionData.get(), TokenData.class);
-        }
-        if (tokenData == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            this.outputResponseMessage(response,
-                    ResponseResult.error(ErrorCodeEnum.UNAUTHORIZED_LOGIN, "用户会话已失效，请重新登录！"));
-            return false;
-        }
-        tokenData.setToken(token);
-        TokenData.addToRequest(tokenData);
-        // 如果url是免登陆、白名单中，则不需要进行鉴权操作
-        if (!noLoginUrl && Boolean.FALSE.equals(tokenData.getIsAdmin()) && !this.hasPermission(sessionId, url)) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            this.outputResponseMessage(response, ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION));
-            return false;
-        }
-        if (JwtUtil.needToRefresh(c)) {
-            String refreshedToken = JwtUtil.generateToken(c, appConfig.getExpiration(), appConfig.getTokenSigningKey());
-            response.addHeader(appConfig.getRefreshedTokenHeaderKey(), refreshedToken);
-        }
+        log.error("请求了自定义地址[" + url + "]");
         return true;
+
+//        String token = this.getTokenFromRequest(request);
+//        boolean noLoginUrl = this.isNoAuthInterface(handler);
+//        // 如果接口方法标记NoAuthInterface注解，可以直接跳过Token鉴权验证，这里主要为了测试接口方便
+//        if (noLoginUrl && StrUtil.isBlank(token)) {
+//            return true;
+//        }
+//        String appCode = this.getAppCodeFromRequest(request);
+//        if (StrUtil.isNotBlank(appCode)) {
+//            return this.handleThirdPartyRequest(appCode, token, url, response);
+//        }
+//        Claims c = JwtUtil.parseToken(token, appConfig.getTokenSigningKey());
+//        if (JwtUtil.isNullOrExpired(c)) {
+//            // 如果免登陆接口携带的是过期的Token，这个时候直接返回给Controller即可。
+//            // 这样可以规避不必要的重新登录，而对于Controller，可以将本次请求视为未登录用户的请求。
+//            if (noLoginUrl) {
+//                return true;
+//            }
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            this.outputResponseMessage(response,
+//                    ResponseResult.error(ErrorCodeEnum.UNAUTHORIZED_LOGIN, "用户会话已过期或尚未登录，请重新登录！"));
+//            return false;
+//        }
+//        String sessionId = (String) c.get("sessionId");
+//        String sessionIdKey = RedisKeyUtil.makeSessionIdKey(sessionId);
+//        RBucket<String> sessionData = redissonClient.getBucket(sessionIdKey);
+//        TokenData tokenData = null;
+//        if (sessionData.isExists()) {
+//            tokenData = JSON.parseObject(sessionData.get(), TokenData.class);
+//        }
+//        if (tokenData == null) {
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            this.outputResponseMessage(response,
+//                    ResponseResult.error(ErrorCodeEnum.UNAUTHORIZED_LOGIN, "用户会话已失效，请重新登录！"));
+//            return false;
+//        }
+//        tokenData.setToken(token);
+//        TokenData.addToRequest(tokenData);
+//        // 如果url是免登陆、白名单中，则不需要进行鉴权操作
+//        if (!noLoginUrl && Boolean.FALSE.equals(tokenData.getIsAdmin()) && !this.hasPermission(sessionId, url)) {
+//            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+//            this.outputResponseMessage(response, ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION));
+//            return false;
+//        }
+//        if (JwtUtil.needToRefresh(c)) {
+//            String refreshedToken = JwtUtil.generateToken(c, appConfig.getExpiration(), appConfig.getTokenSigningKey());
+//            response.addHeader(appConfig.getRefreshedTokenHeaderKey(), refreshedToken);
+//        }
+//        return true;
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
@@ -217,11 +221,11 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         }
     }
 
-    private ResponseResult<ThirdPartyAppPermData> getThirdPartyPermData(
+    private ResponseResult<AuthenticationInterceptor.ThirdPartyAppPermData> getThirdPartyPermData(
             ThirdPartyAuthConfig.AuthProperties authProps, String token) {
         try {
             String resultData = this.invokeThirdPartyUrl(authProps.getBaseUrl() + "/getPermData", token);
-            return JSON.parseObject(resultData, new TypeReference<ResponseResult<ThirdPartyAppPermData>>() {});
+            return JSON.parseObject(resultData, new TypeReference<ResponseResult<AuthenticationInterceptor.ThirdPartyAppPermData>>() {});
         } catch (MyRuntimeException ex) {
             return ResponseResult.error(ErrorCodeEnum.FAILED_TO_INVOKE_THIRDPARTY_URL, ex.getMessage());
         }
@@ -264,7 +268,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             cache.put(permKey, localPermSet);
             return localPermSet.contains(url);
         }
-        ResponseResult<ThirdPartyAppPermData> responseResult = this.getThirdPartyPermData(authProps, tokenData.getToken());
+        ResponseResult<AuthenticationInterceptor.ThirdPartyAppPermData> responseResult = this.getThirdPartyPermData(authProps, tokenData.getToken());
         this.cacheThirdPartyDataPermData(authProps, tokenData, responseResult.getData().getDataPerms());
         if (CollUtil.isEmpty(responseResult.getData().urlPerms)) {
             return false;
@@ -277,15 +281,15 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     }
 
     private void cacheThirdPartyDataPermData(
-            ThirdPartyAuthConfig.AuthProperties authProps, TokenData tokenData, List<ThirdPartyAppDataPermData> dataPerms) {
+            ThirdPartyAuthConfig.AuthProperties authProps, TokenData tokenData, List<AuthenticationInterceptor.ThirdPartyAppDataPermData> dataPerms) {
         if (CollUtil.isEmpty(dataPerms)) {
             return;
         }
-        Map<Integer, List<ThirdPartyAppDataPermData>> dataPermMap =
-                dataPerms.stream().collect(Collectors.groupingBy(ThirdPartyAppDataPermData::getRuleType));
-        Map<Integer, List<ThirdPartyAppDataPermData>> normalizedDataPermMap = new HashMap<>(dataPermMap.size());
-        for (Map.Entry<Integer, List<ThirdPartyAppDataPermData>> entry : dataPermMap.entrySet()) {
-            List<ThirdPartyAppDataPermData> ruleTypeDataPermDataList;
+        Map<Integer, List<AuthenticationInterceptor.ThirdPartyAppDataPermData>> dataPermMap =
+                dataPerms.stream().collect(Collectors.groupingBy(AuthenticationInterceptor.ThirdPartyAppDataPermData::getRuleType));
+        Map<Integer, List<AuthenticationInterceptor.ThirdPartyAppDataPermData>> normalizedDataPermMap = new HashMap<>(dataPermMap.size());
+        for (Map.Entry<Integer, List<AuthenticationInterceptor.ThirdPartyAppDataPermData>> entry : dataPermMap.entrySet()) {
+            List<AuthenticationInterceptor.ThirdPartyAppDataPermData> ruleTypeDataPermDataList;
             if (entry.getKey().equals(DataPermRuleType.TYPE_DEPT_AND_CHILD_DEPT)) {
                 ruleTypeDataPermDataList =
                         normalizedDataPermMap.computeIfAbsent(DataPermRuleType.TYPE_CUSTOM_DEPT_LIST, k -> new LinkedList<>());
@@ -296,10 +300,10 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             ruleTypeDataPermDataList.addAll(entry.getValue());
         }
         Map<Integer, String> resultDataPermMap = new HashMap<>(normalizedDataPermMap.size());
-        for (Map.Entry<Integer, List<ThirdPartyAppDataPermData>> entry : normalizedDataPermMap.entrySet()) {
+        for (Map.Entry<Integer, List<AuthenticationInterceptor.ThirdPartyAppDataPermData>> entry : normalizedDataPermMap.entrySet()) {
             if (entry.getKey().equals(DataPermRuleType.TYPE_CUSTOM_DEPT_LIST)) {
                 String deptIds = entry.getValue().stream()
-                        .map(ThirdPartyAppDataPermData::getDeptIds).collect(Collectors.joining(","));
+                        .map(AuthenticationInterceptor.ThirdPartyAppDataPermData::getDeptIds).collect(Collectors.joining(","));
                 resultDataPermMap.put(entry.getKey(), deptIds);
             } else {
                 resultDataPermMap.put(entry.getKey(), "null");
@@ -343,11 +347,11 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         /**
          * 当前用户会话可访问的url接口地址列表。
          */
-        public List<String> urlPerms;
+        private List<String> urlPerms;
         /**
          * 当前用户会话的数据权限列表。
          */
-        private List<ThirdPartyAppDataPermData> dataPerms;
+        private List<AuthenticationInterceptor.ThirdPartyAppDataPermData> dataPerms;
     }
 
     @Data
@@ -362,4 +366,5 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
          */
         private String deptIds;
     }
+
 }
