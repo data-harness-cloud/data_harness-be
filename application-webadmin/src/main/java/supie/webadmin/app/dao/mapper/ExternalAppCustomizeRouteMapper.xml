@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.ExternalAppCustomizeRouteMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.ExternalAppCustomizeRoute">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="customize_route_id" jdbcType="BIGINT" property="customizeRouteId"/>
+        <result column="external_app_id" jdbcType="BIGINT" property="externalAppId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_external_app_customize_route
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            customize_route_id,
+            external_app_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.customizeRouteId},
+            #{item.externalAppId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.ExternalAppCustomizeRouteMapper.inputFilterRef"/>
+        AND sdt_external_app_customize_route.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="externalAppCustomizeRouteFilter != null">
+            <if test="externalAppCustomizeRouteFilter.id != null">
+                AND sdt_external_app_customize_route.id = #{externalAppCustomizeRouteFilter.id}
+            </if>
+            <if test="externalAppCustomizeRouteFilter.updateTimeStart != null and externalAppCustomizeRouteFilter.updateTimeStart != ''">
+                AND sdt_external_app_customize_route.update_time &gt;= #{externalAppCustomizeRouteFilter.updateTimeStart}
+            </if>
+            <if test="externalAppCustomizeRouteFilter.updateTimeEnd != null and externalAppCustomizeRouteFilter.updateTimeEnd != ''">
+                AND sdt_external_app_customize_route.update_time &lt;= #{externalAppCustomizeRouteFilter.updateTimeEnd}
+            </if>
+            <if test="externalAppCustomizeRouteFilter.createTimeStart != null and externalAppCustomizeRouteFilter.createTimeStart != ''">
+                AND sdt_external_app_customize_route.create_time &gt;= #{externalAppCustomizeRouteFilter.createTimeStart}
+            </if>
+            <if test="externalAppCustomizeRouteFilter.createTimeEnd != null and externalAppCustomizeRouteFilter.createTimeEnd != ''">
+                AND sdt_external_app_customize_route.create_time &lt;= #{externalAppCustomizeRouteFilter.createTimeEnd}
+            </if>
+            <if test="externalAppCustomizeRouteFilter.createUserId != null">
+                AND sdt_external_app_customize_route.create_user_id = #{externalAppCustomizeRouteFilter.createUserId}
+            </if>
+            <if test="externalAppCustomizeRouteFilter.updateUserId != null">
+                AND sdt_external_app_customize_route.update_user_id = #{externalAppCustomizeRouteFilter.updateUserId}
+            </if>
+            <if test="externalAppCustomizeRouteFilter.dataUserId != null">
+                AND sdt_external_app_customize_route.data_user_id = #{externalAppCustomizeRouteFilter.dataUserId}
+            </if>
+            <if test="externalAppCustomizeRouteFilter.dataDeptId != null">
+                AND sdt_external_app_customize_route.data_dept_id = #{externalAppCustomizeRouteFilter.dataDeptId}
+            </if>
+            <if test="externalAppCustomizeRouteFilter.customizeRouteId != null">
+                AND sdt_external_app_customize_route.customize_route_id = #{externalAppCustomizeRouteFilter.customizeRouteId}
+            </if>
+            <if test="externalAppCustomizeRouteFilter.externalAppId != null">
+                AND sdt_external_app_customize_route.external_app_id = #{externalAppCustomizeRouteFilter.externalAppId}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getExternalAppCustomizeRouteList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ExternalAppCustomizeRoute">
+        SELECT * FROM sdt_external_app_customize_route
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

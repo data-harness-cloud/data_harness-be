@@ -8,6 +8,8 @@ import com.github.pagehelper.PageInfo;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +26,7 @@ import supie.webadmin.app.service.databasemanagement.StrategyFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 描述：
@@ -37,7 +40,7 @@ import java.util.*;
 public class MyDynamicController {
 
     @Autowired
-    private CustomizeRouteMapper customizeRouteMapper;
+    private RedissonClient redissonClient;
     @Autowired
     private ProjectEngineMapper projectEngineMapper;
     @Autowired
@@ -49,9 +52,9 @@ public class MyDynamicController {
     @ResponseBody
     public ResponseResult<Object> executeSql(@RequestBody Map<String, Object> params, HttpServletRequest request) {
         String url = request.getRequestURI();
-        QueryWrapper<CustomizeRoute> customizeRouteQueryWrapper = new QueryWrapper<>();
-        customizeRouteQueryWrapper.eq("url", url);
-        CustomizeRoute customizeRoute = customizeRouteMapper.selectOne(customizeRouteQueryWrapper);
+        RBucket<CustomizeRoute> customizeRouteData = redissonClient.getBucket("CustomizeRoute:" + url);
+        CustomizeRoute customizeRoute = customizeRouteData.get();
+        customizeRouteData.delete();
         return performCustomizeRouteBusiness(params, customizeRoute);
     }
 
@@ -65,9 +68,16 @@ public class MyDynamicController {
                 return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST, "缺少[" + parameter.getName() + "]变量！");
             }
             String name = "${" + parameter.getName() + "}";
-            String defaultValue = params.get(parameter.getName()).toString();
-            if (StrUtil.isBlank(defaultValue)) {
-                defaultValue = parameter.getDefaultValue();
+            String defaultValue = null;
+            Object value = params.get(parameter.getName());
+            if (value != null) {
+                defaultValue = value.toString();
+            } else {
+                if (StrUtil.isBlank(defaultValue)) {
+                    defaultValue = parameter.getDefaultValue();
+                } else {
+                    defaultValue = "null";
+                }
             }
             sqlScript = sqlScript.replace(name, defaultValue);
         }
@@ -82,7 +92,7 @@ public class MyDynamicController {
             PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
             resultData = strategy.executeSql(sqlScript);
             strategy.closeAll();
-            if (Boolean.FALSE.equals(resultData.get("isSuccess"))) {
+            if (Boolean.FALSE.equals(resultData.get("success"))) {
                 return ResponseResult.error(ErrorCodeEnum.NO_ERROR,
                         "(" + resultData.get("sql").toString() + ")" + resultData.get("message").toString());
             }

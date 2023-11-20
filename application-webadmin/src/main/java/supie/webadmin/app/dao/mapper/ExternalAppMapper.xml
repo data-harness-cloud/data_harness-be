@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.ExternalAppMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.ExternalApp">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="app_name" jdbcType="VARCHAR" property="appName"/>
+        <result column="app_describe" jdbcType="VARCHAR" property="appDescribe"/>
+        <result column="app_key" jdbcType="VARCHAR" property="appKey"/>
+        <result column="authentication_method" jdbcType="INTEGER" property="authenticationMethod"/>
+        <result column="process_id" jdbcType="BIGINT" property="processId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_external_app
+            (id,
+            app_name,
+            app_describe,
+            app_key,
+            authentication_method,
+            process_id,
+            is_delete,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.appName},
+            #{item.appDescribe},
+            #{item.appKey},
+            #{item.authenticationMethod},
+            #{item.processId},
+            #{item.isDelete},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.ExternalAppMapper.inputFilterRef"/>
+        AND sdt_external_app.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="externalAppFilter != null">
+            <if test="externalAppFilter.id != null">
+                AND sdt_external_app.id = #{externalAppFilter.id}
+            </if>
+            <if test="externalAppFilter.appName != null and externalAppFilter.appName != ''">
+                <bind name = "safeExternalAppAppName" value = "'%' + externalAppFilter.appName + '%'" />
+                AND sdt_external_app.app_name LIKE #{safeExternalAppAppName}
+            </if>
+            <if test="externalAppFilter.appDescribe != null and externalAppFilter.appDescribe != ''">
+                <bind name = "safeExternalAppAppDescribe" value = "'%' + externalAppFilter.appDescribe + '%'" />
+                AND sdt_external_app.app_describe LIKE #{safeExternalAppAppDescribe}
+            </if>
+            <if test="externalAppFilter.appKey != null and externalAppFilter.appKey != ''">
+                <bind name = "safeExternalAppAppKey" value = "'%' + externalAppFilter.appKey + '%'" />
+                AND sdt_external_app.app_key LIKE #{safeExternalAppAppKey}
+            </if>
+            <if test="externalAppFilter.authenticationMethod != null">
+                AND sdt_external_app.authentication_method = #{externalAppFilter.authenticationMethod}
+            </if>
+            <if test="externalAppFilter.processId != null">
+                AND sdt_external_app.process_id = #{externalAppFilter.processId}
+            </if>
+            <if test="externalAppFilter.updateTimeStart != null and externalAppFilter.updateTimeStart != ''">
+                AND sdt_external_app.update_time &gt;= #{externalAppFilter.updateTimeStart}
+            </if>
+            <if test="externalAppFilter.updateTimeEnd != null and externalAppFilter.updateTimeEnd != ''">
+                AND sdt_external_app.update_time &lt;= #{externalAppFilter.updateTimeEnd}
+            </if>
+            <if test="externalAppFilter.createTimeStart != null and externalAppFilter.createTimeStart != ''">
+                AND sdt_external_app.create_time &gt;= #{externalAppFilter.createTimeStart}
+            </if>
+            <if test="externalAppFilter.createTimeEnd != null and externalAppFilter.createTimeEnd != ''">
+                AND sdt_external_app.create_time &lt;= #{externalAppFilter.createTimeEnd}
+            </if>
+            <if test="externalAppFilter.createUserId != null">
+                AND sdt_external_app.create_user_id = #{externalAppFilter.createUserId}
+            </if>
+            <if test="externalAppFilter.updateUserId != null">
+                AND sdt_external_app.update_user_id = #{externalAppFilter.updateUserId}
+            </if>
+            <if test="externalAppFilter.dataUserId != null">
+                AND sdt_external_app.data_user_id = #{externalAppFilter.dataUserId}
+            </if>
+            <if test="externalAppFilter.dataDeptId != null">
+                AND sdt_external_app.data_dept_id = #{externalAppFilter.dataDeptId}
+            </if>
+            <if test="externalAppFilter.searchString != null and externalAppFilter.searchString != ''">
+                <bind name = "safeExternalAppSearchString" value = "'%' + externalAppFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_external_app.app_name,''), IFNULL(sdt_external_app.app_describe,''), IFNULL(sdt_external_app.app_key,'')) LIKE #{safeExternalAppSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedExternalAppList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ExternalApp">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_external_app
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_external_app
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getExternalAppList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.ExternalApp">
+        SELECT * FROM sdt_external_app
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

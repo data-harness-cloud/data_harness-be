@@ -160,4 +160,16 @@ public class RedisKeyUtil {
      */
     private RedisKeyUtil() {
     }
+
+    /**
+     * 构建自定义路由权限Key
+     *
+     * @param customizeRouteId 自定义路由ID
+     * @return 字符串
+     * @author 王立宏
+     * @date 2023/11/20 10:08
+     */
+    public static String makeCustomizeRouteRightKey(Long customizeRouteId) {
+        return "CUSTOMIZE_ROUTE_RIGHT:" + customizeRouteId;
+    }
 }

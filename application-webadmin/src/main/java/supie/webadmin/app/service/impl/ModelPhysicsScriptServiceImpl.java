@@ -219,7 +219,7 @@ public class ModelPhysicsScriptServiceImpl extends BaseService<ModelPhysicsScrip
         List<Map<String, Object>> mapList = strategy.executeSqlList(createTableSql);
         if (mapList.size() == 2) {
             Map<String, Object> createTableResult = mapList.get(1);
-            if (Boolean.FALSE.equals(createTableResult.get("isSuccess"))) {
+            if (Boolean.FALSE.equals(createTableResult.get("success"))) {
                 throw new RuntimeException(createTableResult.get("message").toString());
             }
         }

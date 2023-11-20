@@ -272,4 +272,34 @@ public class CustomizeRouteServiceImpl extends BaseService<CustomizeRoute, Long>
         customizeRouteMapper.update(originalCustomizeRoute, uw);
     }
 
+    /**
+     * TODO 列出不与指定外部App表存在多对多关系的 [自定义动态路由] 列表数据。通常用于查看添加新 [自定义动态路由] 对象的候选列表。
+     *
+     * @param externalAppId        主表关联字段。
+     * @param customizeRouteFilter [自定义动态路由] 过滤对象。
+     * @param orderBy              排序参数。
+     * @return 应答结果对象，返回符合条件的数据列表。
+     * @author 王立宏
+     * @date 2023/11/20 10:28
+     */
+    @Override
+    public List<CustomizeRoute> getNotInCustomizeRouteListByExternalAppId(Long externalAppId, CustomizeRoute customizeRouteFilter, String orderBy) {
+        throw new RuntimeException("该功能待完成[急需请与管理员联系]...");
+    }
+
+    /**
+     * TODO 列出与指定外部App表存在多对多关系的 [自定义动态路由] 列表数据。
+     *
+     * @param externalAppId        主表关联字段。
+     * @param customizeRouteFilter 自定义路由过滤器。
+     * @param orderBy              排序方式。
+     * @return 应答结果对象，返回符合条件的数据列表。
+     * @return 列表<自定义路由>
+     * @author 王立宏
+     * @date 2023/11/20 10:34
+     */
+    @Override
+    public List<CustomizeRoute> getCustomizeRouteListByExternalAppId(Long externalAppId, CustomizeRoute customizeRouteFilter, String orderBy) {
+        throw new RuntimeException("该功能待完成[急需请与管理员联系]...");
+    }
 }
