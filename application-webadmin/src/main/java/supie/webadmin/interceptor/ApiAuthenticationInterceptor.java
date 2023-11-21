@@ -7,12 +7,14 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.jsonwebtoken.Claims;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBucket;
 import org.redisson.api.RSet;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.util.Assert;
@@ -30,6 +32,8 @@ import supie.common.core.object.TokenData;
 import supie.common.core.util.ApplicationContextHolder;
 import supie.common.core.util.JwtUtil;
 import supie.common.core.util.RedisKeyUtil;
+import supie.webadmin.app.dao.CustomizeRouteMapper;
+import supie.webadmin.app.model.CustomizeRoute;
 import supie.webadmin.config.ApplicationConfig;
 import supie.webadmin.config.ThirdPartyAuthConfig;
 
@@ -61,11 +65,26 @@ public class ApiAuthenticationInterceptor implements HandlerInterceptor {
 
     private final CacheManager cacheManager = ApplicationContextHolder.getBean("caffeineCacheManager");
 
+    private final CustomizeRouteMapper customizeRouteMapper =
+            ApplicationContextHolder.getBean("customizeRouteMapper");
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         String url = request.getRequestURI();
         log.error("请求了自定义地址[" + url + "]");
+//        QueryWrapper<CustomizeRoute> customizeRouteQueryWrapper = new QueryWrapper<>();
+//        customizeRouteQueryWrapper.eq("url", url);
+//        CustomizeRoute customizeRoute = customizeRouteMapper.selectOne(customizeRouteQueryWrapper);
+//        if (customizeRoute == null) return false;
+//        // 判断相关权限（先查询redis，redis中没有再查询数据库中的权限，并存入redis。TODO 相应的权限有变动修改则删除redis中缓存的权限信息。）
+//        String customizeRouteRightKey = RedisKeyUtil.makeCustomizeRouteRightKey(customizeRoute.getId());
+//        RBucket<Set<Long>> customizeRouteRight = redissonClient.getBucket(customizeRouteRightKey);
+//
+//
+//        // 权限判断通过，自定义路由信息存储至redis，以供业务代码获取
+//        RBucket<CustomizeRoute> customizeRouteData = redissonClient.getBucket("CustomizeRoute:" + url);
+//        customizeRouteData.set(customizeRoute, 30, TimeUnit.SECONDS);
         return true;
 
 //        String token = this.getTokenFromRequest(request);

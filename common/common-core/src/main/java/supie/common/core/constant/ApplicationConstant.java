@@ -136,6 +136,11 @@ public final class ApplicationConstant {
      */
     public static final String PRIVATE_KEY = "MIICXgIBAAKBgQC0XJx6AHME41GzcSW/MUFZkKOgfhyWckrMwDKXZXIFCFbwpYgNDDQ1qzHmxqdpmGAIgtitQluIO78m1K+eXY5iyYgp5o0/1pH4/X1DXpF85TVSkKycNrovhEjDHxjZg4i8jWR2UX53YaEDgS+Ki9wJkRBL2OFjMrgyRqIVronNhwIDAQABAoGASuRNwUcge34ctcMc5mgAd71chE75desdbim8mCryjm5pE2HYvXo8z7A3d1kzuOAhuEcEy+TK9yW/+NLF3Z+BeIcpY88FMEW8x1JOLrzZ5TMH9E8RJ7mqMnFMWEoPkqArepLtJ88ZeJtyxZresrBWHylk1WpE2Iv19GJEb9p+XykCQQDdRjCKF1YncAefmjW6UQS3jLMWUjvATaUo6ZRBDY/zGRfFgfvzmk08FtIKDXKrDt5L1/Ypj+YZU99+zypXecXVAkEA0Kq+O43SxzImqHtY3wgqnbndAFO1gYjiMBwajaHOfcfPniDcLl9db5JK2Xu62W2Mgit3pOSB1573DFa2yEbn6wJBAKwsG0S318+j+iqT4U5yEAuKLScnIVsGj4aACV184g8z7S0/cP4hiAtDbndn81tqnEnDZsT8NPxsKLERHU8nb2kCQQClcQq8+xhIGQovgQSYaMgpH+kKTlRVbKsxS8b9znGCpn6FODZ6id/yCwJPZtthcor51e7ZjNcplv73CHWJWzabAkEAnRLFlUui5wMFHlYlx/jOOlaLhnSkxtLPKnu1I/2skz+uQSemr8f9v7nCADcw7IglI2r80K0d6NUyNvecoUFmBA==";
     /**
+     * 私钥（与 PRIVATE_KEY 成对）
+     */
+    public static final String PUBLIC_KEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC0XJx6AHME41GzcSW/MUFZkKOgfhyWckrMwDKXZXIFCFbwpYgNDDQ1qzHmxqdpmGAIgtitQluIO78m1K+eXY5iyYgp5o0/1pH4/X1DXpF85TVSkKycNrovhEjDHxjZg4i8jWR2UX53YaEDgS+Ki9wJkRBL2OFjMrgyRqIVronNhwIDAQAB";
+
+    /**
      * SQL注入检测的正则对象。
      */
     @SuppressWarnings("all")

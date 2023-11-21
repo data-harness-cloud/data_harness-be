@@ -139,10 +139,10 @@ public class BaseDataSource {
                     int affectedDataNumber = statement.getUpdateCount(); // 影响的行数
                     resultMapData.put("updateResultData", affectedDataNumber);
                 }
-                resultMapData.put("isSuccess", true);
+                resultMapData.put("success", true);
                 resultMapData.put("message", "SUCCESS");
             } catch (SQLException e) {
-                resultMapData.put("isSuccess", false);
+                resultMapData.put("success", false);
                 resultMapData.put("message", e.getMessage());
             }
             statement.close();
@@ -157,7 +157,7 @@ public class BaseDataSource {
      * @param sql 字符（会将SQl以“;”切开成List来执行，结果也会按照语句的顺序来显示）
      * @return [
      *   {
-     *     "isSuccess": true,
+     *     "success": true,
      *     "sql": "该信息所属的SQL语句。",
      *     "message": "执行信息，主要为错误时的错误消息。",
      *     "queryResultData": "查询语句查询到的数据集",
@@ -215,10 +215,10 @@ public class BaseDataSource {
                         int affectedDataNumber = statement.getUpdateCount(); // 影响的行数
                         resultMapData.put("updateResultData", affectedDataNumber);
                     }
-                    resultMapData.put("isSuccess", true);
+                    resultMapData.put("success", true);
                     resultMapData.put("message", "SUCCESS");
                 } catch (SQLException e) {
-                    resultMapData.put("isSuccess", false);
+                    resultMapData.put("success", false);
                     resultMapData.put("message", e.getMessage());
                     log.error(e.toString());
                 }
@@ -242,7 +242,7 @@ public class BaseDataSource {
         String createDatabaseSql = "CREATE DATABASE " + databaseName + ";";
         List<Map<String, Object>> resultDataList = executeSqlList(createDatabaseSql);
         Map<String, Object> resultMap = resultDataList.get(0);
-        if (Boolean.TRUE.equals(resultMap.get("isSuccess")) && ((int) resultMap.get("updateResultData") == 1)) return;
+        if (Boolean.TRUE.equals(resultMap.get("success")) && ((int) resultMap.get("updateResultData") == 1)) return;
         throw new RuntimeException("数据库创建[" + resultMap.get("sql") + "]失败！" + resultMap.get("message").toString());
     }
 
