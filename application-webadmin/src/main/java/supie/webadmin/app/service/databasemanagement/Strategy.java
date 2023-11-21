@@ -1,6 +1,6 @@
 package supie.webadmin.app.service.databasemanagement;
 
-import supie.webadmin.app.service.databasemanagement.model.DatabaseManagement;
+import supie.common.core.object.MyPageParam;
 
 import java.util.List;
 import java.util.Map;
@@ -39,11 +39,12 @@ public interface Strategy {
     List<Map<String,Object>> queryTableFields(String databaseName, String tableName);
 
     /**
-     * 执行单条SQL语句
-     * @param sqlScript
+     * 执行单条SQL语句。
+     * @param sqlScript SQL语句。
+     * @param pageParam 分页对象。如果为 null 则不进行分页处理。
      * @return
      */
-    Map<String, Object> executeSql(String sqlScript);
+    Map<String, Object> executeSql(String sqlScript, MyPageParam pageParam);
 
     /**
      * 执行位置数量的SQL

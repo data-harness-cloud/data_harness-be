@@ -5,6 +5,7 @@ import cn.hutool.core.text.StrFormatter;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -71,20 +72,21 @@ public class ApiAuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
+        // 获取当前的请求所携带的AppKey信息
         String url = request.getRequestURI();
-        log.error("请求了自定义地址[" + url + "]");
-//        QueryWrapper<CustomizeRoute> customizeRouteQueryWrapper = new QueryWrapper<>();
-//        customizeRouteQueryWrapper.eq("url", url);
-//        CustomizeRoute customizeRoute = customizeRouteMapper.selectOne(customizeRouteQueryWrapper);
-//        if (customizeRoute == null) return false;
+        // 查询当前请求的路由的相关信息
+        QueryWrapper<CustomizeRoute> customizeRouteQueryWrapper = new QueryWrapper<>();
+        customizeRouteQueryWrapper.eq("url", url);
+        CustomizeRoute customizeRoute = customizeRouteMapper.selectOne(customizeRouteQueryWrapper);
+        if (customizeRoute == null) return false;
 //        // 判断相关权限（先查询redis，redis中没有再查询数据库中的权限，并存入redis。TODO 相应的权限有变动修改则删除redis中缓存的权限信息。）
 //        String customizeRouteRightKey = RedisKeyUtil.makeCustomizeRouteRightKey(customizeRoute.getId());
 //        RBucket<Set<Long>> customizeRouteRight = redissonClient.getBucket(customizeRouteRightKey);
-//
-//
-//        // 权限判断通过，自定义路由信息存储至redis，以供业务代码获取
-//        RBucket<CustomizeRoute> customizeRouteData = redissonClient.getBucket("CustomizeRoute:" + url);
-//        customizeRouteData.set(customizeRoute, 30, TimeUnit.SECONDS);
+
+        // 权限判断通过，自定义路由信息存储至redis，以供业务代码获取
+        RBucket<String> customizeRouteData = redissonClient.getBucket("CustomizeRoute:" + url);
+        customizeRouteData.set(JSONUtil.toJsonStr(customizeRoute));
+        customizeRouteData.expire(30, TimeUnit.SECONDS);
         return true;
 
 //        String token = this.getTokenFromRequest(request);

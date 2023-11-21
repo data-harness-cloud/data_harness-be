@@ -288,7 +288,7 @@ public class CustomizeRouteServiceImpl extends BaseService<CustomizeRoute, Long>
     }
 
     /**
-     * TODO 列出与指定外部App表存在多对多关系的 [自定义动态路由] 列表数据。
+     * 列出与指定外部App表存在多对多关系的 [自定义动态路由] 列表数据。
      *
      * @param externalAppId        主表关联字段。
      * @param customizeRouteFilter 自定义路由过滤器。
@@ -300,6 +300,6 @@ public class CustomizeRouteServiceImpl extends BaseService<CustomizeRoute, Long>
      */
     @Override
     public List<CustomizeRoute> getCustomizeRouteListByExternalAppId(Long externalAppId, CustomizeRoute customizeRouteFilter, String orderBy) {
-        throw new RuntimeException("该功能待完成[急需请与管理员联系]...");
+        return customizeRouteMapper.getCustomizeRouteListByExternalAppId(externalAppId, customizeRouteFilter, orderBy);
     }
 }

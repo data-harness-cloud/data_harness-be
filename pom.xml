@@ -50,6 +50,8 @@
         <forest.version>1.5.33</forest.version>
         <!-- sshj -->
         <sshj.version>0.37.0</sshj.version>
+        <!-- jsqlparser SQL解析器 -->
+        <jsqlparser.version>4.4</jsqlparser.version>
     </properties>
 
     <modules>
@@ -187,6 +189,12 @@
             <groupId>com.hierynomus</groupId>
             <artifactId>sshj</artifactId>
             <version>${sshj.version}</version>
+        </dependency>
+        <!-- jsqlparser SQL解析器-->
+        <dependency>
+            <groupId>com.github.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+            <version>${jsqlparser.version}</version>
         </dependency>
     </dependencies>
 

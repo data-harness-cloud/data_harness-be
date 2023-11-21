@@ -2,7 +2,6 @@ package supie.webadmin.app.controller.dynamicRoutingAPI;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.Data;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import supie.common.core.constant.ErrorCodeEnum;
 import supie.common.core.object.MyPageParam;
 import supie.common.core.object.ResponseResult;
-import supie.webadmin.app.dao.CustomizeRouteMapper;
 import supie.webadmin.app.dao.ProjectEngineMapper;
 import supie.webadmin.app.model.CustomizeRoute;
 import supie.webadmin.app.model.ProjectEngine;
@@ -26,7 +24,6 @@ import supie.webadmin.app.service.databasemanagement.StrategyFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 描述：
@@ -52,8 +49,8 @@ public class MyDynamicController {
     @ResponseBody
     public ResponseResult<Object> executeSql(@RequestBody Map<String, Object> params, HttpServletRequest request) {
         String url = request.getRequestURI();
-        RBucket<CustomizeRoute> customizeRouteData = redissonClient.getBucket("CustomizeRoute:" + url);
-        CustomizeRoute customizeRoute = customizeRouteData.get();
+        RBucket<String> customizeRouteData = redissonClient.getBucket("CustomizeRoute:" + url);
+        CustomizeRoute customizeRoute = JSONUtil.toBean(customizeRouteData.get(), CustomizeRoute.class);
         customizeRouteData.delete();
         return performCustomizeRouteBusiness(params, customizeRoute);
     }
@@ -90,7 +87,7 @@ public class MyDynamicController {
         if (paramsKey.contains("pageParam")) {
             MyPageParam pageParam = JSONUtil.toBean(JSONUtil.toJsonStr(params.get("pageParam")), MyPageParam.class);
             PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-            resultData = strategy.executeSql(sqlScript);
+            resultData = strategy.executeSql(sqlScript, pageParam);
             strategy.closeAll();
             if (Boolean.FALSE.equals(resultData.get("success"))) {
                 return ResponseResult.error(ErrorCodeEnum.NO_ERROR,
@@ -101,7 +98,7 @@ public class MyDynamicController {
             PageInfo<Map<String, Object>> mapPageInfo = new PageInfo<>(queryDataList);
             resultMap.put("totalCount", mapPageInfo.getTotal());
         } else {
-            resultData = strategy.executeSql(sqlScript);
+            resultData = strategy.executeSql(sqlScript, null);
             strategy.closeAll();
         }
         resultMap.put("url", customizeRoute.getUrl());

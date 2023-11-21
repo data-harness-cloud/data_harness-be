@@ -27,7 +27,7 @@ import java.util.*;
  * @author rm -rf .bug
  * @date 2020-11-12
  */
-@Api(tags = "自定义动态路由管理接口")
+@Api(tags = "数据服务-自定义动态路由管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/customizeRoute")

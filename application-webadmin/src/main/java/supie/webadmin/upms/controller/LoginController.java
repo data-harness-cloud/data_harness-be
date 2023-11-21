@@ -112,7 +112,7 @@ public class LoginController {
             // 这里包含密码密文，仅用于方便开发期间的接口测试，集成测试和发布阶段，需要将当前注解去掉。
             // 如果您重新生成了公钥和私钥，请替换password的缺省值。
             @ApiImplicitParam(name = "loginName", defaultValue = "admin"),
-            @ApiImplicitParam(name = "password", defaultValue = "IP3ccke3GhH45iGHB5qP9p7iZw6xUyj28Ju10rnBiPKOI35sc%2BjI7%2FdsjOkHWMfUwGYGfz8ik31HC2Ruk%2Fhkd9f6RPULTHj7VpFdNdde2P9M4mQQnFBAiPM7VT9iW3RyCtPlJexQ3nAiA09OqG%2F0sIf1kcyveSrulxembARDbDo%3D"),
+            @ApiImplicitParam(name = "password", defaultValue = "E5OT0IJ9pRvwGnsiuGuCLoNoA6EEBby1CIcThhXWZv4O4hCRU0NygDJRoROXhha1PCoix88kCsI55HiorQ5bBD6Z2uHIn4TCZtFJ14EbNVEWtVgN2F%2B8gbY7MZptA7deY47O5OfF5nnpJti95VXOOfGeLzRMRIQZkoFUuMrF794%3D"),
             @ApiImplicitParam(name = "captchaVerification", defaultValue = "为了方便测试，这里可以修改一下代码，hardcode一个每次都ok的验证码")
     })
     @NoAuthInterface

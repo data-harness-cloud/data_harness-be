@@ -131,7 +131,8 @@ public class ExternalAppCustomizeRouteServiceImpl extends BaseService<ExternalAp
         return resultList;
     }
 
-    private ExternalAppCustomizeRoute buildDefaultValue(ExternalAppCustomizeRoute externalAppCustomizeRoute) {
+    @Override
+    public ExternalAppCustomizeRoute buildDefaultValue(ExternalAppCustomizeRoute externalAppCustomizeRoute) {
         if (externalAppCustomizeRoute.getId() == null) {
             externalAppCustomizeRoute.setId(idGenerator.nextLongId());
         }

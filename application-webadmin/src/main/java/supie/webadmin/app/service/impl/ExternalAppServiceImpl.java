@@ -35,6 +35,8 @@ public class ExternalAppServiceImpl extends BaseService<ExternalApp, Long> imple
     @Autowired
     private ExternalAppCustomizeRouteMapper externalAppCustomizeRouteMapper;
     @Autowired
+    private ExternalAppCustomizeRouteService externalAppCustomizeRouteService;
+    @Autowired
     private IdGeneratorWrapper idGenerator;
 
     /**
@@ -176,7 +178,7 @@ public class ExternalAppServiceImpl extends BaseService<ExternalApp, Long> imple
         for (ExternalAppCustomizeRoute externalAppCustomizeRoute : externalAppCustomizeRouteList) {
             externalAppCustomizeRoute.setId(idGenerator.nextLongId());
             externalAppCustomizeRoute.setExternalAppId(externalAppId);
-            externalAppCustomizeRouteMapper.insert(externalAppCustomizeRoute);
+            externalAppCustomizeRouteMapper.insert(externalAppCustomizeRouteService.buildDefaultValue(externalAppCustomizeRoute));
         }
     }
 

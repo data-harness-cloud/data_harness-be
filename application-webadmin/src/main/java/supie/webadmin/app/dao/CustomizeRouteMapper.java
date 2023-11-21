@@ -54,4 +54,18 @@ public interface CustomizeRouteMapper extends BaseDaoMapper<CustomizeRoute> {
      */
     List<CustomizeRoute> queryRegisterApi();
 
+    /**
+     * 列出与指定外部App表存在多对多关系的 [自定义动态路由] 列表数据。
+     *
+     * @param externalAppId        主表关联字段。
+     * @param customizeRouteFilter 自定义路由过滤器。
+     * @param orderBy              排序方式。
+     * @return 应答结果对象，返回符合条件的数据列表。
+     * @author 王立宏
+     * @date 2023/11/21 03:55
+     */
+    List<CustomizeRoute> getCustomizeRouteListByExternalAppId(
+            @Param("externalAppId") Long externalAppId,
+            @Param("customizeRouteFilter") CustomizeRoute customizeRouteFilter,
+            @Param("orderBy") String orderBy);
 }

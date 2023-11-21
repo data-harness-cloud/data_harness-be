@@ -3,7 +3,9 @@ package supie.webadmin.app.service.databasemanagement.strategyImpl;
 import cn.hutool.core.text.StrSplitter;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
+import supie.common.core.object.MyPageParam;
 import supie.webadmin.app.service.databasemanagement.DataBaseTypeEnum;
+import supie.webadmin.app.util.JsqlparserUtil;
 
 import java.sql.*;
 import java.util.*;
@@ -87,23 +89,38 @@ public class BaseDataSource {
     }
 
     /**
-     * 执行单条SQL语句
+     * 执行单条SQL语句。
      *
-     * @param sqlScript
+     * @param sqlScript SQL语句。
+     * @param pageParam 分页对象。如果为 null 则不进行分页处理。
      * @return
      */
-    public Map<String, Object> executeSql(String sqlScript) {
+    public Map<String, Object> executeSql(String sqlScript, MyPageParam pageParam) {
         Map<String, Object> resultMapData = new HashMap<>();
         try {
             Statement statement = connection.createStatement();
             resultMapData.put("sql", sqlScript);
             try {
+                // 判断是否需要进行分页处理
+                if (pageParam != null) {
+                    long totalCount = 0L;
+                    // 判断是否属于查询语句。若为查询语句，则进行分页处理
+                    if (JsqlparserUtil.isQuerySql(sqlScript)) {
+                        String countSqlScript = JsqlparserUtil.buildCountSqlScript(sqlScript);
+                        sqlScript = JsqlparserUtil.buildLimitSqlScript(sqlScript, pageParam);
+                        ResultSet resultSet = statement.executeQuery(countSqlScript);
+                        while (resultSet.next()) {
+                            totalCount = resultSet.getLong(1);
+                        }
+                        resultSet.close();
+                    }
+                    resultMapData.put("totalCount", totalCount);
+                }
                 boolean result = statement.execute(sqlScript);
                 if (result) {
                     ResultSet resultSet = statement.getResultSet(); // 查询结果
                     ResultSetMetaData metaData = resultSet.getMetaData();
                     Map<String, LinkedList> queryResultData = new LinkedHashMap<>();
-
                     LinkedList<String> fieldList = null;
                     LinkedList<Map<String, Object>> queryDataList = new LinkedList<>();
                     while (resultSet.next()) {
@@ -111,7 +128,7 @@ public class BaseDataSource {
                         int columnCount = metaData.getColumnCount();
                         // 遍历每个字段
                         Map<String, Object> queryDataMap = new LinkedHashMap<>();
-                        Boolean setFieldList = false;
+                        boolean setFieldList = false;
                         if (fieldList == null) {
                             fieldList = new LinkedList<>();
                             setFieldList = true;
