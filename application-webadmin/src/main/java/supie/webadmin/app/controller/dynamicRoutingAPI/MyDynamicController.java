@@ -2,7 +2,6 @@ package supie.webadmin.app.controller.dynamicRoutingAPI;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -50,8 +49,14 @@ public class MyDynamicController {
     public ResponseResult<Object> executeSql(@RequestBody Map<String, Object> params, HttpServletRequest request) {
         String url = request.getRequestURI();
         RBucket<String> customizeRouteData = redissonClient.getBucket("CustomizeRoute:" + url);
-        CustomizeRoute customizeRoute = JSONUtil.toBean(customizeRouteData.get(), CustomizeRoute.class);
-        customizeRouteData.delete();
+        if (!customizeRouteData.isExists()) {
+            return ResponseResult.error(ErrorCodeEnum.NO_ERROR, "当前的路由相关信息获取失败，请重试！");
+        }
+        String customizeRouteJsonStr = customizeRouteData.get();
+        CustomizeRoute customizeRoute = JSONUtil.toBean(customizeRouteJsonStr, CustomizeRoute.class);
+        if (customizeRoute == null) {
+            return ResponseResult.error(ErrorCodeEnum.NO_ERROR, "当前的路由相关信息获取失败，请联系管理员！");
+        }
         return performCustomizeRouteBusiness(params, customizeRoute);
     }
 
@@ -60,20 +65,34 @@ public class MyDynamicController {
         String sqlScript = customizeRoute.getSqlScript();
         List<Parameter> parameterList = JSONUtil.toList(JSONUtil.parseArray(customizeRoute.getParameter()), Parameter.class);
         Set<String> paramsKey = params.keySet();
+        String defaultValue;
         for (Parameter parameter : parameterList) {
-            if (parameter.getRequired() && !paramsKey.contains(parameter.getName())) {
-                return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST, "缺少[" + parameter.getName() + "]变量！");
+            if (!parameter.getRequired() && !paramsKey.contains(parameter.getName()) && StrUtil.isBlank(parameter.getDefaultValue())) {
+                // 缺少当前变量
+                return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST, "缺少必填[" + parameter.getName() + "]变量！");
+//                if (parameter.getDefaultValue() == null) {
+//                    defaultValue = "null";
+//                } else if (Objects.equals(parameter.getDefaultValue(), "")) {
+//                    defaultValue = "\"\"";
+//                } else {
+//                    defaultValue = parameter.getDefaultValue();
+//                }
             }
             String name = "${" + parameter.getName() + "}";
-            String defaultValue = null;
             Object value = params.get(parameter.getName());
             if (value != null) {
-                defaultValue = value.toString();
-            } else {
-                if (StrUtil.isBlank(defaultValue)) {
-                    defaultValue = parameter.getDefaultValue();
+                if (Objects.equals(value, "")) {
+                    defaultValue = "\"\"";
                 } else {
+                    defaultValue = value.toString();
+                }
+            } else {
+                if (parameter.getDefaultValue() == null) {
                     defaultValue = "null";
+                } else if (Objects.equals(parameter.getDefaultValue(), "")) {
+                    defaultValue = "\"\"";
+                } else {
+                    defaultValue = parameter.getDefaultValue();
                 }
             }
             sqlScript = sqlScript.replace(name, defaultValue);
@@ -86,20 +105,29 @@ public class MyDynamicController {
         Map<String, Object> resultMap = new HashMap<>();
         if (paramsKey.contains("pageParam")) {
             MyPageParam pageParam = JSONUtil.toBean(JSONUtil.toJsonStr(params.get("pageParam")), MyPageParam.class);
-            PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
             resultData = strategy.executeSql(sqlScript, pageParam);
             strategy.closeAll();
             if (Boolean.FALSE.equals(resultData.get("success"))) {
                 return ResponseResult.error(ErrorCodeEnum.NO_ERROR,
-                        "(" + resultData.get("sql").toString() + ")" + resultData.get("message").toString());
+                        resultData.get("sql").toString() + " ==> " + resultData.get("message").toString());
             }
-            Map<String, Object> queryResultData = (Map<String, Object>) resultData.get("queryResultData");
-            List<Map<String, Object>> queryDataList = (List<Map<String, Object>>) queryResultData.get("queryDataList");
-            PageInfo<Map<String, Object>> mapPageInfo = new PageInfo<>(queryDataList);
-            resultMap.put("totalCount", mapPageInfo.getTotal());
+            // 判断属于查询还是非查询
+            if (resultData.containsKey("queryResultData")) {
+                Map<String, Object> queryResultData = (Map<String, Object>) resultData.get("queryResultData");
+                List<Map<String, Object>> queryDataList = (List<Map<String, Object>>) queryResultData.get("queryDataList");
+                PageInfo<Map<String, Object>> mapPageInfo = new PageInfo<>(queryDataList);
+                resultMap.put("totalCount", mapPageInfo.getTotal());
+            } else if (resultData.containsKey("updateResultData")) {
+            } else {
+                // 系统错误！
+            }
         } else {
             resultData = strategy.executeSql(sqlScript, null);
             strategy.closeAll();
+            if (Boolean.FALSE.equals(resultData.get("success"))) {
+                return ResponseResult.error(ErrorCodeEnum.NO_ERROR,
+                        resultData.get("sql").toString() + " ==> " + resultData.get("message").toString());
+            }
         }
         resultMap.put("url", customizeRoute.getUrl());
         resultMap.put("resultData", resultData);

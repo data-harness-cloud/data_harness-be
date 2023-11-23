@@ -46,7 +46,7 @@ public class DatabaseManagementController {
         try {
             Strategy strategy = strategyFactory.getStrategy(
                     databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
-                    databaseManagement.getDatabaseName(), databaseManagement.getUsername(), databaseManagement.getPassword());
+                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword());
             strategy.closeAll();
         } catch (Exception e) {
             log.error("数据源连接失败", e);
@@ -68,8 +68,8 @@ public class DatabaseManagementController {
         try {
             Strategy strategy = strategyFactory.getStrategy(
                     databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
-                    databaseManagement.getDatabaseName(), databaseManagement.getUsername(), databaseManagement.getPassword());
-            price = strategy.queryDatabaseTable(databaseManagement.getDatabaseName());
+                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword());
+            price = strategy.queryDatabaseTable(databaseManagement.getDatabase());
             strategy.closeAll();
         } catch (Exception e) {
             log.error("数据源连接失败", e);
@@ -91,8 +91,8 @@ public class DatabaseManagementController {
         try {
             Strategy strategy = strategyFactory.getStrategy(
                     databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
-                    databaseManagement.getDatabaseName(), databaseManagement.getUsername(), databaseManagement.getPassword());
-            price = strategy.queryTableFields(databaseManagement.getDatabaseName(), databaseManagement.getTableName());
+                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword());
+            price = strategy.queryTableFields(databaseManagement.getDatabase(), databaseManagement.getTable());
             strategy.closeAll();
         } catch (Exception e) {
             log.error("数据源连接失败", e);
@@ -108,7 +108,7 @@ public class DatabaseManagementController {
         try {
             Strategy strategy = strategyFactory.getStrategy(
                     databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
-                    databaseManagement.getDatabaseName(), databaseManagement.getUsername(), databaseManagement.getPassword());
+                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword());
             resultData = strategy.executeSqlList(sql);
             strategy.closeAll();
         } catch (Exception e) {
@@ -123,7 +123,7 @@ public class DatabaseManagementController {
     public ResponseResult<List<String>> getAllDatabaseName(@MyRequestBody DatabaseManagement databaseManagement){
         Strategy strategy = strategyFactory.getStrategy(
                 databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
-                databaseManagement.getDatabaseName(), databaseManagement.getUsername(), databaseManagement.getPassword());
+                databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword());
         List<String> resultData = strategy.queryAllDatabaseName();
         strategy.closeAll();
         return ResponseResult.success(resultData);

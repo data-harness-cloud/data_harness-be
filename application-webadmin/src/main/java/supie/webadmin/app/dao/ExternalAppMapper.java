@@ -47,4 +47,14 @@ public interface ExternalAppMapper extends BaseDaoMapper<ExternalApp> {
      */
     List<ExternalApp> getExternalAppList(
             @Param("externalAppFilter") ExternalApp externalAppFilter, @Param("orderBy") String orderBy);
+
+    /**
+     * 按 动态路由地址(URL) 查询外部应用信息
+     *
+     * @param url 动态路由地址(URL)
+     * @return 列表<外部应用>
+     * @author 王立宏
+     * @date 2023/11/22 11:11
+     */
+    List<ExternalApp> queryExternalAppByUrl(@Param("url") String url);
 }

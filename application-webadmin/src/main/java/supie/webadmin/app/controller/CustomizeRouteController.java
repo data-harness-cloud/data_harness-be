@@ -1,6 +1,7 @@
 package supie.webadmin.app.controller;
 
 import io.swagger.annotations.ApiOperation;
+import org.redisson.api.RedissonClient;
 import supie.common.log.annotation.OperationLog;
 import supie.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
@@ -194,6 +195,7 @@ public class CustomizeRouteController {
             errorMessage = "数据操作失败，删除的对象不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
+        customizeRouteService.unregisterDynamicRouteFromRedis(originalCustomizeRoute.getUrl());
         return ResponseResult.success();
     }
 

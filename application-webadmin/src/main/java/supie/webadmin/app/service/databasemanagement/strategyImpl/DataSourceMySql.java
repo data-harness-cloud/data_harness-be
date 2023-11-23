@@ -9,8 +9,6 @@ import supie.webadmin.app.service.databasemanagement.Strategy;
 import supie.webadmin.app.service.databasemanagement.StrategyFactory;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
-import java.util.Map;
 
 /**
  * MySql

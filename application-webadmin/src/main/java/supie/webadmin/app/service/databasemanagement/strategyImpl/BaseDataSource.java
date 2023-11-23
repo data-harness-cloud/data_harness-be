@@ -59,9 +59,12 @@ public class BaseDataSource {
      * 数据库连接对象
      */
     protected Connection connection = null;
-//    protected Statement statement = null;
-//    protected PreparedStatement preparedStatement = null;
-//    protected ResultSet resultSet = null;
+
+    /**
+     * 查询所有数据库的名称
+     * queryAllDatabaseName()
+     */
+    protected String queryAllDatabaseNameSql = "SHOW DATABASES;";
 
     /**
      * 连接数据库
@@ -84,7 +87,6 @@ public class BaseDataSource {
      * @date 2023/10/30 10:58
      */
     public void closeAll() {
-//        close(resultSet, preparedStatement, statement, connection);
         close(connection);
     }
 
@@ -273,15 +275,17 @@ public class BaseDataSource {
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             ResultSet resultSet = metaData.getTables(databaseName, null, null, new String[]{"TABLE"});
-
             // 循环TABLE，将结果记录在Map中
             while (resultSet.next()) {
                 HashMap<String, Object> tableMap = new HashMap<>();
+                // 获取表所属的schema
+                String tableSchema = resultSet.getString("TABLE_SCHEM");
                 // 表名
                 String tableName = resultSet.getString("TABLE_NAME");
                 // 注释
                 String tableComment = resultSet.getString("REMARKS");
-                tableMap.put("tableName",tableName);
+                tableMap.put("tableSchema",tableSchema);
+                tableMap.put("table",tableName);
                 tableMap.put("remarks",tableComment);
                 tableList.add(tableMap);
             }
@@ -299,11 +303,16 @@ public class BaseDataSource {
      * @return
      */
     public List<Map<String, Object>> queryTableFields(String databaseName, String tableName) {
-        List<Map<String, Object>> resultData = null;
+        List<Map<String, Object>> resultData;
         try {
             DatabaseMetaData metaData = connection.getMetaData();
-            // 字段
-            ResultSet resultSet = metaData.getColumns(databaseName, null, tableName, null);
+            List<String> sqlList = StrSplitter.split(tableName, ".", 2, true, true);
+            String schemaPattern = null;
+            if (sqlList.size() == 2) {
+                schemaPattern = sqlList.get(0);
+                tableName = sqlList.get(1);
+            }
+            ResultSet resultSet = metaData.getColumns(databaseName, schemaPattern, tableName, null);
             resultData = new ArrayList<>();
             while (resultSet.next()) {
                 HashMap<String, Object> dataTypeMap = new HashMap<>();
@@ -315,17 +324,6 @@ public class BaseDataSource {
                 int columnSize = resultSet.getInt("COLUMN_SIZE");
                 // 字段注释
                 String columnComment = resultSet.getString("REMARKS");
-                //            下面是获取关于列级别的信息
-                //            获取列的名称：resultSet.getString("COLUMN_NAME")
-                //            获取列的标签（别名）：resultSet.getString("LABEL")
-                //            获取列的显示大小：resultSet.getInt("COLUMN_DISPLAY_SIZE")
-                //            获取列的数据类型的编号：resultSet.getInt("DATA_TYPE")
-                //            获取列的数据类型的名称：resultSet.getString("TYPE_NAME")
-                //            获取列的精度：resultSet.getInt("PRECISION")
-                //            获取列的小数位数：resultSet.getInt("SCALE")
-                //            获取列是否为只读：resultSet.getBoolean("IS_READONLY")
-                //            获取列是否自动递增：resultSet.getBoolean("IS_AUTOINCREMENT")
-
                 dataTypeMap.put("fieldName",columnName);
                 dataTypeMap.put("typeName",dataType);
                 dataTypeMap.put("columnSize",columnSize);
@@ -339,12 +337,18 @@ public class BaseDataSource {
         return resultData;
     }
 
+    /**
+     * 查询可操作的所有数据库名称
+     *
+     * @return 该账户可操作的所有数据库集
+     * @author 王立宏
+     * @date 2023/11/23 03:29
+     */
     public List<String> queryAllDatabaseName() {
         List<String> databaseNameList = new ArrayList<>();
         try {
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SHOW DATABASES;");
-            ResultSetMetaData metaData = resultSet.getMetaData();
+            ResultSet resultSet = statement.executeQuery(queryAllDatabaseNameSql);
             while (resultSet.next()) {
                 databaseNameList.add(resultSet.getString(1));
             }

@@ -2,6 +2,7 @@ package supie.webadmin.app.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import org.redisson.api.RedissonClient;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -45,6 +46,8 @@ public class CustomizeRouteServiceImpl extends BaseService<CustomizeRoute, Long>
     private CustomizeRouteMapper customizeRouteMapper;
     @Autowired
     private IdGeneratorWrapper idGenerator;
+    @Autowired
+    private RedissonClient redissonClient;
 
     /**
      * 返回当前Service的主表Mapper对象。
@@ -93,10 +96,22 @@ public class CustomizeRouteServiceImpl extends BaseService<CustomizeRoute, Long>
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean update(CustomizeRoute customizeRoute, CustomizeRoute originalCustomizeRoute) {
+        // 如果就数据已经处于上线状态的，则先下线，修改成功后再上线。
+        if (originalCustomizeRoute.getState() == null || originalCustomizeRoute.getState() == 1) {
+            // 下线路由
+            unregisterApi(originalCustomizeRoute);
+        }
+        unregisterDynamicRouteFromRedis(originalCustomizeRoute.getUrl());
         MyModelUtil.fillCommonsForUpdate(customizeRoute, originalCustomizeRoute);
         // 这里重点提示，在执行主表数据更新之前，如果有哪些字段不支持修改操作，请用原有数据对象字段替换当前数据字段。
         UpdateWrapper<CustomizeRoute> uw = this.createUpdateQueryForNullValue(customizeRoute, customizeRoute.getId());
-        return customizeRouteMapper.update(customizeRoute, uw) == 1;
+        boolean updateResult = customizeRouteMapper.update(customizeRoute, uw) == 1;
+        // 修改成功，如果新数据为上线状态则上线路由
+        if (updateResult && customizeRoute.getState() != null && customizeRoute.getState() == 1) {
+            // 上线该路由
+            registerApi(customizeRoute);
+        }
+        return updateResult;
     }
 
     /**
@@ -173,6 +188,19 @@ public class CustomizeRouteServiceImpl extends BaseService<CustomizeRoute, Long>
         MyModelUtil.fillCommonsForInsert(customizeRoute);
         customizeRoute.setIsDelete(GlobalDeletedFlag.NORMAL);
         return customizeRoute;
+    }
+
+    /**
+     * 从 Redis 注销动态路由信息
+     *
+     * @param originalUrl 原始路由
+     * @author 王立宏
+     * @date 2023/11/22 04:12
+     */
+    @Override
+    public void unregisterDynamicRouteFromRedis(String originalUrl) {
+        redissonClient.getBucket("CustomizeRoute:" + originalUrl).delete();
+        redissonClient.getBucket("CustomizeRouteVerificationInfo:" + originalUrl).delete();
     }
 
     /**
@@ -270,6 +298,7 @@ public class CustomizeRouteServiceImpl extends BaseService<CustomizeRoute, Long>
         MyModelUtil.fillCommonsForUpdate(originalCustomizeRoute, originalCustomizeRoute);
         UpdateWrapper<CustomizeRoute> uw = this.createUpdateQueryForNullValue(originalCustomizeRoute, originalCustomizeRoute.getId());
         customizeRouteMapper.update(originalCustomizeRoute, uw);
+        unregisterDynamicRouteFromRedis(originalCustomizeRoute.getUrl());
     }
 
     /**
@@ -301,5 +330,31 @@ public class CustomizeRouteServiceImpl extends BaseService<CustomizeRoute, Long>
     @Override
     public List<CustomizeRoute> getCustomizeRouteListByExternalAppId(Long externalAppId, CustomizeRoute customizeRouteFilter, String orderBy) {
         return customizeRouteMapper.getCustomizeRouteListByExternalAppId(externalAppId, customizeRouteFilter, orderBy);
+    }
+
+    /**
+     * 查询externalAppId关联的CustomizeRoute
+     *
+     * @param externalAppId 外部应用 ID
+     * @return
+     * @author 王立宏
+     * @date 2023/11/22 04:31
+     */
+    @Override
+    public List<CustomizeRoute> queryAssociatedCustomizeRoute(Long externalAppId) {
+        return customizeRouteMapper.queryAssociatedCustomizeRoute(externalAppId);
+    }
+
+    /**
+     * 通过 外部应用与自定义路由关联信息 查询自定义路由信息
+     *
+     * @param externalAppCustomizeRoute 外部应用自定义路由
+     * @return 自定义路由信息集
+     * @author 王立宏
+     * @date 2023/11/22 05:23
+     */
+    @Override
+    public List<CustomizeRoute> queryCustomizeRouteByExternalAppCustomizeRoute(ExternalAppCustomizeRoute externalAppCustomizeRoute) {
+        return customizeRouteMapper.queryCustomizeRouteByExternalAppCustomizeRoute(externalAppCustomizeRoute);
     }
 }

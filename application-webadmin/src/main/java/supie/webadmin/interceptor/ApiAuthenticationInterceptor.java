@@ -1,42 +1,29 @@
 package supie.webadmin.interceptor;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.StrFormatter;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import io.jsonwebtoken.Claims;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.redisson.api.RBucket;
-import org.redisson.api.RSet;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.util.Assert;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-import supie.common.core.annotation.NoAuthInterface;
-import supie.common.core.cache.CacheConfig;
 import supie.common.core.constant.ApplicationConstant;
-import supie.common.core.constant.DataPermRuleType;
 import supie.common.core.constant.ErrorCodeEnum;
-import supie.common.core.exception.MyRuntimeException;
 import supie.common.core.object.ResponseResult;
-import supie.common.core.object.TokenData;
 import supie.common.core.util.ApplicationContextHolder;
-import supie.common.core.util.JwtUtil;
-import supie.common.core.util.RedisKeyUtil;
+import supie.common.core.util.MyCommonUtil;
 import supie.webadmin.app.dao.CustomizeRouteMapper;
+import supie.webadmin.app.dao.ExternalAppMapper;
 import supie.webadmin.app.model.CustomizeRoute;
+import supie.webadmin.app.model.ExternalApp;
 import supie.webadmin.config.ApplicationConfig;
-import supie.webadmin.config.ThirdPartyAuthConfig;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,7 +31,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * 描述：
@@ -59,84 +45,148 @@ public class ApiAuthenticationInterceptor implements HandlerInterceptor {
     private final ApplicationConfig appConfig =
             ApplicationContextHolder.getBean("applicationConfig");
 
-    private final ThirdPartyAuthConfig thirdPartyAuthConfig =
-            ApplicationContextHolder.getBean("thirdPartyAuthConfig");
-
     private final RedissonClient redissonClient = ApplicationContextHolder.getBean(RedissonClient.class);
-
-    private final CacheManager cacheManager = ApplicationContextHolder.getBean("caffeineCacheManager");
-
+    
     private final CustomizeRouteMapper customizeRouteMapper =
             ApplicationContextHolder.getBean("customizeRouteMapper");
+
+    private final ExternalAppMapper externalAppMapper =
+            ApplicationContextHolder.getBean("externalAppMapper");
+
+    private CustomizeRoute customizeRoute = null;
+    private List<VerificationInfo> verificationInfoList = null;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        // 获取当前的请求所携带的AppKey信息
-        String url = request.getRequestURI();
-        // 查询当前请求的路由的相关信息
-        QueryWrapper<CustomizeRoute> customizeRouteQueryWrapper = new QueryWrapper<>();
-        customizeRouteQueryWrapper.eq("url", url);
-        CustomizeRoute customizeRoute = customizeRouteMapper.selectOne(customizeRouteQueryWrapper);
-        if (customizeRoute == null) return false;
-//        // 判断相关权限（先查询redis，redis中没有再查询数据库中的权限，并存入redis。TODO 相应的权限有变动修改则删除redis中缓存的权限信息。）
-//        String customizeRouteRightKey = RedisKeyUtil.makeCustomizeRouteRightKey(customizeRoute.getId());
-//        RBucket<Set<Long>> customizeRouteRight = redissonClient.getBucket(customizeRouteRightKey);
+        try {
+            String url = request.getRequestURI();
+            // 获取当前的请求所携带的AppKey信息
+            String appKey = this.getTokenFromRequest(request);
+            List<VerificationInfo> verificationInfoList = getVerificationInfoList(url);
+            if (StrUtil.isBlank(appKey)) {
+                // AppKey为空，判断该地址是否为无需验证的地址
+                if (verificationInfoList == null) throw new RuntimeException("当前应用没有操作权限，请核对！");
+                for (VerificationInfo verificationInfo : verificationInfoList) {
+                    if (verificationInfo.getAuthenticationMethod() != 2) continue;
+                    // 无认证类型
+                    return setCustomizeRouteDataToRedis(url);
+                }
+                throw new RuntimeException("当前应用没有操作权限，请核对！");
+            }
+            // AppKey不为空,进行相关的合法性验证.
+            // 判断AppKey是否为本系统所发放
+            if (!ExternalApp.verifyAppKey(appKey)) {
+                String warnMessage = StrFormatter.format(
+                        "IP[{}]通过[{}]端请求[{}]动态路由接口携带了非本系统发放的AppKey({})信息!",
+                        MyCommonUtil.getClientIpAddress(), MyCommonUtil.getDeviceTypeByUserAgent(), url, appKey);
+                log.warn(warnMessage);
+                throw new RuntimeException("所携带的验证信息不合法!");
+            }
+            // AppKey合法，对比是否为该url所拥有的AppKey。
+            for (VerificationInfo verificationInfo : verificationInfoList) {
+                if (verificationInfo.getAuthenticationMethod() == 1 && appKey.equals(verificationInfo.getAppKey())) {
+                    return setCustomizeRouteDataToRedis(url);
+                } else if (verificationInfo.getAuthenticationMethod() == 2) {
+                    // 无认证类型
+                    return setCustomizeRouteDataToRedis(url);
+                }
+            }
+            throw new RuntimeException("AppKey认证失败,当前AppKey无权访问该路由地址!");
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            this.outputResponseMessage(response, ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION, e.getMessage()));
+            return false;
+        }
+    }
 
-        // 权限判断通过，自定义路由信息存储至redis，以供业务代码获取
-        RBucket<String> customizeRouteData = redissonClient.getBucket("CustomizeRoute:" + url);
-        customizeRouteData.set(JSONUtil.toJsonStr(customizeRoute));
-        customizeRouteData.expire(30, TimeUnit.SECONDS);
+    /**
+     * 获取验证信息.
+     * 先从redis获取,若redis中不存在则从数据库中查找并存入redis.
+     * TODO 相应的权限有变动修改则删除redis中缓存的权限信息。
+     *
+     * @param url 路由地址
+     * @return 验证信息集
+     * @author 王立宏
+     * @date 2023/11/22 11:41
+     */
+    @Nullable
+    private List<VerificationInfo> getVerificationInfoList(String url) {
+        if (verificationInfoList != null) return verificationInfoList;
+        // 获取redis中存储的信息，若redis中不存在则从数据库获取并存储至redis。
+        RBucket<String> verificationInfoListRBucket = redissonClient.getBucket("CustomizeRouteVerificationInfo:" + url);
+        if (!verificationInfoListRBucket.isExists()) {
+            // 不存在于redis中,从数据库查询相关信息并存储至redis。
+            List<ExternalApp> externalAppList = externalAppMapper.queryExternalAppByUrl(url);
+            if (externalAppList.size() == 0) throw new RuntimeException("该路由未关联任何外部App!");
+            verificationInfoList = externalAppListToVerificationInfoList(externalAppList);
+            verificationInfoListRBucket.set(JSONUtil.toJsonStr(verificationInfoList));
+            verificationInfoListRBucket.expire(appConfig.getSessionExpiredSeconds(), TimeUnit.SECONDS);
+        } else {
+            verificationInfoList = JSONUtil.toList(verificationInfoListRBucket.get(), VerificationInfo.class);
+        }
+        return verificationInfoList;
+    }
+
+    /**
+     * 外部应用集合 转为 验证信息集合
+     *
+     * @param externalAppList 外部应用集
+     * @return 列表<验证信息>
+     * @author 王立宏
+     * @date 2023/11/22 11:30
+     */
+    private List<VerificationInfo> externalAppListToVerificationInfoList(List<ExternalApp> externalAppList) {
+        List<VerificationInfo> verificationInfoList = new ArrayList<>();
+        for (ExternalApp externalApp : externalAppList) {
+            verificationInfoList.add(
+                    new VerificationInfo(externalApp.getId(), externalApp.getAppKey(), externalApp.getAuthenticationMethod())
+            );
+        }
+        // 清理
+        return verificationInfoList;
+    }
+
+    /**
+     * 权限判断通过，自定义路由信息存储至redis，以供业务代码获取
+     *
+     * @param url 路由地址
+     * @author 王立宏
+     * @date 2023/11/22 10:44
+     */
+    private Boolean setCustomizeRouteDataToRedis(String url) {
+        CustomizeRoute customizeRoute = getCustomizeRoute(url);
+        if (customizeRoute == null) throw new RuntimeException("当前的路由相关信息获取失败，请联系管理员！");
+        this.customizeRoute = null;
+        this.verificationInfoList = null;
         return true;
+    }
 
-//        String token = this.getTokenFromRequest(request);
-//        boolean noLoginUrl = this.isNoAuthInterface(handler);
-//        // 如果接口方法标记NoAuthInterface注解，可以直接跳过Token鉴权验证，这里主要为了测试接口方便
-//        if (noLoginUrl && StrUtil.isBlank(token)) {
-//            return true;
-//        }
-//        String appCode = this.getAppCodeFromRequest(request);
-//        if (StrUtil.isNotBlank(appCode)) {
-//            return this.handleThirdPartyRequest(appCode, token, url, response);
-//        }
-//        Claims c = JwtUtil.parseToken(token, appConfig.getTokenSigningKey());
-//        if (JwtUtil.isNullOrExpired(c)) {
-//            // 如果免登陆接口携带的是过期的Token，这个时候直接返回给Controller即可。
-//            // 这样可以规避不必要的重新登录，而对于Controller，可以将本次请求视为未登录用户的请求。
-//            if (noLoginUrl) {
-//                return true;
-//            }
-//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//            this.outputResponseMessage(response,
-//                    ResponseResult.error(ErrorCodeEnum.UNAUTHORIZED_LOGIN, "用户会话已过期或尚未登录，请重新登录！"));
-//            return false;
-//        }
-//        String sessionId = (String) c.get("sessionId");
-//        String sessionIdKey = RedisKeyUtil.makeSessionIdKey(sessionId);
-//        RBucket<String> sessionData = redissonClient.getBucket(sessionIdKey);
-//        TokenData tokenData = null;
-//        if (sessionData.isExists()) {
-//            tokenData = JSON.parseObject(sessionData.get(), TokenData.class);
-//        }
-//        if (tokenData == null) {
-//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//            this.outputResponseMessage(response,
-//                    ResponseResult.error(ErrorCodeEnum.UNAUTHORIZED_LOGIN, "用户会话已失效，请重新登录！"));
-//            return false;
-//        }
-//        tokenData.setToken(token);
-//        TokenData.addToRequest(tokenData);
-//        // 如果url是免登陆、白名单中，则不需要进行鉴权操作
-//        if (!noLoginUrl && Boolean.FALSE.equals(tokenData.getIsAdmin()) && !this.hasPermission(sessionId, url)) {
-//            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-//            this.outputResponseMessage(response, ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION));
-//            return false;
-//        }
-//        if (JwtUtil.needToRefresh(c)) {
-//            String refreshedToken = JwtUtil.generateToken(c, appConfig.getExpiration(), appConfig.getTokenSigningKey());
-//            response.addHeader(appConfig.getRefreshedTokenHeaderKey(), refreshedToken);
-//        }
-//        return true;
+    /**
+     * 查询当前请求的路由的相关信息,并存储至redis中
+     *
+     * @param url 网址
+     * @author 王立宏
+     * @date 2023/11/22 10:58
+     */
+    private CustomizeRoute getCustomizeRoute(String url) {
+        if (this.customizeRoute != null) return this.customizeRoute;
+        // 先查询redis中是否存在。不存在则从数据库中查询，并将其存储至redis中。
+        // 若 CustomizeRoute 有修改、删除则同步删除数据库中存储的数据 及其 注册的路由信息。
+        RBucket<String> customizeRouteRBucket = redissonClient.getBucket("CustomizeRoute:" + url);
+        if (customizeRouteRBucket.isExists()) {
+            // 存在于redis中，判断是否已经在当前内存中存在，不存在则从redis中取出来
+            this.customizeRoute = JSONUtil.toBean(customizeRouteRBucket.get(), CustomizeRoute.class);
+        } else {
+            // 不存在于redis中，从数据库中查找到相关数据，并存储至redia中
+            QueryWrapper<CustomizeRoute> customizeRouteQueryWrapper = new QueryWrapper<>();
+            customizeRouteQueryWrapper.eq("url", url);
+            this.customizeRoute = customizeRouteMapper.selectOne(customizeRouteQueryWrapper);
+            if (this.customizeRoute == null) throw new RuntimeException("未查找到该路由下相关信息！请联系管理员");
+            customizeRouteRBucket.set(JSONUtil.toJsonStr(this.customizeRoute));
+            customizeRouteRBucket.expire(appConfig.getSessionExpiredSeconds(), TimeUnit.SECONDS);
+        }
+        return this.customizeRoute;
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
@@ -148,193 +198,6 @@ public class ApiAuthenticationInterceptor implements HandlerInterceptor {
             token = request.getHeader(ApplicationConstant.HTTP_HEADER_INTERNAL_TOKEN);
         }
         return token;
-    }
-
-    private String getAppCodeFromRequest(HttpServletRequest request) {
-        String token = request.getHeader("AppCode");
-        if (StrUtil.isBlank(token)) {
-            token = request.getParameter("AppCode");
-        }
-        return token;
-    }
-
-    @SuppressWarnings("unchecked")
-    private boolean hasPermission(String sessionId, String url) {
-        // 为了提升效率，先检索Caffeine的一级缓存，如果不存在，再检索Redis的二级缓存，并将结果存入一级缓存。
-        Set<String> localPermSet;
-        String permKey = RedisKeyUtil.makeSessionPermIdKey(sessionId);
-        Cache cache = cacheManager.getCache(CacheConfig.CacheEnum.USER_PERMISSION_CACHE.name());
-        Assert.notNull(cache, "Cache USER_PERMISSION_CACHE can't be NULL.");
-        Cache.ValueWrapper wrapper = cache.get(permKey);
-        if (wrapper == null) {
-            RSet<String> permSet = redissonClient.getSet(permKey);
-            localPermSet = permSet.readAll();
-            cache.put(permKey, localPermSet);
-        } else {
-            localPermSet = (Set<String>) wrapper.get();
-        }
-        return CollUtil.contains(localPermSet, url);
-    }
-
-    private boolean isNoAuthInterface(Object handler) {
-        if (handler instanceof HandlerMethod) {
-            HandlerMethod hm = (HandlerMethod) handler;
-            return hm.getBeanType().getAnnotation(NoAuthInterface.class) != null
-                    || hm.getMethodAnnotation(NoAuthInterface.class) != null;
-        }
-        return false;
-    }
-
-    private boolean handleThirdPartyRequest(String appCode, String token, String url, HttpServletResponse response) {
-        ThirdPartyAuthConfig.AuthProperties authProps = thirdPartyAuthConfig.getApplicationMap().get(appCode);
-        if (authProps == null) {
-            String msg = StrFormatter.format("请求的 appCode[{}] 信息，在当前服务中尚未配置！", appCode);
-            this.outputResponseMessage(response, ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, msg));
-            return false;
-        }
-        ResponseResult<TokenData> responseResult = this.getAndCacheThirdPartyTokenData(authProps, token);
-        if (!responseResult.isSuccess()) {
-            this.outputResponseMessage(response,
-                    ResponseResult.error(ErrorCodeEnum.UNAUTHORIZED_LOGIN, responseResult.getErrorMessage()));
-            return false;
-        }
-        TokenData tokenData = responseResult.getData();
-        tokenData.setAppCode(appCode);
-        tokenData.setSessionId(this.prependAppCode(authProps.getAppCode(), tokenData.getSessionId()));
-        TokenData.addToRequest(tokenData);
-        if (Boolean.FALSE.equals(tokenData.getIsAdmin())
-                && !this.hasThirdPartyPermission(authProps, tokenData, url)) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            this.outputResponseMessage(response, ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION));
-            return false;
-        }
-        return true;
-    }
-
-    private ResponseResult<TokenData> getAndCacheThirdPartyTokenData(
-            ThirdPartyAuthConfig.AuthProperties authProps, String token) {
-        if (authProps.getTokenExpiredSeconds() == 0) {
-            return this.getThirdPartyTokenData(authProps, token);
-        }
-        String tokeKey = this.prependAppCode(authProps.getAppCode(), RedisKeyUtil.makeSessionIdKey(token));
-        RBucket<String> sessionData = redissonClient.getBucket(tokeKey);
-        if (sessionData.isExists()) {
-            return ResponseResult.success(JSON.parseObject(sessionData.get(), TokenData.class));
-        }
-        ResponseResult<TokenData> responseResult = this.getThirdPartyTokenData(authProps, token);
-        if (responseResult.isSuccess()) {
-            sessionData.set(JSON.toJSONString(responseResult.getData()), authProps.getTokenExpiredSeconds(), TimeUnit.SECONDS);
-        }
-        return responseResult;
-    }
-
-    private String prependAppCode(String appCode, String key) {
-        return appCode.toUpperCase() + ":" + key;
-    }
-
-    private ResponseResult<TokenData> getThirdPartyTokenData(
-            ThirdPartyAuthConfig.AuthProperties authProps, String token) {
-        try {
-            String resultData = this.invokeThirdPartyUrl(authProps.getBaseUrl() + "/getTokenData", token);
-            return JSON.parseObject(resultData, new TypeReference<ResponseResult<TokenData>>() {});
-        } catch (MyRuntimeException ex) {
-            return ResponseResult.error(ErrorCodeEnum.FAILED_TO_INVOKE_THIRDPARTY_URL, ex.getMessage());
-        }
-    }
-
-    private ResponseResult<AuthenticationInterceptor.ThirdPartyAppPermData> getThirdPartyPermData(
-            ThirdPartyAuthConfig.AuthProperties authProps, String token) {
-        try {
-            String resultData = this.invokeThirdPartyUrl(authProps.getBaseUrl() + "/getPermData", token);
-            return JSON.parseObject(resultData, new TypeReference<ResponseResult<AuthenticationInterceptor.ThirdPartyAppPermData>>() {});
-        } catch (MyRuntimeException ex) {
-            return ResponseResult.error(ErrorCodeEnum.FAILED_TO_INVOKE_THIRDPARTY_URL, ex.getMessage());
-        }
-    }
-
-    private String invokeThirdPartyUrl(String url, String token) {
-        Map<String, String> headerMap = new HashMap<>(1);
-        headerMap.put("Authorization", token);
-        StringBuilder fullUrl = new StringBuilder(128);
-        fullUrl.append(url).append("?token=").append(token);
-        HttpResponse httpResponse = HttpUtil.createGet(fullUrl.toString()).addHeaders(headerMap).execute();
-        if (!httpResponse.isOk()) {
-            String msg = StrFormatter.format(
-                    "Failed to call [{}] with ERROR HTTP Status [{}] and [{}].",
-                    url, httpResponse.getStatus(), httpResponse.body());
-            log.error(msg);
-            throw new MyRuntimeException(msg);
-        }
-        return httpResponse.body();
-    }
-
-    @SuppressWarnings("unchecked")
-    private boolean hasThirdPartyPermission(
-            ThirdPartyAuthConfig.AuthProperties authProps, TokenData tokenData, String url) {
-        // 为了提升效率，先检索Caffeine的一级缓存，如果不存在，再检索Redis的二级缓存，并将结果存入一级缓存。
-        String permKey = RedisKeyUtil.makeSessionPermIdKey(tokenData.getSessionId());
-        Cache cache = cacheManager.getCache(CacheConfig.CacheEnum.USER_PERMISSION_CACHE.name());
-        Assert.notNull(cache, "Cache USER_PERMISSION_CACHE can't be NULL");
-        Cache.ValueWrapper wrapper = cache.get(permKey);
-        if (wrapper != null) {
-            Object cachedData = wrapper.get();
-            if (cachedData != null) {
-                return ((Set<String>) cachedData).contains(url);
-            }
-        }
-        Set<String> localPermSet;
-        RSet<String> permSet = redissonClient.getSet(permKey);
-        if (permSet.isExists()) {
-            localPermSet = permSet.readAll();
-            cache.put(permKey, localPermSet);
-            return localPermSet.contains(url);
-        }
-        ResponseResult<AuthenticationInterceptor.ThirdPartyAppPermData> responseResult = this.getThirdPartyPermData(authProps, tokenData.getToken());
-        this.cacheThirdPartyDataPermData(authProps, tokenData, responseResult.getData().getDataPerms());
-        if (CollUtil.isEmpty(responseResult.getData().urlPerms)) {
-            return false;
-        }
-        permSet.addAll(responseResult.getData().urlPerms);
-        permSet.expire(authProps.getPermExpiredSeconds(), TimeUnit.SECONDS);
-        localPermSet = new HashSet<>(responseResult.getData().urlPerms);
-        cache.put(permKey, localPermSet);
-        return localPermSet.contains(url);
-    }
-
-    private void cacheThirdPartyDataPermData(
-            ThirdPartyAuthConfig.AuthProperties authProps, TokenData tokenData, List<AuthenticationInterceptor.ThirdPartyAppDataPermData> dataPerms) {
-        if (CollUtil.isEmpty(dataPerms)) {
-            return;
-        }
-        Map<Integer, List<AuthenticationInterceptor.ThirdPartyAppDataPermData>> dataPermMap =
-                dataPerms.stream().collect(Collectors.groupingBy(AuthenticationInterceptor.ThirdPartyAppDataPermData::getRuleType));
-        Map<Integer, List<AuthenticationInterceptor.ThirdPartyAppDataPermData>> normalizedDataPermMap = new HashMap<>(dataPermMap.size());
-        for (Map.Entry<Integer, List<AuthenticationInterceptor.ThirdPartyAppDataPermData>> entry : dataPermMap.entrySet()) {
-            List<AuthenticationInterceptor.ThirdPartyAppDataPermData> ruleTypeDataPermDataList;
-            if (entry.getKey().equals(DataPermRuleType.TYPE_DEPT_AND_CHILD_DEPT)) {
-                ruleTypeDataPermDataList =
-                        normalizedDataPermMap.computeIfAbsent(DataPermRuleType.TYPE_CUSTOM_DEPT_LIST, k -> new LinkedList<>());
-            } else {
-                ruleTypeDataPermDataList =
-                        normalizedDataPermMap.computeIfAbsent(entry.getKey(), k -> new LinkedList<>());
-            }
-            ruleTypeDataPermDataList.addAll(entry.getValue());
-        }
-        Map<Integer, String> resultDataPermMap = new HashMap<>(normalizedDataPermMap.size());
-        for (Map.Entry<Integer, List<AuthenticationInterceptor.ThirdPartyAppDataPermData>> entry : normalizedDataPermMap.entrySet()) {
-            if (entry.getKey().equals(DataPermRuleType.TYPE_CUSTOM_DEPT_LIST)) {
-                String deptIds = entry.getValue().stream()
-                        .map(AuthenticationInterceptor.ThirdPartyAppDataPermData::getDeptIds).collect(Collectors.joining(","));
-                resultDataPermMap.put(entry.getKey(), deptIds);
-            } else {
-                resultDataPermMap.put(entry.getKey(), "null");
-            }
-        }
-        Map<String, Map<Integer, String>> menuDataPermMap = new HashMap<>(1);
-        menuDataPermMap.put(ApplicationConstant.DATA_PERM_ALL_MENU_ID, resultDataPermMap);
-        String dataPermSessionKey = RedisKeyUtil.makeSessionDataPermIdKey(tokenData.getSessionId());
-        RBucket<String> bucket = redissonClient.getBucket(dataPermSessionKey);
-        bucket.set(JSON.toJSONString(menuDataPermMap), authProps.getPermExpiredSeconds(), TimeUnit.SECONDS);
     }
 
     @Override
@@ -364,28 +227,21 @@ public class ApiAuthenticationInterceptor implements HandlerInterceptor {
     }
 
     @Data
-    public static class ThirdPartyAppPermData {
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class VerificationInfo {
         /**
-         * 当前用户会话可访问的url接口地址列表。
+         * ExternalAppId
          */
-        private List<String> urlPerms;
+        private Long externalAppId;
         /**
-         * 当前用户会话的数据权限列表。
+         * AppKey
          */
-        private List<AuthenticationInterceptor.ThirdPartyAppDataPermData> dataPerms;
-    }
-
-    @Data
-    public static class ThirdPartyAppDataPermData {
+        private String appKey;
         /**
-         * 数据权限的规则类型。需要按照橙单的约定返回。具体值可参考DataPermRuleType常量类。
+         * 认证方式（1：key认证。2：无认证）。
          */
-        private Integer ruleType;
-        /**
-         * 部门Id集合，多个部门Id之间逗号分隔。
-         * 注意：仅当ruleType为3、4、5时需要包含该字段值。
-         */
-        private String deptIds;
+        private Integer authenticationMethod;
     }
 
 }

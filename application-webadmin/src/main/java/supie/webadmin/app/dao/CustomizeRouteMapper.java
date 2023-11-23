@@ -4,6 +4,7 @@ import supie.common.core.annotation.EnableDataPerm;
 import supie.common.core.base.dao.BaseDaoMapper;
 import supie.webadmin.app.model.CustomizeRoute;
 import org.apache.ibatis.annotations.Param;
+import supie.webadmin.app.model.ExternalAppCustomizeRoute;
 
 import java.util.*;
 
@@ -68,4 +69,26 @@ public interface CustomizeRouteMapper extends BaseDaoMapper<CustomizeRoute> {
             @Param("externalAppId") Long externalAppId,
             @Param("customizeRouteFilter") CustomizeRoute customizeRouteFilter,
             @Param("orderBy") String orderBy);
+
+    /**
+     * 查询externalAppId关联的CustomizeRoute
+     *
+     * @param externalAppId 外部应用 ID
+     * @return 列表<自定义路由>
+     * @author 王立宏
+     * @date 2023/11/22 04:32
+     */
+    List<CustomizeRoute> queryAssociatedCustomizeRoute(@Param("externalAppId") Long externalAppId);
+
+    /**
+     * 通过 外部应用与自定义路由关联信息 查询自定义路由信息
+     *
+     * @param externalAppCustomizeRouteFilter 外部应用自定义路由
+     * @return 自定义路由信息集
+     * @author 王立宏
+     * @date 2023/11/22 05:25
+     */
+    List<CustomizeRoute> queryCustomizeRouteByExternalAppCustomizeRoute(
+            @Param("externalAppCustomizeRouteFilter") ExternalAppCustomizeRoute externalAppCustomizeRouteFilter);
+
 }

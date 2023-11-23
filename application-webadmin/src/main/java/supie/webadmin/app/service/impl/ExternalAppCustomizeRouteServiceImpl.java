@@ -2,6 +2,7 @@ package supie.webadmin.app.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import org.redisson.api.RedissonClient;
 import supie.webadmin.app.service.*;
 import supie.webadmin.app.dao.*;
 import supie.webadmin.app.model.*;
@@ -33,6 +34,10 @@ public class ExternalAppCustomizeRouteServiceImpl extends BaseService<ExternalAp
     private ExternalAppCustomizeRouteMapper externalAppCustomizeRouteMapper;
     @Autowired
     private IdGeneratorWrapper idGenerator;
+    @Autowired
+    private RedissonClient redissonClient;
+    @Autowired
+    private CustomizeRouteService customizeRouteService;
 
     /**
      * 返回当前Service的主表Mapper对象。
@@ -53,6 +58,8 @@ public class ExternalAppCustomizeRouteServiceImpl extends BaseService<ExternalAp
     @Transactional(rollbackFor = Exception.class)
     @Override
     public ExternalAppCustomizeRoute saveNew(ExternalAppCustomizeRoute externalAppCustomizeRoute) {
+        unregisterDynamicRouteFromRedis(
+                externalAppCustomizeRoute.getId(), externalAppCustomizeRoute.getExternalAppId(), externalAppCustomizeRoute.getCustomizeRouteId());
         externalAppCustomizeRouteMapper.insert(this.buildDefaultValue(externalAppCustomizeRoute));
         return externalAppCustomizeRoute;
     }
@@ -81,6 +88,10 @@ public class ExternalAppCustomizeRouteServiceImpl extends BaseService<ExternalAp
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean update(ExternalAppCustomizeRoute externalAppCustomizeRoute, ExternalAppCustomizeRoute originalExternalAppCustomizeRoute) {
+        unregisterDynamicRouteFromRedis(
+                originalExternalAppCustomizeRoute.getId(),
+                originalExternalAppCustomizeRoute.getExternalAppId(),
+                originalExternalAppCustomizeRoute.getCustomizeRouteId());
         MyModelUtil.fillCommonsForUpdate(externalAppCustomizeRoute, originalExternalAppCustomizeRoute);
         // 这里重点提示，在执行主表数据更新之前，如果有哪些字段不支持修改操作，请用原有数据对象字段替换当前数据字段。
         UpdateWrapper<ExternalAppCustomizeRoute> uw = this.createUpdateQueryForNullValue(externalAppCustomizeRoute, externalAppCustomizeRoute.getId());
@@ -96,6 +107,7 @@ public class ExternalAppCustomizeRouteServiceImpl extends BaseService<ExternalAp
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean remove(Long id) {
+        unregisterDynamicRouteFromRedis(id, null, null);
         return externalAppCustomizeRouteMapper.deleteById(id) == 1;
     }
 
@@ -139,5 +151,22 @@ public class ExternalAppCustomizeRouteServiceImpl extends BaseService<ExternalAp
         MyModelUtil.fillCommonsForInsert(externalAppCustomizeRoute);
         externalAppCustomizeRoute.setIsDelete(GlobalDeletedFlag.NORMAL);
         return externalAppCustomizeRoute;
+    }
+
+    /**
+     * 下线redis中相关的路由权限信息
+     */
+    private void unregisterDynamicRouteFromRedis(Long externalAppCustomizeRouteId, Long externalAppId, Long customizeRouteId) {
+        if (externalAppCustomizeRouteId == null && externalAppId == null && customizeRouteId == null) return;
+        ExternalAppCustomizeRoute externalAppCustomizeRoute = new ExternalAppCustomizeRoute();
+        if (externalAppCustomizeRouteId != null) externalAppCustomizeRoute.setId(externalAppCustomizeRouteId);
+        if (externalAppId != null) externalAppCustomizeRoute.setExternalAppId(externalAppId);
+        if (customizeRouteId != null) externalAppCustomizeRoute.setCustomizeRouteId(customizeRouteId);
+        List<CustomizeRoute> customizeRouteList = customizeRouteService.queryCustomizeRouteByExternalAppCustomizeRoute(externalAppCustomizeRoute);
+        for (CustomizeRoute customizeRoute : customizeRouteList) {
+            String url = customizeRoute.getUrl();
+            redissonClient.getBucket("CustomizeRoute:" + url).delete();
+            redissonClient.getBucket("CustomizeRouteVerificationInfo:" + url).delete();
+        }
     }
 }

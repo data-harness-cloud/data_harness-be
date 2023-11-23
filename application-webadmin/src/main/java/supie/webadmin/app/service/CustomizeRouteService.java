@@ -120,4 +120,34 @@ public interface CustomizeRouteService extends IBaseService<CustomizeRoute, Long
      * @date 2023/11/20 10:34
      */
     List<CustomizeRoute> getCustomizeRouteListByExternalAppId(Long externalAppId, CustomizeRoute customizeRouteFilter, String orderBy);
+
+    /**
+     * 查询externalAppId关联的CustomizeRoute
+     *
+     * @param externalAppId 外部应用 ID
+     * @return
+     * @author 王立宏
+     * @date 2023/11/22 04:31
+     */
+    List<CustomizeRoute> queryAssociatedCustomizeRoute(Long externalAppId);
+
+    /**
+     * 从 Redis 注销动态路由信息
+     *
+     * @param url 原始路由
+     * @author 王立宏
+     * @date 2023/11/22 04:12
+     */
+    void unregisterDynamicRouteFromRedis(String url);
+
+    /**
+     * 通过 外部应用与自定义路由关联信息 查询自定义路由信息
+     *
+     * @param externalAppCustomizeRoute 外部应用自定义路由
+     * @return 自定义路由信息集
+     * @author 王立宏
+     * @date 2023/11/22 05:23
+     */
+    List<CustomizeRoute> queryCustomizeRouteByExternalAppCustomizeRoute(ExternalAppCustomizeRoute externalAppCustomizeRoute);
+
 }

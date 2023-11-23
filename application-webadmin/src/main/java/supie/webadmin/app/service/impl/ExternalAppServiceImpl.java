@@ -3,6 +3,7 @@ package supie.webadmin.app.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.*;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import org.redisson.api.RedissonClient;
 import supie.webadmin.app.service.*;
 import supie.webadmin.app.dao.*;
 import supie.webadmin.app.model.*;
@@ -38,6 +39,10 @@ public class ExternalAppServiceImpl extends BaseService<ExternalApp, Long> imple
     private ExternalAppCustomizeRouteService externalAppCustomizeRouteService;
     @Autowired
     private IdGeneratorWrapper idGenerator;
+    @Autowired
+    private CustomizeRouteService customizeRouteService;
+    @Autowired
+    private RedissonClient redissonClient;
 
     /**
      * 返回当前Service的主表Mapper对象。
@@ -86,6 +91,7 @@ public class ExternalAppServiceImpl extends BaseService<ExternalApp, Long> imple
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean update(ExternalApp externalApp, ExternalApp originalExternalApp) {
+        unregisterDynamicRouteFromRedis(originalExternalApp.getId());
         MyModelUtil.fillCommonsForUpdate(externalApp, originalExternalApp);
         // 这里重点提示，在执行主表数据更新之前，如果有哪些字段不支持修改操作，请用原有数据对象字段替换当前数据字段。
         UpdateWrapper<ExternalApp> uw = this.createUpdateQueryForNullValue(externalApp, externalApp.getId());
@@ -101,6 +107,7 @@ public class ExternalAppServiceImpl extends BaseService<ExternalApp, Long> imple
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean remove(Long id) {
+        unregisterDynamicRouteFromRedis(id);
         if (externalAppMapper.deleteById(id) == 0) {
             return false;
         }
@@ -241,7 +248,25 @@ public class ExternalAppServiceImpl extends BaseService<ExternalApp, Long> imple
     }
 
     /**
-     * 生成 AppKey
+     * 从 Redis 注销动态路由信息
+     *
+     * @param externalAppId 外部AppId
+     * @author 王立宏
+     * @date 2023/11/22 04:12
+     */
+    @Override
+    public void unregisterDynamicRouteFromRedis(Long externalAppId) {
+        // 查询externalAppId关联的CustomizeRoute
+        List<CustomizeRoute> customizeRouteList = customizeRouteService.queryAssociatedCustomizeRoute(externalAppId);
+        for (CustomizeRoute customizeRoute : customizeRouteList) {
+            String url = customizeRoute.getUrl();
+            redissonClient.getBucket("CustomizeRoute:" + url).delete();
+            redissonClient.getBucket("CustomizeRouteVerificationInfo:" + url).delete();
+        }
+    }
+
+    /**
+     * 生成 AppKey,并保存至数据库
      *
      * @param externalApp 外部应用程序信息
      * @return 外部应用程序
@@ -252,11 +277,23 @@ public class ExternalAppServiceImpl extends BaseService<ExternalApp, Long> imple
     public ExternalApp generateAppKey(ExternalApp externalApp) {
         ExternalApp originalExternalApp = externalApp.clone();
         // 生成AppKey，新key覆盖原有key
-        String appKey = ExternalApp.generateAppKey(null);
+        String appKey = this.generateAppKey();
         externalApp.setAppKey(appKey);
         if (update(externalApp, originalExternalApp)) {
             return externalApp;
         }
         return null;
+    }
+
+    /**
+     * 生成 AppKey
+     *
+     * @return AppKey
+     * @author 王立宏
+     * @date 2023/11/22 10:02
+     */
+    @Override
+    public String generateAppKey() {
+        return ExternalApp.generateAppKey(null);
     }
 }

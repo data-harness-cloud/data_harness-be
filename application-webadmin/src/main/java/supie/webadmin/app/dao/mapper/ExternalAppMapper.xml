@@ -136,4 +136,14 @@
             ORDER BY ${orderBy}
         </if>
     </select>
+
+    <select id="queryExternalAppByUrl" resultMap="BaseResultMap">
+        SELECT sdt_external_app.* FROM sdt_external_app
+        LEFT JOIN sdt_external_app_customize_route ON sdt_external_app_customize_route.external_app_id = sdt_external_app.id
+        LEFT JOIN sdt_customize_route ON sdt_customize_route.id = sdt_external_app_customize_route.customize_route_id
+        WHERE sdt_customize_route.url = #{url}
+        AND sdt_external_app.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+        AND sdt_external_app_customize_route.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+        AND sdt_customize_route.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </select>
 </mapper>
