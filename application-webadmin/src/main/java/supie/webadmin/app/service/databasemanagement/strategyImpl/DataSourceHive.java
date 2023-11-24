@@ -30,7 +30,7 @@ public class DataSourceHive extends BaseDataSource implements Strategy {
     @Override
     public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password) {
         this.databaseType = DataBaseTypeEnum.DATASOURCE_HIVE;
-        this.jdbcDriver = "org.apache.hadoop.hive.jdbc.HiveDriver";
+        this.jdbcDriver = "org.apache.hive.jdbc.HiveDriver";
         if (StrUtil.isBlank(databaseName)) {
             this.jdbcUrl = "jdbc:hive2://" + hostIp + ":" + hostPort;
         } else {

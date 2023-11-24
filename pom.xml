@@ -70,20 +70,23 @@
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
-            <version>23.3.0.23.09</version> <!-- 替换为实际版本号 -->
-<!--            <scope>system</scope>-->
-<!--            <systemPath>${project.basedir}/libs/ojdbc8.jar</systemPath> &lt;!&ndash; 修改为实际的文件路径 &ndash;&gt;-->
+            <version>23.3.0.23.09</version>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>2.2.224</version> <!-- 替换为最新版本号 -->
-<!--            <scope>test</scope>-->
+            <!-- OJDBC的国际化支持，解决字符集相关的问题 -->
+            <groupId>com.oracle.database.nls</groupId>
+            <artifactId>orai18n</artifactId>
+            <version>23.3.0.23.09</version>
         </dependency>
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <version>12.5.0.jre11-preview</version> <!-- 请根据实际情况替换版本号 -->
+            <version>7.4.1.jre8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-jdbc</artifactId>
+            <version>3.1.2</version>
         </dependency>
 
         <!--web 模块-->

@@ -266,6 +266,28 @@ public class BaseDataSource {
     }
 
     /**
+     * 查询可操作的所有数据库名称
+     *
+     * @return 该账户可操作的所有数据库集
+     * @author 王立宏
+     * @date 2023/11/23 03:29
+     */
+    public List<String> queryAllDatabaseName() {
+        List<String> databaseNameList = new ArrayList<>();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(queryAllDatabaseNameSql);
+            while (resultSet.next()) {
+                databaseNameList.add(resultSet.getString(1));
+            }
+            resultSet.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return databaseNameList;
+    }
+
+    /**
      * 查询数据库数据表名及类型
      * @param databaseName
      * @return
@@ -335,28 +357,6 @@ public class BaseDataSource {
             throw new RuntimeException(e);
         }
         return resultData;
-    }
-
-    /**
-     * 查询可操作的所有数据库名称
-     *
-     * @return 该账户可操作的所有数据库集
-     * @author 王立宏
-     * @date 2023/11/23 03:29
-     */
-    public List<String> queryAllDatabaseName() {
-        List<String> databaseNameList = new ArrayList<>();
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(queryAllDatabaseNameSql);
-            while (resultSet.next()) {
-                databaseNameList.add(resultSet.getString(1));
-            }
-            resultSet.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return databaseNameList;
     }
 
     /**
