@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import supie.webadmin.app.service.databasemanagement.*;
-import supie.webadmin.app.service.databasemanagement.model.DatabaseManagement;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -42,6 +40,19 @@ public class DataSourcePostgreSQL extends BaseDataSource implements Strategy {
         this.password = password;
         // 获取数据库连接，使数据库连接在该对象存在前都保持住
         initConnection();
+    }
+
+    /**
+     * 查询可操作的所有数据库名称
+     *
+     * @return 该账户可操作的所有数据库集
+     * @author 王立宏
+     * @date 2023/11/23 03:29
+     */
+    @Override
+    public List<String> queryAllDatabaseName() {
+        queryAllDatabaseNameSql = "SELECT datname FROM pg_database WHERE datistemplate = false;";
+        return super.queryAllDatabaseName();
     }
 
 }

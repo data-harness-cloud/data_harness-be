@@ -4,6 +4,7 @@ import supie.common.core.annotation.EnableDataPerm;
 import supie.common.core.base.dao.BaseDaoMapper;
 import supie.webadmin.app.model.CustomizeRoute;
 import org.apache.ibatis.annotations.Param;
+import supie.webadmin.app.model.ExternalAppCustomizeRoute;
 
 import java.util.*;
 
@@ -53,5 +54,41 @@ public interface CustomizeRouteMapper extends BaseDaoMapper<CustomizeRoute> {
      * @return
      */
     List<CustomizeRoute> queryRegisterApi();
+
+    /**
+     * 列出与指定外部App表存在多对多关系的 [自定义动态路由] 列表数据。
+     *
+     * @param externalAppId        主表关联字段。
+     * @param customizeRouteFilter 自定义路由过滤器。
+     * @param orderBy              排序方式。
+     * @return 应答结果对象，返回符合条件的数据列表。
+     * @author 王立宏
+     * @date 2023/11/21 03:55
+     */
+    List<CustomizeRoute> getCustomizeRouteListByExternalAppId(
+            @Param("externalAppId") Long externalAppId,
+            @Param("customizeRouteFilter") CustomizeRoute customizeRouteFilter,
+            @Param("orderBy") String orderBy);
+
+    /**
+     * 查询externalAppId关联的CustomizeRoute
+     *
+     * @param externalAppId 外部应用 ID
+     * @return 列表<自定义路由>
+     * @author 王立宏
+     * @date 2023/11/22 04:32
+     */
+    List<CustomizeRoute> queryAssociatedCustomizeRoute(@Param("externalAppId") Long externalAppId);
+
+    /**
+     * 通过 外部应用与自定义路由关联信息 查询自定义路由信息
+     *
+     * @param externalAppCustomizeRouteFilter 外部应用自定义路由
+     * @return 自定义路由信息集
+     * @author 王立宏
+     * @date 2023/11/22 05:25
+     */
+    List<CustomizeRoute> queryCustomizeRouteByExternalAppCustomizeRoute(
+            @Param("externalAppCustomizeRouteFilter") ExternalAppCustomizeRoute externalAppCustomizeRouteFilter);
 
 }

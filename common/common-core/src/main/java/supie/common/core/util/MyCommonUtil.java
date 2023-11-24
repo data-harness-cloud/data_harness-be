@@ -274,6 +274,82 @@ public class MyCommonUtil {
     }
 
     /**
+     * 按(User-Agent)获取设备类型
+     *
+     * @return 字符串
+     * @author 王立宏
+     * @date 2023/11/22 02:34
+     */
+    public static String getDeviceTypeByUserAgent() {
+        String userAgent = ContextUtil.getHttpRequest().getHeader("User-Agent");
+        if (userAgent != null) {
+            userAgent = userAgent.toLowerCase();
+            if (userAgent.contains("android")) {
+                return "Android";
+            } else if (userAgent.contains("iphone") || userAgent.contains("ipad")) {
+                return "IOS";
+            } else if (userAgent.contains("windows phone")) {
+                return "Windows Phone";
+            } else if (userAgent.contains("windows")) {
+                return "Windows";
+            } else {
+                return "Unknown device type";
+            }
+        } else {
+            return "Unknown device type";
+        }
+    }
+
+    /**
+     * 获取客户端 IP 地址
+     *
+     * @return IP 地址
+     * @author 王立宏
+     * @date 2023/11/22 02:32
+     */
+    public static String getClientIpAddress() {
+        String ipAddress = ContextUtil.getHttpRequest().getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = ContextUtil.getHttpRequest().getHeader("Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = ContextUtil.getHttpRequest().getHeader("WL-Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = ContextUtil.getHttpRequest().getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = ContextUtil.getHttpRequest().getHeader("HTTP_X_FORWARDED");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = ContextUtil.getHttpRequest().getHeader("HTTP_X_CLUSTER_CLIENT_IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = ContextUtil.getHttpRequest().getHeader("HTTP_CLIENT_IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = ContextUtil.getHttpRequest().getHeader("HTTP_FORWARDED_FOR");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = ContextUtil.getHttpRequest().getHeader("HTTP_FORWARDED");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = ContextUtil.getHttpRequest().getHeader("HTTP_VIA");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = ContextUtil.getHttpRequest().getHeader("REMOTE_ADDR");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = ContextUtil.getHttpRequest().getRemoteAddr();
+        }
+        // 如果 IP 地址包含多个值，则提取第一个值
+        if (ipAddress != null && ipAddress.contains(",")) {
+            ipAddress = ipAddress.split(",")[0].trim();
+        }
+        return ipAddress;
+    }
+
+    /**
      * 转换为字典格式的数据列表。
      *
      * @param dataList   源数据列表。

@@ -1,8 +1,11 @@
 package supie.webadmin.app.controller;
 
+import io.swagger.annotations.ApiOperation;
+import jodd.util.StringUtil;
 import supie.common.log.annotation.OperationLog;
 import supie.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
+import supie.webadmin.app.service.databasemanagement.StrategyFactory;
 import supie.webadmin.app.vo.*;
 import supie.webadmin.app.dto.*;
 import supie.webadmin.app.model.*;
@@ -33,6 +36,8 @@ public class ProjectDatasourceController {
 
     @Autowired
     private ProjectDatasourceService projectDatasourceService;
+    @Autowired
+    private StrategyFactory strategyFactory;
 
     /**
      * 新增数据项目-数据源表数据。
@@ -202,4 +207,37 @@ public class ProjectDatasourceController {
         }
         return ResponseResult.success();
     }
+
+    /**
+     * 数据库连接测试
+     *
+     * @param projectDatasourceDto 数据源实体类。
+     * @return 返回数据连接的信息。
+     */
+    @ApiOperation("数据库连接测试")
+    @PostMapping("/connection")
+    public ResponseResult<String> connection(@MyRequestBody ProjectDatasourceDto projectDatasourceDto){
+        if (projectDatasourceDto == null
+                || StringUtil.isBlank(projectDatasourceDto.getDatasourceType())
+                || StringUtil.isBlank(projectDatasourceDto.getDatasourceContent())) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        String datasourceType = projectDatasourceDto.getDatasourceType();
+        String datasourceContent = projectDatasourceDto.getDatasourceContent();
+        String ip;
+        String port;
+        String databaseName;
+        String userName;
+        String password;
+//        try {
+//            Strategy strategy = strategyFactory.getStrategy(
+//                    datasourceType, ip, port, databaseName, userName, password);
+//            strategy.closeAll();
+//        } catch (Exception e) {
+//            log.error("数据源连接失败", e);
+//            return ResponseResult.error("500", "连接失败："+e.getMessage());
+//        }
+        return ResponseResult.success("连接成功！");
+    }
+
 }

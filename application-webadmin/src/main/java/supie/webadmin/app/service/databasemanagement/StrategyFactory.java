@@ -4,7 +4,6 @@ import jodd.util.StringUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 /**

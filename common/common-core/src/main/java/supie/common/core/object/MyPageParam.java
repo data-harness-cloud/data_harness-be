@@ -18,12 +18,12 @@ public class MyPageParam {
     /**
      * 分页号码，从1开始计数。
      */
-    private Integer pageNum;
+    private Integer pageNum = DEFAULT_PAGE_NUM;
 
     /**
      * 每页大小。
      */
-    private Integer pageSize;
+    private Integer pageSize = DEFAULT_PAGE_SIZE;
 
     /**
      * 设置当前分页页号。

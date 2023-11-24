@@ -1,6 +1,7 @@
 package supie.webadmin.app.controller;
 
 import io.swagger.annotations.ApiOperation;
+import org.redisson.api.RedissonClient;
 import supie.common.log.annotation.OperationLog;
 import supie.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
@@ -261,6 +262,10 @@ public class ExternalAppController {
                 || !customizeRouteService.existUniqueKeyList("id", customizeRouteIdSet)) {
             return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
         }
+        List<CustomizeRoute> customizeRouteList = customizeRouteService.queryAssociatedCustomizeRoute(externalAppId);
+        for (CustomizeRoute customizeRoute : customizeRouteList) {
+            customizeRouteService.unregisterDynamicRouteFromRedis(customizeRoute.getUrl());
+        }
         List<ExternalAppCustomizeRoute> externalAppCustomizeRouteList =
                 MyModelUtil.copyCollectionTo(externalAppCustomizeRouteDtoList, ExternalAppCustomizeRoute.class);
         externalAppService.addExternalAppCustomizeRouteList(externalAppCustomizeRouteList, externalAppId);
@@ -282,7 +287,14 @@ public class ExternalAppController {
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        ExternalAppCustomizeRoute externalAppCustomizeRoute = MyModelUtil.copyTo(externalAppCustomizeRouteDto, ExternalAppCustomizeRoute.class);
+        List<CustomizeRoute> customizeRouteList =
+                customizeRouteService.queryAssociatedCustomizeRoute(externalAppCustomizeRouteDto.getExternalAppId());
+        customizeRouteList.add(customizeRouteService.getById(externalAppCustomizeRouteDto.getCustomizeRouteId()));
+        for (CustomizeRoute customizeRoute : customizeRouteList) {
+            customizeRouteService.unregisterDynamicRouteFromRedis(customizeRoute.getUrl());
+        }
+        ExternalAppCustomizeRoute externalAppCustomizeRoute =
+                MyModelUtil.copyTo(externalAppCustomizeRouteDto, ExternalAppCustomizeRoute.class);
         if (!externalAppService.updateExternalAppCustomizeRoute(externalAppCustomizeRoute)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
@@ -320,6 +332,11 @@ public class ExternalAppController {
     @PostMapping("/deleteExternalAppCustomizeRoute")
     public ResponseResult<Void> deleteExternalAppCustomizeRoute(
             @MyRequestBody Long externalAppId, @MyRequestBody Long customizeRouteId) {
+        List<CustomizeRoute> customizeRouteList = customizeRouteService.queryAssociatedCustomizeRoute(externalAppId);
+        customizeRouteList.add(customizeRouteService.getById(customizeRouteId));
+        for (CustomizeRoute customizeRoute : customizeRouteList) {
+            customizeRouteService.unregisterDynamicRouteFromRedis(customizeRoute.getUrl());
+        }
         if (MyCommonUtil.existBlankArgument(externalAppId, customizeRouteId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -346,10 +363,10 @@ public class ExternalAppController {
     }
 
     /**
-     * 生成 AppKey
+     * 生成 AppKey,并保存至数据库
      */
-    @ApiOperation("生成AppKey")
-    @GetMapping("/generateAppKey")
+    @ApiOperation("生成AppKey,并保存至数据库")
+    @PostMapping("/generateAppKey")
     public ResponseResult<ExternalApp> generateAppKey(@RequestParam Long externalAppId) {
         ExternalApp externalApp = externalAppService.getByIdWithRelation(externalAppId, MyRelationParam.full());
         if (externalApp == null) {
@@ -358,6 +375,15 @@ public class ExternalAppController {
         externalApp = externalAppService.generateAppKey(externalApp);
         if (externalApp == null) return ResponseResult.error(ErrorCodeEnum.NO_ERROR, "生成失败，请重试！");
         return ResponseResult.success(externalApp);
+    }
+
+    /**
+     * 生成 AppKey
+     */
+    @ApiOperation("生成AppKey")
+    @GetMapping("/generateAppKey")
+    public ResponseResult<String> generateAppKey() {
+        return ResponseResult.success(externalAppService.generateAppKey());
     }
 
 }

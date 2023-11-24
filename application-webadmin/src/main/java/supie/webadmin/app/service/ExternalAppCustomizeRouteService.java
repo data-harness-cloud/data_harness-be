@@ -65,4 +65,7 @@ public interface ExternalAppCustomizeRouteService extends IBaseService<ExternalA
      * @return 查询结果集。
      */
     List<ExternalAppCustomizeRoute> getExternalAppCustomizeRouteListWithRelation(ExternalAppCustomizeRoute filter, String orderBy);
+
+    ExternalAppCustomizeRoute buildDefaultValue(ExternalAppCustomizeRoute externalAppCustomizeRoute);
+
 }

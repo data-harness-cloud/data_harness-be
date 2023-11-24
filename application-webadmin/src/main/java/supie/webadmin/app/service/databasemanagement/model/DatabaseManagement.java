@@ -27,11 +27,11 @@ public class DatabaseManagement {
 
      @ApiModelProperty(value = "数据名(服务名-架构名)", required = true)
      @NotNull(message = "数据验证失败，数据名(服务名-架构名)不能为空！", groups = {UpdateGroup.class})
-     String databaseName;
+     String database;
 
      @ApiModelProperty(value = "用户名", required = true)
      @NotNull(message = "数据验证失败，用户名不能为空！", groups = {UpdateGroup.class})
-     String username;
+     String user;
 
      @ApiModelProperty(value = "密码", required = true)
      @NotNull(message = "数据验证失败，密码不能为空！", groups = {UpdateGroup.class})
@@ -39,5 +39,5 @@ public class DatabaseManagement {
 
 
      @ApiModelProperty(value = "表名", required = true)
-     String tableName;
+     String table;
 }

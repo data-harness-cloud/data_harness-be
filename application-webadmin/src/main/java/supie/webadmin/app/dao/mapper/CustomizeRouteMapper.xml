@@ -175,4 +175,30 @@
         WHERE sdt_customize_route.state = 1
         AND sdt_customize_route.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
     </select>
+
+    <select id="getCustomizeRouteListByExternalAppId" resultMap="BaseResultMap">
+        SELECT sdt_customize_route.* FROM sdt_customize_route
+        LEFT JOIN sdt_external_app_customize_route ON sdt_external_app_customize_route.customize_route_id = sdt_customize_route.id
+        WHERE sdt_external_app_customize_route.external_app_id = ${externalAppId}
+        <include refid="filterRef"/>
+        AND sdt_external_app_customize_route.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="queryAssociatedCustomizeRoute" resultType="supie.webadmin.app.model.CustomizeRoute">
+        SELECT * FROM sdt_customize_route
+        LEFT JOIN sdt_external_app_customize_route ON sdt_external_app_customize_route.customize_route_id = sdt_customize_route.id
+        WHERE sdt_external_app_customize_route.external_app_id = ${externalAppId}
+        AND sdt_external_app_customize_route.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+        AND sdt_customize_route.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </select>
+
+    <select id="queryCustomizeRouteByExternalAppCustomizeRoute" resultMap="BaseResultMap">
+        SELECT * FROM sdt_customize_route
+        LEFT JOIN sdt_external_app_customize_route ON sdt_external_app_customize_route.customize_route_id = sdt_customize_route.id
+        WHERE sdt_customize_route.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+        <include refid="supie.webadmin.app.dao.ExternalAppCustomizeRouteMapper.filterRef"/>
+    </select>
 </mapper>

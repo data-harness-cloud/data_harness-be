@@ -7,13 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import supie.webadmin.app.dao.ProjectDatasourceMapper;
 import supie.webadmin.app.liteFlow.exception.MyLiteFlowException;
-import supie.webadmin.app.liteFlow.model.DatasourceContentModel;
 import supie.webadmin.app.liteFlow.model.ErrorMessageModel;
 import supie.webadmin.app.liteFlow.model.LiteFlowNodeLogModel;
 import supie.webadmin.app.liteFlow.model.SqlAndShellModel;
 import supie.webadmin.app.model.ProjectDatasource;
 import supie.webadmin.app.service.databasemanagement.Strategy;
 import supie.webadmin.app.service.databasemanagement.StrategyFactory;
+import supie.webadmin.app.service.databasemanagement.model.DatabaseManagement;
 
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,8 @@ public class SqlNode extends BaseNode {
 
     private SqlAndShellModel sqlAndShellModel;
     private ProjectDatasource projectDatasource = null;
-    private DatasourceContentModel datasourceContentModel;
+    private DatabaseManagement databaseManagement;
+
     @Autowired
     private ProjectDatasourceMapper projectDatasourceMapper;
     @Autowired
@@ -51,7 +52,7 @@ public class SqlNode extends BaseNode {
             nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "未找到数据源!"));
             throw new MyLiteFlowException(new ErrorMessageModel(getClass(), "未找到数据源!"));
         }
-        datasourceContentModel = JSONUtil.toBean(projectDatasource.getDatasourceContent(), DatasourceContentModel.class);
+        databaseManagement = JSONUtil.toBean(projectDatasource.getDatasourceContent(), DatabaseManagement.class);
     }
 
     @Override
@@ -60,8 +61,8 @@ public class SqlNode extends BaseNode {
         Strategy strategy = null;
         try {
             strategy = strategyFactory.getStrategy(
-                    datasourceContentModel.getDatabaseType(), datasourceContentModel.getIp(), datasourceContentModel.getPort(),
-                    datasourceContentModel.getDatabaseName(), datasourceContentModel.getUsername(), datasourceContentModel.getPassword());
+                    databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
+                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword());
         } catch (Exception e) {
             nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "获取数据库连接失败!" + e));
             throw new MyLiteFlowException(new ErrorMessageModel(getClass(), "获取数据库连接失败!" + e));

@@ -113,7 +113,16 @@ public interface ExternalAppService extends IBaseService<ExternalApp, Long> {
     boolean removeExternalAppCustomizeRoute(Long externalAppId, Long customizeRouteId);
 
     /**
-     * 生成 AppKey
+     * 从 Redis 注销动态路由信息
+     *
+     * @param externalAppId 外部AppId
+     * @author 王立宏
+     * @date 2023/11/22 04:12
+     */
+    void unregisterDynamicRouteFromRedis(Long externalAppId);
+
+    /**
+     * 生成 AppKey,并保存至数据库
      *
      * @param externalApp 外部应用程序信息
      * @return 外部应用程序
@@ -121,4 +130,14 @@ public interface ExternalAppService extends IBaseService<ExternalApp, Long> {
      * @date 2023/11/20 02:49
      */
     ExternalApp generateAppKey(ExternalApp externalApp);
+
+    /**
+     * 生成 AppKey
+     *
+     * @return AppKey
+     * @author 王立宏
+     * @date 2023/11/22 10:02
+     */
+    String generateAppKey();
+
 }

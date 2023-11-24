@@ -5,11 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import supie.webadmin.app.service.databasemanagement.*;
-import supie.webadmin.app.service.databasemanagement.model.DatabaseManagement;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Hive的数据操作类
@@ -33,7 +30,7 @@ public class DataSourceHive extends BaseDataSource implements Strategy {
     @Override
     public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password) {
         this.databaseType = DataBaseTypeEnum.DATASOURCE_HIVE;
-        this.jdbcDriver = "org.apache.hadoop.hive.jdbc.HiveDriver";
+        this.jdbcDriver = "org.apache.hive.jdbc.HiveDriver";
         if (StrUtil.isBlank(databaseName)) {
             this.jdbcUrl = "jdbc:hive2://" + hostIp + ":" + hostPort;
         } else {
