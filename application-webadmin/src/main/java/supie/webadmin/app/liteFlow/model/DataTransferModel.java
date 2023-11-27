@@ -2,6 +2,8 @@ package supie.webadmin.app.liteFlow.model;
 
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * 描述：DataTransfer组件的相关信息
  *
@@ -15,7 +17,7 @@ public class DataTransferModel {
     /**
      * jobId
      */
-    private String jobId;
+    private Long jobId;
     /**
      * jobName
      */
