@@ -174,6 +174,12 @@ public class ModelDesginFieldDto {
     private Long processId;
 
     /**
+     * 数据标准主表ID standard_main_id。
+     */
+    @ApiModelProperty(value = "数据标准主表ID")
+    private Long standardMainId;
+
+    /**
      * updateTime 范围过滤起始值(>=)。
      */
     @ApiModelProperty(value = "updateTime 范围过滤起始值(>=)")

@@ -97,6 +97,11 @@ public class StandardMain extends BaseModel {
     private String standardStatus;
 
     /**
+     * 正则表达式。
+     */
+    private String standardRegular;
+
+    /**
      * updateTime 范围过滤起始值(>=)。
      */
     @TableField(exist = false)

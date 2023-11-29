@@ -74,6 +74,12 @@ public class CustomizeRouteVo extends BaseVo {
     private Long projectId;
 
     /**
+     * 指标ID。
+     */
+    @ApiModelProperty(value = "指标ID")
+    private Long definitionIndexId;
+
+    /**
      * 目标数据库名称。
      */
     @ApiModelProperty(value = "目标数据库名称")

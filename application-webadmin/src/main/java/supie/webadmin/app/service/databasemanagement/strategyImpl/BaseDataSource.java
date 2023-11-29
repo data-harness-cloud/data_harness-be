@@ -335,21 +335,29 @@ public class BaseDataSource {
                 tableName = sqlList.get(1);
             }
             ResultSet resultSet = metaData.getColumns(databaseName, schemaPattern, tableName, null);
+            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+            int columnCount = resultSetMetaData.getColumnCount();
             resultData = new ArrayList<>();
             while (resultSet.next()) {
                 HashMap<String, Object> dataTypeMap = new HashMap<>();
-                // 字段名
-                String columnName = resultSet.getString("COLUMN_NAME");
-                // 字段类型
-                String dataType = resultSet.getString("TYPE_NAME");
-                // 字段大小
-                int columnSize = resultSet.getInt("COLUMN_SIZE");
-                // 字段注释
-                String columnComment = resultSet.getString("REMARKS");
-                dataTypeMap.put("fieldName",columnName);
-                dataTypeMap.put("typeName",dataType);
-                dataTypeMap.put("columnSize",columnSize);
-                dataTypeMap.put("remarks",columnComment);
+                for (int i = 1; i <= columnCount; i++) {
+                    String tableFieldName = resultSetMetaData.getColumnLabel(i);
+                    dataTypeMap.put(tableFieldName, resultSet.getObject(tableFieldName));
+                }
+//                // 字段名
+//                String columnName = resultSet.getString("COLUMN_NAME");
+//                // 字段类型
+//                String dataType = resultSet.getString("TYPE_NAME");
+//                // 字段大小
+//                int columnSize = resultSet.getInt("COLUMN_SIZE");
+//                // 字段注释
+//                String columnComment = resultSet.getString("REMARKS");
+//                String nullable = resultSet.getString("NULLABLE");
+//                dataTypeMap.put("fieldName", columnName);
+//                dataTypeMap.put("typeName", dataType);
+//                dataTypeMap.put("columnSize", columnSize);
+//                dataTypeMap.put("remarks", columnComment);
+//                dataTypeMap.put("nullable", nullable);
                 resultData.add(dataTypeMap);
             }
             resultSet.close();

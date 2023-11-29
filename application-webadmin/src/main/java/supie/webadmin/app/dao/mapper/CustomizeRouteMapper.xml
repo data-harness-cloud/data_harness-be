@@ -20,6 +20,7 @@
         <result column="sql_script" jdbcType="VARCHAR" property="sqlScript"/>
         <result column="parameter" jdbcType="LONGVARCHAR" property="parameter"/>
         <result column="process_id" jdbcType="BIGINT" property="processId"/>
+        <result column="definition_index_id" jdbcType="BIGINT" property="definitionIndexId"/>
     </resultMap>
 
     <insert id="insertList">
@@ -41,7 +42,8 @@
             database_name,
             sql_script,
             parameter,
-            process_id)
+            process_id,
+        definition_index_id)
         VALUES
         <foreach collection="list" index="index" item="item" separator="," >
             (#{item.id},
@@ -61,7 +63,8 @@
             #{item.databaseName},
             #{item.sqlScript},
             #{item.parameter},
-            #{item.processId})
+            #{item.processId},
+            #{item.definitionIndexId})
         </foreach>
     </insert>
 
@@ -137,6 +140,9 @@
             </if>
             <if test="customizeRouteFilter.processId != null">
                 AND sdt_customize_route.process_id = #{customizeRouteFilter.processId}
+            </if>
+            <if test="customizeRouteFilter.definitionIndexId != null">
+                AND sdt_customize_route.definition_index_id = #{customizeRouteFilter.definitionIndexId}
             </if>
             <if test="customizeRouteFilter.searchString != null and customizeRouteFilter.searchString != ''">
                 <bind name = "safeCustomizeRouteSearchString" value = "'%' + customizeRouteFilter.searchString + '%'" />

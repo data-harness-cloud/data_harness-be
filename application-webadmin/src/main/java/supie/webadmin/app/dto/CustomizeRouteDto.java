@@ -99,6 +99,12 @@ public class CustomizeRouteDto {
     private Long processId;
 
     /**
+     * 指标ID。
+     */
+    @ApiModelProperty(value = "指标ID")
+    private Long definitionIndexId;
+
+    /**
      * updateTime 范围过滤起始值(>=)。
      */
     @ApiModelProperty(value = "updateTime 范围过滤起始值(>=)")

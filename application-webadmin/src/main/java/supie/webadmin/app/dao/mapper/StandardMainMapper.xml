@@ -20,6 +20,7 @@
         <result column="standard_description" jdbcType="VARCHAR" property="standardDescription"/>
         <result column="standard_input_mode" jdbcType="VARCHAR" property="standardInputMode"/>
         <result column="standard_status" jdbcType="VARCHAR" property="standardStatus"/>
+        <result column="standard_regular" jdbcType="VARCHAR" property="standardRegular"/>
     </resultMap>
 
     <insert id="insertList">
@@ -41,7 +42,8 @@
             standard_english,
             standard_description,
             standard_input_mode,
-            standard_status)
+            standard_status,
+        standard_regular)
         VALUES
         <foreach collection="list" index="index" item="item" separator="," >
             (#{item.id},
@@ -61,7 +63,8 @@
             #{item.standardEnglish},
             #{item.standardDescription},
             #{item.standardInputMode},
-            #{item.standardStatus})
+            #{item.standardStatus},
+            #{item.standardRegular})
         </foreach>
     </insert>
 
@@ -138,6 +141,10 @@
             <if test="standardMainFilter.standardStatus != null and standardMainFilter.standardStatus != ''">
                 <bind name = "safeStandardMainStandardStatus" value = "'%' + standardMainFilter.standardStatus + '%'" />
                 AND sdt_standard_main.standard_status LIKE #{safeStandardMainStandardStatus}
+            </if>
+            <if test="standardMainFilter.standardRegular != null and standardMainFilter.standardRegular != ''">
+                <bind name = "safeStandardMainStandardRegular" value = "'%' + standardMainFilter.standardRegular + '%'" />
+                AND sdt_standard_main.standard_regular LIKE #{safeStandardMainStandardRegular}
             </if>
             <if test="standardMainFilter.searchString != null and standardMainFilter.searchString != ''">
                 <bind name = "safeStandardMainSearchString" value = "'%' + standardMainFilter.searchString + '%'" />

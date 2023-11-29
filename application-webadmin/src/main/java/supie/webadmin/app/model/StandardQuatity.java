@@ -72,14 +72,19 @@ public class StandardQuatity extends BaseModel {
     private String standardQaulityRe;
 
     /**
-     * 质量校验长度限制。
+     * 质量校验长度限制（正数->大等于。负数->小等于）。
      */
-    private String standardQualityLang;
+    private Integer standardQualityLang;
 
     /**
-     * 质量校验不为空。
+     * 质量校验不为空（1：不为空。0：可为空）。
      */
-    private String standardQualityNotNull;
+    private Integer standardQualityNotNull;
+
+    /**
+     * SQL条件。
+     */
+    private String customJudgment;
 
     /**
      * 质量校验中心关联规则。

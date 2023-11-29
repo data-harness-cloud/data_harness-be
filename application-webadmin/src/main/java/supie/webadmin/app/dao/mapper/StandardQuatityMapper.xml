@@ -15,8 +15,9 @@
         <result column="staidard_quality_type" jdbcType="VARCHAR" property="staidardQualityType"/>
         <result column="standard_quality_parent_id" jdbcType="BIGINT" property="standardQualityParentId"/>
         <result column="standard_qaulity_re" jdbcType="VARCHAR" property="standardQaulityRe"/>
-        <result column="standard_quality_lang" jdbcType="VARCHAR" property="standardQualityLang"/>
-        <result column="standard_quality_not_null" jdbcType="VARCHAR" property="standardQualityNotNull"/>
+        <result column="standard_quality_lang" jdbcType="INTEGER" property="standardQualityLang"/>
+        <result column="standard_quality_not_null" jdbcType="INTEGER" property="standardQualityNotNull"/>
+        <result column="custom_judgment" jdbcType="VARCHAR" property="customJudgment"/>
         <result column="standard_quality_quality_center_id" jdbcType="BIGINT" property="standardQualityQualityCenterId"/>
     </resultMap>
 
@@ -42,6 +43,7 @@
             standard_qaulity_re,
             standard_quality_lang,
             standard_quality_not_null,
+            custom_judgment,
             standard_quality_quality_center_id)
         VALUES
         <foreach collection="list" index="index" item="item" separator="," >
@@ -60,6 +62,7 @@
             #{item.standardQaulityRe},
             #{item.standardQualityLang},
             #{item.standardQualityNotNull},
+            #{item.customJudgment},
             #{item.standardQualityQualityCenterId})
         </foreach>
     </insert>
@@ -120,13 +123,15 @@
                 <bind name = "safeStandardQuatityStandardQaulityRe" value = "'%' + standardQuatityFilter.standardQaulityRe + '%'" />
                 AND sdt_standard_quatity.standard_qaulity_re LIKE #{safeStandardQuatityStandardQaulityRe}
             </if>
-            <if test="standardQuatityFilter.standardQualityLang != null and standardQuatityFilter.standardQualityLang != ''">
-                <bind name = "safeStandardQuatityStandardQualityLang" value = "'%' + standardQuatityFilter.standardQualityLang + '%'" />
-                AND sdt_standard_quatity.standard_quality_lang LIKE #{safeStandardQuatityStandardQualityLang}
+            <if test="standardQuatityFilter.standardQualityLang != null">
+                AND sdt_standard_quatity.standard_quality_lang = #{standardQuatityFilter.standardQualityLang}
             </if>
-            <if test="standardQuatityFilter.standardQualityNotNull != null and standardQuatityFilter.standardQualityNotNull != ''">
-                <bind name = "safeStandardQuatityStandardQualityNotNull" value = "'%' + standardQuatityFilter.standardQualityNotNull + '%'" />
-                AND sdt_standard_quatity.standard_quality_not_null LIKE #{safeStandardQuatityStandardQualityNotNull}
+            <if test="standardQuatityFilter.standardQualityNotNull != null">
+                AND sdt_standard_quatity.standard_quality_not_null = #{standardQuatityFilter.standardQualityNotNull}
+            </if>
+            <if test="standardQuatityFilter.customJudgment != null and standardQuatityFilter.customJudgment != ''">
+                <bind name = "safeStandardQuatityCustomJudgment" value = "'%' + standardQuatityFilter.customJudgment + '%'" />
+                AND sdt_standard_quatity.custom_judgment LIKE #{safeStandardQuatityCustomJudgment}
             </if>
             <if test="standardQuatityFilter.standardQualityQualityCenterId != null">
                 AND sdt_standard_quatity.standard_quality_quality_center_id = #{standardQuatityFilter.standardQualityQualityCenterId}

@@ -177,6 +177,12 @@ public class ModelDesginFieldVo extends BaseVo {
     private Long processId;
 
     /**
+     * 数据标准主表ID standard_main_id。
+     */
+    @ApiModelProperty(value = "数据标准主表ID")
+    private Long standardMainId;
+
+    /**
      * id 的多对多关联表数据对象，数据对应类型为DefinitionIndexModelFieldRelationVo。
      */
     @ApiModelProperty(value = "id 的多对多关联表数据对象，数据对应类型为DefinitionIndexModelFieldRelationVo")

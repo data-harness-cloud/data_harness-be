@@ -33,6 +33,7 @@
         <result column="model_field_script" jdbcType="LONGVARCHAR" property="modelFieldScript"/>
         <result column="show_order" jdbcType="INTEGER" property="showOrder"/>
         <result column="process_id" jdbcType="BIGINT" property="processId"/>
+        <result column="standard_main_id" jdbcType="BIGINT" property="standardMainId"/>
     </resultMap>
 
     <resultMap id="BaseResultMapWithDefinitionIndexModelFieldRelation" type="supie.webadmin.app.model.ModelDesginField" extends="BaseResultMap">
@@ -72,7 +73,8 @@
             model_quote_standard,
             model_field_script,
             show_order,
-            process_id)
+            process_id,
+        standard_main_id)
         VALUES
         <foreach collection="list" index="index" item="item" separator="," >
             (#{item.id},
@@ -105,7 +107,8 @@
             #{item.modelQuoteStandard},
             #{item.modelFieldScript},
             #{item.showOrder},
-            #{item.processId})
+            #{item.processId},
+            #{item.standardMainId})
         </foreach>
     </insert>
 
@@ -233,6 +236,9 @@
             </if>
             <if test="modelDesginFieldFilter.processId != null">
                 AND sdt_model_desgin_field.process_id = #{modelDesginFieldFilter.processId}
+            </if>
+            <if test="modelDesginFieldFilter.standardMainId != null">
+                AND sdt_model_desgin_field.standard_main_id = #{modelDesginFieldFilter.standardMainId}
             </if>
             <if test="modelDesginFieldFilter.searchString != null and modelDesginFieldFilter.searchString != ''">
                 <bind name = "safeModelDesginFieldSearchString" value = "'%' + modelDesginFieldFilter.searchString + '%'" />

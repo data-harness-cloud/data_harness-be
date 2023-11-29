@@ -92,10 +92,10 @@ public class DefinitionIndexDto {
     private String indexDescription;
 
     /**
-     * 关联明细表id。
+     * 动态路由id。
      */
-    @ApiModelProperty(value = "关联明细表id")
-    private Long modelLogicalId;
+    @ApiModelProperty(value = "动态路由id")
+    private Long customizeRouteId;
 
     /**
      * 关联字段。
@@ -114,30 +114,6 @@ public class DefinitionIndexDto {
      */
     @ApiModelProperty(value = "生产周期")
     private String productPeriod;
-
-    /**
-     * 计算函数。
-     */
-    @ApiModelProperty(value = "计算函数")
-    private String caliberCalculateFunction;
-
-    /**
-     * 度量单位。
-     */
-    @ApiModelProperty(value = "度量单位")
-    private String caliberMeasureUnit;
-
-    /**
-     * 度量精度。
-     */
-    @ApiModelProperty(value = "度量精度")
-    private String caliberPrecision;
-
-    /**
-     * 口径说明。
-     */
-    @ApiModelProperty(value = "口径说明")
-    private String caliberDescription;
 
     /**
      * updateTime 范围过滤起始值(>=)。
@@ -164,7 +140,7 @@ public class DefinitionIndexDto {
     private String createTimeEnd;
 
     /**
-     * index_type / index_name / index_en_name / index_code / index_level / index_description / data_type / product_period / caliber_calculate_function / caliber_measure_unit / caliber_precision / caliber_description LIKE搜索字符串。
+     * index_type / index_name / index_en_name / index_code / index_level / index_description / data_type / product_period / LIKE搜索字符串。
      */
     @ApiModelProperty(value = "LIKE模糊搜索字符串")
     private String searchString;

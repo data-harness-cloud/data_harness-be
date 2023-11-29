@@ -96,4 +96,11 @@ public class StandardMainVo extends BaseVo {
      */
     @ApiModelProperty(value = "标准状态")
     private String standardStatus;
+
+    /**
+     * 正则表达式。
+     */
+    @ApiModelProperty(value = "正则表达式")
+    private String standardRegular;
+
 }
