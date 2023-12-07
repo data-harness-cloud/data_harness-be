@@ -36,7 +36,7 @@ public class StandardFieldServiceImpl extends BaseService<StandardField, Long> i
     @Autowired
     private StandardFieldMapper standardFieldMapper;
     @Autowired
-    private StandardFieldQuatityMapper standardFieldQuatityMapper;
+    private StandardFieldQualityMapper standardFieldQualityMapper;
     @Autowired
     private StandardMainService standardMainService;
     @Autowired
@@ -104,21 +104,21 @@ public class StandardFieldServiceImpl extends BaseService<StandardField, Long> i
     }
 
     private void saveOrUpdateRelationData(StandardField standardField, JSONObject relationData) {
-        List<StandardFieldQuatity> standardFieldQuatityList =
-                relationData.getObject("standardFieldQuatityList", new TypeReference<List<StandardFieldQuatity>>() {});
+        List<StandardFieldQuality> standardFieldQualityList =
+                relationData.getObject("standardFieldQualityList", new TypeReference<List<StandardFieldQuality>>() {});
         // 对于多对多更新，因为中间表没有其他业务字段，这里就走先删除后插入的高效处理方式了。
-        if (standardFieldQuatityList != null) {
-            StandardFieldQuatity standardFieldQuatity = new StandardFieldQuatity();
-            standardFieldQuatity.setStaidardFieldId(standardField.getId());
-            standardFieldQuatityMapper.delete(new QueryWrapper<>(standardFieldQuatity));
-            if (CollUtil.isNotEmpty(standardFieldQuatityList)) {
-                standardFieldQuatityList.forEach(o -> {
+        if (standardFieldQualityList != null) {
+            StandardFieldQuality standardFieldQuality = new StandardFieldQuality();
+            standardFieldQuality.setStaidardFieldId(standardField.getId());
+            standardFieldQualityMapper.delete(new QueryWrapper<>(standardFieldQuality));
+            if (CollUtil.isNotEmpty(standardFieldQualityList)) {
+                standardFieldQualityList.forEach(o -> {
                     if (o.getId() == null) {
                         o.setId(idGenerator.nextLongId());
                     }
                     o.setStaidardFieldId(standardField.getId());
                 });
-                standardFieldQuatityMapper.insertList(standardFieldQuatityList);
+                standardFieldQualityMapper.insertList(standardFieldQualityList);
             }
         }
     }
@@ -136,9 +136,9 @@ public class StandardFieldServiceImpl extends BaseService<StandardField, Long> i
             return false;
         }
         // 开始删除多对多子表的关联
-        StandardFieldQuatity standardFieldQuatity = new StandardFieldQuatity();
-        standardFieldQuatity.setStaidardFieldId(id);
-        standardFieldQuatityMapper.delete(new QueryWrapper<>(standardFieldQuatity));
+        StandardFieldQuality standardFieldQuality = new StandardFieldQuality();
+        standardFieldQuality.setStaidardFieldId(id);
+        standardFieldQualityMapper.delete(new QueryWrapper<>(standardFieldQuality));
         return true;
     }
 
@@ -214,35 +214,35 @@ public class StandardFieldServiceImpl extends BaseService<StandardField, Long> i
     /**
      * 批量添加多对多关联关系。
      *
-     * @param standardFieldQuatityList 多对多关联表对象集合。
+     * @param standardFieldQualityList 多对多关联表对象集合。
      * @param staidardFieldId 主表Id。
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void addStandardFieldQuatityList(List<StandardFieldQuatity> standardFieldQuatityList, Long staidardFieldId) {
-        for (StandardFieldQuatity standardFieldQuatity : standardFieldQuatityList) {
-            standardFieldQuatity.setId(idGenerator.nextLongId());
-            standardFieldQuatity.setStaidardFieldId(staidardFieldId);
-            standardFieldQuatityMapper.insert(standardFieldQuatity);
+    public void addStandardFieldQualityList(List<StandardFieldQuality> standardFieldQualityList, Long staidardFieldId) {
+        for (StandardFieldQuality standardFieldQuality : standardFieldQualityList) {
+            standardFieldQuality.setId(idGenerator.nextLongId());
+            standardFieldQuality.setStaidardFieldId(staidardFieldId);
+            standardFieldQualityMapper.insert(standardFieldQuality);
         }
     }
 
     /**
      * 更新中间表数据。
      *
-     * @param standardFieldQuatity 中间表对象。
+     * @param standardFieldQuality 中间表对象。
      * @return 更新成功与否。
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updateStandardFieldQuatity(StandardFieldQuatity standardFieldQuatity) {
-        StandardFieldQuatity filter = new StandardFieldQuatity();
-        filter.setStaidardFieldId(standardFieldQuatity.getStaidardFieldId());
-        filter.setStaidardQualityId(standardFieldQuatity.getStaidardQualityId());
-        UpdateWrapper<StandardFieldQuatity> uw =
-                BaseService.createUpdateQueryForNullValue(standardFieldQuatity, StandardFieldQuatity.class);
+    public boolean updateStandardFieldQuality(StandardFieldQuality standardFieldQuality) {
+        StandardFieldQuality filter = new StandardFieldQuality();
+        filter.setStaidardFieldId(standardFieldQuality.getStaidardFieldId());
+        filter.setStaidardQualityId(standardFieldQuality.getStaidardQualityId());
+        UpdateWrapper<StandardFieldQuality> uw =
+                BaseService.createUpdateQueryForNullValue(standardFieldQuality, StandardFieldQuality.class);
         uw.setEntity(filter);
-        return standardFieldQuatityMapper.update(standardFieldQuatity, uw) > 0;
+        return standardFieldQualityMapper.update(standardFieldQuality, uw) > 0;
     }
 
     /**
@@ -253,11 +253,11 @@ public class StandardFieldServiceImpl extends BaseService<StandardField, Long> i
      * @return 中间表对象。
      */
     @Override
-    public StandardFieldQuatity getStandardFieldQuatity(Long staidardFieldId, Long staidardQualityId) {
-        StandardFieldQuatity filter = new StandardFieldQuatity();
+    public StandardFieldQuality getStandardFieldQuality(Long staidardFieldId, Long staidardQualityId) {
+        StandardFieldQuality filter = new StandardFieldQuality();
         filter.setStaidardFieldId(staidardFieldId);
         filter.setStaidardQualityId(staidardQualityId);
-        return standardFieldQuatityMapper.selectOne(new QueryWrapper<>(filter));
+        return standardFieldQualityMapper.selectOne(new QueryWrapper<>(filter));
     }
 
     /**
@@ -269,11 +269,11 @@ public class StandardFieldServiceImpl extends BaseService<StandardField, Long> i
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean removeStandardFieldQuatity(Long staidardFieldId, Long staidardQualityId) {
-        StandardFieldQuatity filter = new StandardFieldQuatity();
+    public boolean removeStandardFieldQuality(Long staidardFieldId, Long staidardQualityId) {
+        StandardFieldQuality filter = new StandardFieldQuality();
         filter.setStaidardFieldId(staidardFieldId);
         filter.setStaidardQualityId(staidardQualityId);
-        return standardFieldQuatityMapper.delete(new QueryWrapper<>(filter)) > 0;
+        return standardFieldQualityMapper.delete(new QueryWrapper<>(filter)) > 0;
     }
 
     /**

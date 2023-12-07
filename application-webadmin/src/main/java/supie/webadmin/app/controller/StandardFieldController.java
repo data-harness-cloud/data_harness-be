@@ -36,13 +36,13 @@ public class StandardFieldController {
     @Autowired
     private StandardFieldService standardFieldService;
     @Autowired
-    private StandardQuatityService standardQuatityService;
+    private StandardQualityService standardQualityService;
 
     /**
      * 新增数据规划-数据标准-数据字段标准数据，及其关联的从表数据。
      *
      * @param standardFieldDto 新增主表对象。
-     * @param standardFieldQuatityDtoList 多对多数据规划-数据标准-数据字段质量关联表中间表列表。
+     * @param standardFieldQualityDtoList 多对多数据规划-数据标准-数据字段质量关联表中间表列表。
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @ApiOperationSupport(ignoreParameters = {
@@ -56,9 +56,9 @@ public class StandardFieldController {
     @PostMapping("/add")
     public ResponseResult<Long> add(
             @MyRequestBody StandardFieldDto standardFieldDto,
-            @MyRequestBody List<StandardFieldQuatityDto> standardFieldQuatityDtoList) {
+            @MyRequestBody List<StandardFieldQualityDto> standardFieldQualityDtoList) {
         ResponseResult<Tuple2<StandardField, JSONObject>> verifyResult =
-                this.doBusinessDataVerifyAndConvert(standardFieldDto, false, standardFieldQuatityDtoList);
+                this.doBusinessDataVerifyAndConvert(standardFieldDto, false, standardFieldQualityDtoList);
         if (!verifyResult.isSuccess()) {
             return ResponseResult.errorFrom(verifyResult);
         }
@@ -195,15 +195,15 @@ public class StandardFieldController {
      * 列出不与指定数据规划-数据标准-数据字段标准存在多对多关系的 [数据规划-数据标准-数据质量表] 列表数据。通常用于查看添加新 [数据规划-数据标准-数据质量表] 对象的候选列表。
      *
      * @param id 主表关联字段。
-     * @param standardQuatityDtoFilter [数据规划-数据标准-数据质量表] 过滤对象。
+     * @param standardQualityDtoFilter [数据规划-数据标准-数据质量表] 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，返回符合条件的数据列表。
      */
-    @PostMapping("/listNotInStandardFieldQuatity")
-    public ResponseResult<MyPageData<StandardQuatityVo>> listNotInStandardFieldQuatity(
+    @PostMapping("/listNotInStandardFieldQuality")
+    public ResponseResult<MyPageData<StandardQualityVo>> listNotInStandardFieldQuality(
             @MyRequestBody Long id,
-            @MyRequestBody StandardQuatityDto standardQuatityDtoFilter,
+            @MyRequestBody StandardQualityDto standardQualityDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (MyCommonUtil.isNotBlankOrNull(id) && !standardFieldService.existId(id)) {
@@ -212,28 +212,28 @@ public class StandardFieldController {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        StandardQuatity filter = MyModelUtil.copyTo(standardQuatityDtoFilter, StandardQuatity.class);
-        String orderBy = MyOrderParam.buildOrderBy(orderParam, StandardQuatity.class);
-        List<StandardQuatity> standardQuatityList =
-                standardQuatityService.getNotInStandardQuatityListByStaidardFieldId(id, filter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(standardQuatityList, StandardQuatity.INSTANCE));
+        StandardQuality filter = MyModelUtil.copyTo(standardQualityDtoFilter, StandardQuality.class);
+        String orderBy = MyOrderParam.buildOrderBy(orderParam, StandardQuality.class);
+        List<StandardQuality> standardQualityList =
+                standardQualityService.getNotInStandardQualityListByStaidardFieldId(id, filter, orderBy);
+        return ResponseResult.success(MyPageUtil.makeResponseData(standardQualityList, StandardQuality.INSTANCE));
     }
 
     /**
      * 列出与指定数据规划-数据标准-数据字段标准存在多对多关系的 [数据规划-数据标准-数据质量表] 列表数据。
      *
      * @param id 主表关联字段。
-     * @param standardQuatityDtoFilter [数据规划-数据标准-数据质量表] 过滤对象。
-     * @param standardFieldQuatityDtoFilter 多对多关联表过滤对象。
+     * @param standardQualityDtoFilter [数据规划-数据标准-数据质量表] 过滤对象。
+     * @param standardFieldQualityDtoFilter 多对多关联表过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，返回符合条件的数据列表。
      */
-    @PostMapping("/listStandardFieldQuatity")
-    public ResponseResult<MyPageData<StandardQuatityVo>> listStandardFieldQuatity(
+    @PostMapping("/listStandardFieldQuality")
+    public ResponseResult<MyPageData<StandardQualityVo>> listStandardFieldQuality(
             @MyRequestBody(required = true) Long id,
-            @MyRequestBody StandardQuatityDto standardQuatityDtoFilter,
-            @MyRequestBody StandardFieldQuatityDto standardFieldQuatityDtoFilter,
+            @MyRequestBody StandardQualityDto standardQualityDtoFilter,
+            @MyRequestBody StandardFieldQualityDto standardFieldQualityDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (!standardFieldService.existId(id)) {
@@ -242,58 +242,58 @@ public class StandardFieldController {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        StandardQuatity filter = MyModelUtil.copyTo(standardQuatityDtoFilter, StandardQuatity.class);
-        String orderBy = MyOrderParam.buildOrderBy(orderParam, StandardQuatity.class);
-        StandardFieldQuatity standardFieldQuatityFilter =
-                MyModelUtil.copyTo(standardFieldQuatityDtoFilter, StandardFieldQuatity.class);
-        List<StandardQuatity> standardQuatityList =
-                standardQuatityService.getStandardQuatityListByStaidardFieldId(id, filter, standardFieldQuatityFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(standardQuatityList, StandardQuatity.INSTANCE));
+        StandardQuality filter = MyModelUtil.copyTo(standardQualityDtoFilter, StandardQuality.class);
+        String orderBy = MyOrderParam.buildOrderBy(orderParam, StandardQuality.class);
+        StandardFieldQuality standardFieldQualityFilter =
+                MyModelUtil.copyTo(standardFieldQualityDtoFilter, StandardFieldQuality.class);
+        List<StandardQuality> standardQualityList =
+                standardQualityService.getStandardQualityListByStaidardFieldId(id, filter, standardFieldQualityFilter, orderBy);
+        return ResponseResult.success(MyPageUtil.makeResponseData(standardQualityList, StandardQuality.INSTANCE));
     }
 
     /**
      * 批量添加数据规划-数据标准-数据字段标准和 [数据规划-数据标准-数据质量表] 对象的多对多关联关系数据。
      *
      * @param staidardFieldId 主表主键Id。
-     * @param standardFieldQuatityDtoList 关联对象列表。
+     * @param standardFieldQualityDtoList 关联对象列表。
      * @return 应答结果对象。
      */
     @OperationLog(type = SysOperationLogType.ADD_M2M)
-    @PostMapping("/addStandardFieldQuatity")
-    public ResponseResult<Void> addStandardFieldQuatity(
+    @PostMapping("/addStandardFieldQuality")
+    public ResponseResult<Void> addStandardFieldQuality(
             @MyRequestBody Long staidardFieldId,
-            @MyRequestBody List<StandardFieldQuatityDto> standardFieldQuatityDtoList) {
-        if (MyCommonUtil.existBlankArgument(staidardFieldId, standardFieldQuatityDtoList)) {
+            @MyRequestBody List<StandardFieldQualityDto> standardFieldQualityDtoList) {
+        if (MyCommonUtil.existBlankArgument(staidardFieldId, standardFieldQualityDtoList)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
         Set<Long> staidardQualityIdSet =
-                standardFieldQuatityDtoList.stream().map(StandardFieldQuatityDto::getStaidardQualityId).collect(Collectors.toSet());
+                standardFieldQualityDtoList.stream().map(StandardFieldQualityDto::getStaidardQualityId).collect(Collectors.toSet());
         if (!standardFieldService.existId(staidardFieldId)
-                || !standardQuatityService.existUniqueKeyList("id", staidardQualityIdSet)) {
+                || !standardQualityService.existUniqueKeyList("id", staidardQualityIdSet)) {
             return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
         }
-        List<StandardFieldQuatity> standardFieldQuatityList =
-                MyModelUtil.copyCollectionTo(standardFieldQuatityDtoList, StandardFieldQuatity.class);
-        standardFieldService.addStandardFieldQuatityList(standardFieldQuatityList, staidardFieldId);
+        List<StandardFieldQuality> standardFieldQualityList =
+                MyModelUtil.copyCollectionTo(standardFieldQualityDtoList, StandardFieldQuality.class);
+        standardFieldService.addStandardFieldQualityList(standardFieldQualityList, staidardFieldId);
         return ResponseResult.success();
     }
 
     /**
      * 更新指定数据规划-数据标准-数据字段标准和指定 [数据规划-数据标准-数据质量表] 的多对多关联数据。
      *
-     * @param standardFieldQuatityDto 对多对中间表对象。
+     * @param standardFieldQualityDto 对多对中间表对象。
      * @return 应答结果对象。
      */
     @OperationLog(type = SysOperationLogType.UPDATE)
-    @PostMapping("/updateStandardFieldQuatity")
-    public ResponseResult<Void> updateStandardFieldQuatity(
-            @MyRequestBody StandardFieldQuatityDto standardFieldQuatityDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(standardFieldQuatityDto);
+    @PostMapping("/updateStandardFieldQuality")
+    public ResponseResult<Void> updateStandardFieldQuality(
+            @MyRequestBody StandardFieldQualityDto standardFieldQualityDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(standardFieldQualityDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        StandardFieldQuatity standardFieldQuatity = MyModelUtil.copyTo(standardFieldQuatityDto, StandardFieldQuatity.class);
-        if (!standardFieldService.updateStandardFieldQuatity(standardFieldQuatity)) {
+        StandardFieldQuality standardFieldQuality = MyModelUtil.copyTo(standardFieldQualityDto, StandardFieldQuality.class);
+        if (!standardFieldService.updateStandardFieldQuality(standardFieldQuality)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
         return ResponseResult.success();
@@ -306,15 +306,15 @@ public class StandardFieldController {
      * @param staidardQualityId 从表主键Id。
      * @return 应答结果对象，包括中间表详情。
      */
-    @GetMapping("/viewStandardFieldQuatity")
-    public ResponseResult<StandardFieldQuatityVo> viewStandardFieldQuatity(
+    @GetMapping("/viewStandardFieldQuality")
+    public ResponseResult<StandardFieldQualityVo> viewStandardFieldQuality(
             @RequestParam Long staidardFieldId, @RequestParam Long staidardQualityId) {
-        StandardFieldQuatity standardFieldQuatity = standardFieldService.getStandardFieldQuatity(staidardFieldId, staidardQualityId);
-        if (standardFieldQuatity == null) {
+        StandardFieldQuality standardFieldQuality = standardFieldService.getStandardFieldQuality(staidardFieldId, staidardQualityId);
+        if (standardFieldQuality == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        StandardFieldQuatityVo standardFieldQuatityVo = MyModelUtil.copyTo(standardFieldQuatity, StandardFieldQuatityVo.class);
-        return ResponseResult.success(standardFieldQuatityVo);
+        StandardFieldQualityVo standardFieldQualityVo = MyModelUtil.copyTo(standardFieldQuality, StandardFieldQualityVo.class);
+        return ResponseResult.success(standardFieldQualityVo);
     }
 
     /**
@@ -325,13 +325,13 @@ public class StandardFieldController {
      * @return 应答结果对象。
      */
     @OperationLog(type = SysOperationLogType.DELETE_M2M)
-    @PostMapping("/deleteStandardFieldQuatity")
-    public ResponseResult<Void> deleteStandardFieldQuatity(
+    @PostMapping("/deleteStandardFieldQuality")
+    public ResponseResult<Void> deleteStandardFieldQuality(
             @MyRequestBody Long staidardFieldId, @MyRequestBody Long staidardQualityId) {
         if (MyCommonUtil.existBlankArgument(staidardFieldId, staidardQualityId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        if (!standardFieldService.removeStandardFieldQuatity(staidardFieldId, staidardQualityId)) {
+        if (!standardFieldService.removeStandardFieldQuality(staidardFieldId, staidardQualityId)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
         return ResponseResult.success();
@@ -340,15 +340,15 @@ public class StandardFieldController {
     private ResponseResult<Tuple2<StandardField, JSONObject>> doBusinessDataVerifyAndConvert(
             StandardFieldDto standardFieldDto,
             boolean forUpdate,
-            List<StandardFieldQuatityDto> standardFieldQuatityDtoList) {
+            List<StandardFieldQualityDto> standardFieldQualityDtoList) {
         ErrorCodeEnum errorCode = ErrorCodeEnum.DATA_VALIDATED_FAILED;
         String errorMessage = MyCommonUtil.getModelValidationError(standardFieldDto, false);
         if (errorMessage != null) {
             return ResponseResult.error(errorCode, errorMessage);
         }
-        errorMessage = MyCommonUtil.getModelValidationError(standardFieldQuatityDtoList);
+        errorMessage = MyCommonUtil.getModelValidationError(standardFieldQualityDtoList);
         if (errorMessage != null) {
-            return ResponseResult.error(errorCode, "参数 [standardFieldQuatityDtoList] " + errorMessage);
+            return ResponseResult.error(errorCode, "参数 [standardFieldQualityDtoList] " + errorMessage);
         }
         // 全部关联从表数据的验证和转换
         JSONObject relationData = new JSONObject();
@@ -367,10 +367,10 @@ public class StandardFieldController {
         if (!verifyResult.isSuccess()) {
             return ResponseResult.errorFrom(verifyResult);
         }
-        // 处理主表的多对多关联 [StandardFieldQuatity]
-        List<StandardFieldQuatity> standardFieldQuatityList =
-                MyModelUtil.copyCollectionTo(standardFieldQuatityDtoList, StandardFieldQuatity.class);
-        relationData.put("standardFieldQuatityList", standardFieldQuatityList);
+        // 处理主表的多对多关联 [StandardFieldQuality]
+        List<StandardFieldQuality> standardFieldQualityList =
+                MyModelUtil.copyCollectionTo(standardFieldQualityDtoList, StandardFieldQuality.class);
+        relationData.put("standardFieldQualityList", standardFieldQualityList);
         return ResponseResult.success(new Tuple2<>(standardField, relationData));
     }
 

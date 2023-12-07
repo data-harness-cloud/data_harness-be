@@ -9,14 +9,14 @@ import lombok.Data;
 import javax.validation.constraints.*;
 
 /**
- * StandardQuatityDto对象。
+ * StandardQualityDto对象。
  *
  * @author rm -rf .bug
  * @date 2020-11-12
  */
-@ApiModel("StandardQuatityDto对象")
+@ApiModel("StandardQualityDto对象")
 @Data
-public class StandardQuatityDto {
+public class StandardQualityDto {
 
     /**
      * 租户号。

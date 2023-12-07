@@ -99,18 +99,18 @@ public interface StandardFieldService extends IBaseService<StandardField, Long> 
     /**
      * 批量添加多对多关联关系。
      *
-     * @param standardFieldQuatityList 多对多关联表对象集合。
+     * @param standardFieldQualityList 多对多关联表对象集合。
      * @param staidardFieldId 主表Id。
      */
-    void addStandardFieldQuatityList(List<StandardFieldQuatity> standardFieldQuatityList, Long staidardFieldId);
+    void addStandardFieldQualityList(List<StandardFieldQuality> standardFieldQualityList, Long staidardFieldId);
 
     /**
      * 更新中间表数据。
      *
-     * @param standardFieldQuatity 中间表对象。
+     * @param standardFieldQuality 中间表对象。
      * @return 更新成功与否。
      */
-    boolean updateStandardFieldQuatity(StandardFieldQuatity standardFieldQuatity);
+    boolean updateStandardFieldQuality(StandardFieldQuality standardFieldQuality);
 
     /**
      * 获取中间表数据。
@@ -119,7 +119,7 @@ public interface StandardFieldService extends IBaseService<StandardField, Long> 
      * @param staidardQualityId 从表Id。
      * @return 中间表对象。
      */
-    StandardFieldQuatity getStandardFieldQuatity(Long staidardFieldId, Long staidardQualityId);
+    StandardFieldQuality getStandardFieldQuality(Long staidardFieldId, Long staidardQualityId);
 
     /**
      * 移除单条多对多关系。
@@ -128,5 +128,5 @@ public interface StandardFieldService extends IBaseService<StandardField, Long> 
      * @param staidardQualityId 从表Id。
      * @return 成功返回true，否则false。
      */
-    boolean removeStandardFieldQuatity(Long staidardFieldId, Long staidardQualityId);
+    boolean removeStandardFieldQuality(Long staidardFieldId, Long staidardQualityId);
 }

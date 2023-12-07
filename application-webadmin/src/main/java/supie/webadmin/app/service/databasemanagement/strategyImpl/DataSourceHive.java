@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import supie.webadmin.app.service.databasemanagement.*;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 /**
  * Hive的数据操作类

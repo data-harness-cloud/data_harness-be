@@ -28,64 +28,64 @@ import java.util.*;
 @Api(tags = "数据规划-数据标准-数据质量表管理接口")
 @Slf4j
 @RestController
-@RequestMapping("/admin/app/standardQuatity")
-public class StandardQuatityController {
+@RequestMapping("/admin/app/standardQuality")
+public class StandardQualityController {
 
     @Autowired
-    private StandardQuatityService standardQuatityService;
+    private StandardQualityService standardQualityService;
 
     /**
      * 新增数据规划-数据标准-数据质量表数据。
      *
-     * @param standardQuatityDto 新增对象。
+     * @param standardQualityDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @ApiOperationSupport(ignoreParameters = {
-            "standardQuatityDto.id",
-            "standardQuatityDto.searchString",
-            "standardQuatityDto.updateTimeStart",
-            "standardQuatityDto.updateTimeEnd",
-            "standardQuatityDto.createTimeStart",
-            "standardQuatityDto.createTimeEnd"})
+            "standardQualityDto.id",
+            "standardQualityDto.searchString",
+            "standardQualityDto.updateTimeStart",
+            "standardQualityDto.updateTimeEnd",
+            "standardQualityDto.createTimeStart",
+            "standardQualityDto.createTimeEnd"})
     @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody StandardQuatityDto standardQuatityDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(standardQuatityDto, false);
+    public ResponseResult<Long> add(@MyRequestBody StandardQualityDto standardQualityDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(standardQualityDto, false);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        StandardQuatity standardQuatity = MyModelUtil.copyTo(standardQuatityDto, StandardQuatity.class);
-        standardQuatity = standardQuatityService.saveNew(standardQuatity);
-        return ResponseResult.success(standardQuatity.getId());
+        StandardQuality standardQuality = MyModelUtil.copyTo(standardQualityDto, StandardQuality.class);
+        standardQuality = standardQualityService.saveNew(standardQuality);
+        return ResponseResult.success(standardQuality.getId());
     }
 
     /**
      * 更新数据规划-数据标准-数据质量表数据。
      *
-     * @param standardQuatityDto 更新对象。
+     * @param standardQualityDto 更新对象。
      * @return 应答结果对象。
      */
     @ApiOperationSupport(ignoreParameters = {
-            "standardQuatityDto.searchString",
-            "standardQuatityDto.updateTimeStart",
-            "standardQuatityDto.updateTimeEnd",
-            "standardQuatityDto.createTimeStart",
-            "standardQuatityDto.createTimeEnd"})
+            "standardQualityDto.searchString",
+            "standardQualityDto.updateTimeStart",
+            "standardQualityDto.updateTimeEnd",
+            "standardQualityDto.createTimeStart",
+            "standardQualityDto.createTimeEnd"})
     @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody StandardQuatityDto standardQuatityDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(standardQuatityDto, true);
+    public ResponseResult<Void> update(@MyRequestBody StandardQualityDto standardQualityDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(standardQualityDto, true);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        StandardQuatity standardQuatity = MyModelUtil.copyTo(standardQuatityDto, StandardQuatity.class);
-        StandardQuatity originalStandardQuatity = standardQuatityService.getById(standardQuatity.getId());
-        if (originalStandardQuatity == null) {
+        StandardQuality standardQuality = MyModelUtil.copyTo(standardQualityDto, StandardQuality.class);
+        StandardQuality originalStandardQuality = standardQualityService.getById(standardQuality.getId());
+        if (originalStandardQuality == null) {
             // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [数据] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
-        if (!standardQuatityService.update(standardQuatity, originalStandardQuatity)) {
+        if (!standardQualityService.update(standardQuality, originalStandardQuality)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
         return ResponseResult.success();
@@ -109,43 +109,43 @@ public class StandardQuatityController {
     /**
      * 列出符合过滤条件的数据规划-数据标准-数据质量表列表。
      *
-     * @param standardQuatityDtoFilter 过滤对象。
+     * @param standardQualityDtoFilter 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<StandardQuatityVo>> list(
-            @MyRequestBody StandardQuatityDto standardQuatityDtoFilter,
+    public ResponseResult<MyPageData<StandardQualityVo>> list(
+            @MyRequestBody StandardQualityDto standardQualityDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        StandardQuatity standardQuatityFilter = MyModelUtil.copyTo(standardQuatityDtoFilter, StandardQuatity.class);
-        String orderBy = MyOrderParam.buildOrderBy(orderParam, StandardQuatity.class);
-        List<StandardQuatity> standardQuatityList =
-                standardQuatityService.getStandardQuatityListWithRelation(standardQuatityFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(standardQuatityList, StandardQuatity.INSTANCE));
+        StandardQuality standardQualityFilter = MyModelUtil.copyTo(standardQualityDtoFilter, StandardQuality.class);
+        String orderBy = MyOrderParam.buildOrderBy(orderParam, StandardQuality.class);
+        List<StandardQuality> standardQualityList =
+                standardQualityService.getStandardQualityListWithRelation(standardQualityFilter, orderBy);
+        return ResponseResult.success(MyPageUtil.makeResponseData(standardQualityList, StandardQuality.INSTANCE));
     }
 
     /**
      * 分组列出符合过滤条件的数据规划-数据标准-数据质量表列表。
      *
-     * @param standardQuatityDtoFilter 过滤对象。
+     * @param standardQualityDtoFilter 过滤对象。
      * @param groupParam 分组参数。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/listWithGroup")
-    public ResponseResult<MyPageData<StandardQuatityVo>> listWithGroup(
-            @MyRequestBody StandardQuatityDto standardQuatityDtoFilter,
+    public ResponseResult<MyPageData<StandardQualityVo>> listWithGroup(
+            @MyRequestBody StandardQualityDto standardQualityDtoFilter,
             @MyRequestBody(required = true) MyGroupParam groupParam,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        String orderBy = MyOrderParam.buildOrderBy(orderParam, StandardQuatity.class, false);
-        groupParam = MyGroupParam.buildGroupBy(groupParam, StandardQuatity.class);
+        String orderBy = MyOrderParam.buildOrderBy(orderParam, StandardQuality.class, false);
+        groupParam = MyGroupParam.buildGroupBy(groupParam, StandardQuality.class);
         if (groupParam == null) {
             return ResponseResult.error(
                     ErrorCodeEnum.INVALID_ARGUMENT_FORMAT, "数据参数错误，分组参数不能为空！");
@@ -153,12 +153,12 @@ public class StandardQuatityController {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        StandardQuatity filter = MyModelUtil.copyTo(standardQuatityDtoFilter, StandardQuatity.class);
+        StandardQuality filter = MyModelUtil.copyTo(standardQualityDtoFilter, StandardQuality.class);
         MyGroupCriteria criteria = groupParam.getGroupCriteria();
-        List<StandardQuatity> resultList = standardQuatityService.getGroupedStandardQuatityListWithRelation(
+        List<StandardQuality> resultList = standardQualityService.getGroupedStandardQualityListWithRelation(
                 filter, criteria.getGroupSelect(), criteria.getGroupBy(), orderBy);
         // 分页连同对象数据转换copy工作，下面的方法一并完成。
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList, StandardQuatity.INSTANCE));
+        return ResponseResult.success(MyPageUtil.makeResponseData(resultList, StandardQuality.INSTANCE));
     }
 
     /**
@@ -168,25 +168,25 @@ public class StandardQuatityController {
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<StandardQuatityVo> view(@RequestParam Long id) {
-        StandardQuatity standardQuatity = standardQuatityService.getByIdWithRelation(id, MyRelationParam.full());
-        if (standardQuatity == null) {
+    public ResponseResult<StandardQualityVo> view(@RequestParam Long id) {
+        StandardQuality standardQuality = standardQualityService.getByIdWithRelation(id, MyRelationParam.full());
+        if (standardQuality == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        StandardQuatityVo standardQuatityVo = StandardQuatity.INSTANCE.fromModel(standardQuatity);
-        return ResponseResult.success(standardQuatityVo);
+        StandardQualityVo standardQualityVo = StandardQuality.INSTANCE.fromModel(standardQuality);
+        return ResponseResult.success(standardQualityVo);
     }
 
     private ResponseResult<Void> doDelete(Long id) {
         String errorMessage;
         // 验证关联Id的数据合法性
-        StandardQuatity originalStandardQuatity = standardQuatityService.getById(id);
-        if (originalStandardQuatity == null) {
+        StandardQuality originalStandardQuality = standardQualityService.getById(id);
+        if (originalStandardQuality == null) {
             // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
-        if (!standardQuatityService.remove(id)) {
+        if (!standardQualityService.remove(id)) {
             errorMessage = "数据操作失败，删除的对象不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }

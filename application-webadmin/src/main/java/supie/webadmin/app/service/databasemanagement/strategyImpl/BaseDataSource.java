@@ -64,7 +64,7 @@ public class BaseDataSource {
      * 查询所有数据库的名称
      * queryAllDatabaseName()
      */
-    protected String queryAllDatabaseNameSql = "SHOW DATABASES;";
+    protected String queryAllDatabaseNameSql = "SHOW DATABASES";
 
     /**
      * 连接数据库
@@ -297,9 +297,15 @@ public class BaseDataSource {
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             ResultSet resultSet = metaData.getTables(databaseName, null, null, new String[]{"TABLE"});
+            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+            int columnCount = resultSetMetaData.getColumnCount();
             // 循环TABLE，将结果记录在Map中
             while (resultSet.next()) {
                 HashMap<String, Object> tableMap = new HashMap<>();
+//                for (int i = 1; i <= columnCount; i++) {
+//                    String tableFieldName = resultSetMetaData.getColumnLabel(i);
+//                    tableMap.put(tableFieldName, resultSet.getObject(tableFieldName));
+//                }
                 // 获取表所属的schema
                 String tableSchema = resultSet.getString("TABLE_SCHEM");
                 // 表名
