@@ -5,6 +5,7 @@ import supie.webadmin.app.model.*;
 import supie.common.core.base.service.IBaseService;
 import supie.webadmin.app.service.databasemanagement.Strategy;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -116,11 +117,8 @@ public interface ModelLogicalMainService extends IBaseService<ModelLogicalMain, 
      */
     Strategy getModelLogicalMainStrategy(Long planningWarehouseLayerId);
 
-    Map<String,Object> statisticsTableType(String projectId);
+    Map<String, Object> statisticsTableType(String projectId);
 
-    Map<String,Object> houseLayerNameNumber(String projectId);
-
-
-
+    Map<String, BigDecimal> houseLayerNameNumber(Long projectId);
 
 }

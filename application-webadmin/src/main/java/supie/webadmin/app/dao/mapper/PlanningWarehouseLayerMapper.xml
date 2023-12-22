@@ -190,4 +190,8 @@
             ORDER BY ${orderBy}
         </if>
     </select>
+
+    <update id="deleteByProjectId">
+        UPDATE sdt_planning_warehouse_layer SET is_delete=-1 WHERE project_id = #{projectId} AND is_delete=1;
+    </update>
 </mapper>

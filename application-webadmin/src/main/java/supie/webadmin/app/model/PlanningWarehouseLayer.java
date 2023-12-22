@@ -142,6 +142,13 @@ public class PlanningWarehouseLayer extends BaseModel {
     @TableField(exist = false)
     private List<ModelPhysicsScript> modelPhysicsScriptList;
 
+    public PlanningWarehouseLayer(Long projectId, String houseLayerCode, String houseLayerName, Integer houseLayerStatus) {
+        this.projectId = projectId;
+        this.houseLayerCode = houseLayerCode;
+        this.houseLayerName = houseLayerName;
+        this.houseLayerStatus = houseLayerStatus;
+    }
+
     @Mapper
     public interface PlanningWarehouseLayerModelMapper extends BaseModelMapper<PlanningWarehouseLayerVo, PlanningWarehouseLayer> {
         /**

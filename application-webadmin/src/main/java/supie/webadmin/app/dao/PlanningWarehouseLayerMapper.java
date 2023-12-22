@@ -61,4 +61,7 @@ public interface PlanningWarehouseLayerMapper extends BaseDaoMapper<PlanningWare
             @Param("planningWarehouseLayerFilter") PlanningWarehouseLayer planningWarehouseLayerFilter,
             @Param("modelPhysicsScriptFilter") ModelPhysicsScript modelPhysicsScriptFilter,
             @Param("orderBy") String orderBy);
+
+    int deleteByProjectId(@Param("projectId") Long projectId);
+
 }

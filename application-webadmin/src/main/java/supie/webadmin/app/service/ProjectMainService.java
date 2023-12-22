@@ -157,4 +157,13 @@ public interface ProjectMainService extends IBaseService<ProjectMain, Long> {
      * @return 成功返回true，否则false。
      */
     boolean removeProjectDatasourceRelation(Long projectId, Long datasourceId);
+
+    /**
+     * 新增项目。
+     *
+     * @param projectMain 项目主表对象。
+     * @param memberUserIdList 项目成员用户Id列表。
+     * @return 新增结果。
+     */
+    Long addProject(ProjectMain projectMain, List<Long> memberUserIdList) throws Exception;
 }

@@ -281,4 +281,17 @@
             ORDER BY ${orderBy}
         </if>
     </select>
+
+    <select id="houseLayerNameNumber" resultType="java.lang.String">
+        SELECT sdt_planning_warehouse_layer.house_layer_code AS house_layer_code
+        FROM sdt_model_logical_main LEFT JOIN sdt_planning_warehouse_layer ON sdt_planning_warehouse_layer.id = sdt_model_logical_main.warehouse_layer_id
+        WHERE sdt_model_logical_main.project_id = #{projectId} AND (
+            sdt_planning_warehouse_layer.house_layer_code LIKE '%ODS%'
+            OR sdt_planning_warehouse_layer.house_layer_code LIKE '%DWS%'
+            OR sdt_planning_warehouse_layer.house_layer_code LIKE '%DWD%'
+            OR sdt_planning_warehouse_layer.house_layer_code LIKE '%ADS%'
+            OR sdt_planning_warehouse_layer.house_layer_code LIKE '%DDS%'
+            OR sdt_planning_warehouse_layer.house_layer_code LIKE '%DIM%'
+        )
+    </select>
 </mapper>

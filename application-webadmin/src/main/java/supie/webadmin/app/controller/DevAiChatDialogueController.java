@@ -1,5 +1,7 @@
 package supie.webadmin.app.controller;
 
+import cn.hutool.core.util.StrUtil;
+import io.swagger.annotations.ApiOperation;
 import supie.common.log.annotation.OperationLog;
 import supie.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
@@ -170,4 +172,46 @@ public class DevAiChatDialogueController {
         }
         return ResponseResult.success();
     }
+
+    /**
+     * 查询对话历史记录
+     * @param devAiChatDialogueDtoFilter 过滤对象。
+     * @param pageParam 分页参数。
+     * @return 应答结果对象，包含查询结果集。
+     */
+    @ApiOperation(value = "查询对话历史记录", notes = "查询对话历史记录")
+    @PostMapping("/queryConversationHistory")
+    public ResponseResult<MyPageData<DevAiChatDialogueVo>> queryConversationHistory(
+            @MyRequestBody DevAiChatDialogueDto devAiChatDialogueDtoFilter, @MyRequestBody MyPageParam pageParam) {
+        if (pageParam != null) {
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+        }
+        DevAiChatDialogue devAiChatDialogueFilter = MyModelUtil.copyTo(devAiChatDialogueDtoFilter, DevAiChatDialogue.class);
+        List<DevAiChatDialogue> devAiChatDialogueList =
+                devAiChatDialogueService.queryConversationHistory(devAiChatDialogueFilter);
+        return ResponseResult.success(MyPageUtil.makeResponseData(devAiChatDialogueList, DevAiChatDialogue.INSTANCE));
+    }
+
+    /**
+     * 根据 对话记录id 查询对话记录
+     * @param dialogueStrId 对话记录id
+     * @return
+     */
+    @ApiOperation(value = "根据 对话记录id 查询对话记录", notes = "根据 对话记录id 查询对话记录")
+    @PostMapping("/queryConversationHistoryByDialogueStrId")
+    public ResponseResult<List<DevAiChatDialogueVo>> queryConversationHistoryByDialogueStrId(@MyRequestBody String dialogueStrId) {
+        if (StrUtil.isBlank(dialogueStrId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        List<DevAiChatDialogue> devAiChatDialogueList =
+                devAiChatDialogueService.queryConversationHistoryByDialogueStrId(dialogueStrId);
+        List<DevAiChatDialogueVo> devAiChatDialogueVoList = new LinkedList<>();
+        if (devAiChatDialogueList != null && devAiChatDialogueList.size() > 0) {
+            for (DevAiChatDialogue devAiChatDialogue : devAiChatDialogueList) {
+                devAiChatDialogueVoList.add(DevAiChatDialogue.INSTANCE.fromModel(devAiChatDialogue));
+            }
+        }
+        return ResponseResult.success(devAiChatDialogueVoList);
+    }
+
 }

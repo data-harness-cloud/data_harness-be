@@ -130,6 +130,11 @@
                 <bind name = "safeDevAiChatDialogueSearchString" value = "'%' + devAiChatDialogueFilter.searchString + '%'" />
                 AND CONCAT(IFNULL(sdt_dev_ai_chat_dialogue.dialogue_name,''), IFNULL(sdt_dev_ai_chat_dialogue.dialogue_question,''), IFNULL(sdt_dev_ai_chat_dialogue.dialogue_answer,'')) LIKE #{safeDevAiChatDialogueSearchString}
             </if>
+            <if test="devAiChatDialogueFilter.dialogueStrIdList != null and devAiChatDialogueFilter.dialogueStrIdList.size() > 0">
+                <foreach collection="devAiChatDialogueFilter.dialogueStrIdList" item="item" open="AND sdt_dev_ai_chat_dialogue.dialogue_str_id IN (" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
         </if>
     </sql>
 
@@ -141,5 +146,16 @@
         <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
+    </select>
+
+    <select id="queryConversationHistory" resultMap="BaseResultMap">
+        SELECT sdt_dev_ai_chat_dialogue.dialogue_str_id AS dialogue_str_id,
+            MIN(sdt_dev_ai_chat_dialogue.dialogue_question) AS dialogue_question,
+            MIN(sdt_dev_ai_chat_dialogue.create_time) AS create_time
+        FROM sdt_dev_ai_chat_dialogue
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        GROUP BY sdt_dev_ai_chat_dialogue.dialogue_str_id ORDER BY create_time DESC
     </select>
 </mapper>

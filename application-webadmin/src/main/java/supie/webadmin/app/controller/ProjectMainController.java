@@ -1,5 +1,6 @@
 package supie.webadmin.app.controller;
 
+import io.swagger.annotations.ApiOperation;
 import supie.common.log.annotation.OperationLog;
 import supie.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
@@ -515,4 +516,29 @@ public class ProjectMainController {
         }
         return ResponseResult.success();
     }
+
+    /**
+     * 新增项目
+     */
+    @ApiOperation("新增项目")
+    @PostMapping("/addProject")
+    public ResponseResult<Long> addProject(
+            @MyRequestBody ProjectMainDto projectMainDto, @MyRequestBody List<Long> memberUserIdList) {
+        String errorMessage = MyCommonUtil.getModelValidationError(projectMainDto, false);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+        }
+        ProjectMain projectMain = MyModelUtil.copyTo(projectMainDto, ProjectMain.class);
+        // 验证关联Id的数据合法性
+        CallResult callResult = projectMainService.verifyRelatedData(projectMain, null);
+        if (!callResult.isSuccess()) {
+            return ResponseResult.errorFrom(callResult);
+        }
+        try {
+            return ResponseResult.success(projectMainService.addProject(projectMain, memberUserIdList));
+        } catch (Exception e) {
+            return ResponseResult.error("500", e.getMessage());
+        }
+    }
+
 }

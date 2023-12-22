@@ -172,4 +172,13 @@ public class RedisKeyUtil {
     public static String makeCustomizeRouteRightKey(Long customizeRouteId) {
         return "CUSTOMIZE_ROUTE_RIGHT:" + customizeRouteId;
     }
+
+    /**
+     * 构建AI对话记录Key
+     * @param dialogueStrId 对话记录ID
+     * @return
+     */
+    public static String makeAiConversationKey(String dialogueStrId) {
+        return "AI_CONVERSATION:" + dialogueStrId;
+    }
 }

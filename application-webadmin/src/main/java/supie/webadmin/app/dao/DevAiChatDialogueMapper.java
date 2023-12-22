@@ -32,4 +32,12 @@ public interface DevAiChatDialogueMapper extends BaseDaoMapper<DevAiChatDialogue
      */
     List<DevAiChatDialogue> getDevAiChatDialogueList(
             @Param("devAiChatDialogueFilter") DevAiChatDialogue devAiChatDialogueFilter, @Param("orderBy") String orderBy);
+
+    /**
+     * 查询对话历史记录
+     * @param devAiChatDialogueFilter 过滤条件
+     * @return 对象列表
+     */
+    List<DevAiChatDialogue> queryConversationHistory(
+            @Param("devAiChatDialogueFilter") DevAiChatDialogue devAiChatDialogueFilter);
 }

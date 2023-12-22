@@ -258,7 +258,7 @@ public class BaseDataSource {
      * @date 2023/11/02 04:30
      */
     public void createDatabase(String databaseName) {
-        String createDatabaseSql = "CREATE DATABASE " + databaseName + ";";
+        String createDatabaseSql = "CREATE DATABASE IF NOT EXISTS " + databaseName;
         List<Map<String, Object>> resultDataList = executeSqlList(createDatabaseSql);
         Map<String, Object> resultMap = resultDataList.get(0);
         if (Boolean.TRUE.equals(resultMap.get("success")) && ((int) resultMap.get("updateResultData") == 1)) return;

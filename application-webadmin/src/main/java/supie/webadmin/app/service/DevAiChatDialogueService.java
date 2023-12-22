@@ -65,4 +65,21 @@ public interface DevAiChatDialogueService extends IBaseService<DevAiChatDialogue
      * @return 查询结果集。
      */
     List<DevAiChatDialogue> getDevAiChatDialogueListWithRelation(DevAiChatDialogue filter, String orderBy);
+
+    /**
+     * 查询对话历史记录
+     *
+     * @param devAiChatDialogueFilter 过滤条件
+     * @return 查询结果集
+     */
+    List<DevAiChatDialogue> queryConversationHistory(DevAiChatDialogue devAiChatDialogueFilter);
+
+    /**
+     * 根据对话记录id查询对话记录
+     *
+     * @param dialogueStrId 对话记录id
+     * @return 查询结果集
+     */
+    List<DevAiChatDialogue> queryConversationHistoryByDialogueStrId(String dialogueStrId);
+
 }
