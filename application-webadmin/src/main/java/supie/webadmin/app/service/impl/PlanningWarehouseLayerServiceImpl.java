@@ -87,7 +87,7 @@ public class PlanningWarehouseLayerServiceImpl extends BaseService<PlanningWareh
         String hostPort = projectEngine.getEnginePort();
         String userName = projectEngine.getEngineUsername();
         String password = projectEngine.getEnginePassword();
-        Strategy strategy = strategyFactory.getStrategy(databaseType, hostIp, hostPort, null, userName, password);
+        Strategy strategy = strategyFactory.getStrategy(databaseType, hostIp, hostPort, null, userName, password,0);
         for (String createDatabaseName : createDatabaseNameList) {
             strategy.createDatabase(createDatabaseName); // 创建数据库
         }

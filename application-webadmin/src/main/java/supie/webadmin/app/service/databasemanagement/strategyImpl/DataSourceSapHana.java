@@ -24,7 +24,7 @@ public class DataSourceSapHana extends BaseDataSource implements Strategy {
      * 初始化连接信息
      */
     @Override
-    public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password) {
+    public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password,int type) {
         this.databaseType = DataBaseTypeEnum.DATASOURCE_SAP_HANA;
         this.jdbcDriver = "com.sap.db.jdbc.Driver";
         if (StrUtil.isBlank(databaseName)) {

@@ -41,7 +41,7 @@ public class DataSourceClickHouse extends BaseDataSource implements Strategy {
      * @date 2023/11/06 04:51
      */
     @Override
-    public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password) {
+    public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password,int type) {
         this.databaseType = DataBaseTypeEnum.DATASOURCE_HIVE;
         this.jdbcDriver = "com.clickhouse.jdbc.ClickHouseDriver";
         if (StrUtil.isBlank(databaseName)) {

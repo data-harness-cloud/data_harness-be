@@ -65,6 +65,24 @@ public class ModelPhysicsScriptServiceImpl extends BaseService<ModelPhysicsScrip
     }
 
     /**
+     * 新增物理表数据，并且创建物理表
+     *
+     * @param modelPhysicsScript
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public ModelPhysicsScript addAndCreatingTable(ModelPhysicsScript modelPhysicsScript) {
+        modelPhysicsScriptMapper.insert(this.buildDefaultValue(modelPhysicsScript));
+        // 创建物理表
+        if (modelPhysicsScript.getModelPhysicsState() == 2) {
+            throw new RuntimeException("表[" + modelPhysicsScript.getModelPhysicsTableName() + "]已经存在于[" + modelPhysicsScript.getModelPhysicsDatabase() + "]数据库,无法使用该功能创建.");
+        }
+        this.executeCreatingTableSql(modelPhysicsScript);
+        return modelPhysicsScript;
+    }
+
+    /**
      * 利用数据库的insertList语法，批量插入对象列表。
      *
      * @param modelPhysicsScriptList 新增对象列表。

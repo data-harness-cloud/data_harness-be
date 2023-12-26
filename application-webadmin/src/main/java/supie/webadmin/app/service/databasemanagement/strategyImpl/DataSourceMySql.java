@@ -30,7 +30,7 @@ public class DataSourceMySql extends BaseDataSource implements Strategy {
      * 初始化连接信息
      */
     @Override
-    public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password) {
+    public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password,int type) {
         this.databaseType = DataBaseTypeEnum.DATASOURCE_MYSQL;
         this.jdbcDriver = "com.mysql.cj.jdbc.Driver";
         if (StrUtil.isBlank(databaseName)) {
@@ -44,7 +44,12 @@ public class DataSourceMySql extends BaseDataSource implements Strategy {
         this.userName = userName;
         this.password = password;
         // 获取数据库连接，使数据库连接在该对象存在前都保持住
-        initConnection();
+        if (type == 0){
+            initConnection();
+        }else {
+            initConnectionAndCreatelibrarypermissions();
+        }
+
     }
 
 }

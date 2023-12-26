@@ -22,6 +22,13 @@ public interface ModelPhysicsScriptService extends IBaseService<ModelPhysicsScri
     ModelPhysicsScript saveNew(ModelPhysicsScript modelPhysicsScript);
 
     /**
+     * 新增物理表数据，并且创建物理表
+     * @param modelPhysicsScript
+     * @return
+     */
+    ModelPhysicsScript addAndCreatingTable(ModelPhysicsScript modelPhysicsScript);
+
+    /**
      * 利用数据库的insertList语法，批量插入对象列表。
      *
      * @param modelPhysicsScriptList 新增对象列表。

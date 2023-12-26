@@ -81,6 +81,47 @@ public class BaseDataSource {
         }
     }
 
+    protected Boolean initConnectionAndCreatelibrarypermissions() {
+        try {
+            Class.forName(this.jdbcDriver);
+            // 连接数据库
+            connection = DriverManager.getConnection(this.jdbcUrl, this.userName, this.password);
+            // 检查用户是否有建库的权限
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SHOW GRANTS FOR '" + userName + "'@'%'");
+            boolean hasCreateDatabasePrivilege = false;
+            while (resultSet.next()) {
+                String grant = resultSet.getString(1);
+                // 如果权限中含有create，则说明具有创建数据库的权限
+                if (grant.toLowerCase().contains("create")) {
+                    hasCreateDatabasePrivilege = true;
+                    break;
+                }
+            }
+            if (hasCreateDatabasePrivilege == false){
+                resultSet.close();
+                statement.close();
+                throw  new RuntimeException("该用户没有创建数据库的权限！！！！！");
+            }
+            resultSet.close();
+            statement.close();
+            return !connection.isClosed() && hasCreateDatabasePrivilege;
+        } catch (ClassNotFoundException e) {
+            connection = null;
+            throw new RuntimeException("无法加载JDBC驱动", e);
+        } catch (SQLException e) {
+            connection = null;
+            if (e.getMessage().contains("no such grant defined")) {
+                throw new RuntimeException("用户在指定主机上没有相应的授权", e);
+            } else {
+                throw new RuntimeException("无法连接到数据库", e);
+            }
+        }
+    }
+
+
+
+
     /**
      * 关闭所有连接
      * @author 王立宏

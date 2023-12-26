@@ -46,7 +46,29 @@ public class DatabaseManagementController {
         try {
             Strategy strategy = strategyFactory.getStrategy(
                     databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
-                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword());
+                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword(),0);
+            strategy.closeAll();
+        } catch (Exception e) {
+            log.error("数据源连接失败", e);
+            return ResponseResult.error("500", "连接失败："+e.getMessage());
+        }
+        return ResponseResult.success("连接成功！");
+    }
+
+
+    /**
+     * 数据库连接测试
+     *
+     * @param databaseManagement 数据库实体类。
+     * @return 返回数据连接的信息。
+     */
+    @PostMapping("/initConnectionAndCreatelibrarypermissions")
+    @ApiOperation("数据库连接测试---包含校验用户是否有创建数据库的权限")
+    public ResponseResult<String> initConnectionAndCreatelibrarypermissions(@MyRequestBody DatabaseManagement databaseManagement){
+        try {
+            Strategy strategy = strategyFactory.getStrategy(
+                    databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
+                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword(),1);
             strategy.closeAll();
         } catch (Exception e) {
             log.error("数据源连接失败", e);
@@ -68,7 +90,7 @@ public class DatabaseManagementController {
         try {
             Strategy strategy = strategyFactory.getStrategy(
                     databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
-                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword());
+                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword(),0);
             price = strategy.queryDatabaseTable(databaseManagement.getDatabase());
             strategy.closeAll();
         } catch (Exception e) {
@@ -91,7 +113,7 @@ public class DatabaseManagementController {
         try {
             Strategy strategy = strategyFactory.getStrategy(
                     databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
-                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword());
+                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword(),0);
             price = strategy.queryTableFields(databaseManagement.getDatabase(), databaseManagement.getTable());
             strategy.closeAll();
         } catch (Exception e) {
@@ -108,7 +130,7 @@ public class DatabaseManagementController {
         try {
             Strategy strategy = strategyFactory.getStrategy(
                     databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
-                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword());
+                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword(),0);
             resultData = strategy.executeSqlList(sql);
             strategy.closeAll();
         } catch (Exception e) {
@@ -123,7 +145,7 @@ public class DatabaseManagementController {
     public ResponseResult<List<String>> getAllDatabaseName(@MyRequestBody DatabaseManagement databaseManagement){
         Strategy strategy = strategyFactory.getStrategy(
                 databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
-                databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword());
+                databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword(),0);
         List<String> resultData = strategy.queryAllDatabaseName();
         strategy.closeAll();
         return ResponseResult.success(resultData);

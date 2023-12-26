@@ -218,7 +218,7 @@ public class CustomizeRouteServiceImpl extends BaseService<CustomizeRoute, Long>
         String path;
         RequestMethod requestMethod = RequestMethod.POST;
         MyDynamicController myDynamicController = ApplicationContextHolder.getBean(MyDynamicController.class);
-        Method method = MyDynamicController.class.getDeclaredMethod("executeSql", Map.class, HttpServletRequest.class);
+        Method method = MyDynamicController.class.getDeclaredMethod("executeSql", HttpServletRequest.class);
         for (CustomizeRoute customizeRoute : customizeRouteList) {
             path = customizeRoute.getUrl();
             if (customizeRoute.getRequestType() == 1) {
@@ -261,7 +261,7 @@ public class CustomizeRouteServiceImpl extends BaseService<CustomizeRoute, Long>
                 .build();
         try {
             // 反射获取ExampleController中的hello方法，用于执行实际逻辑
-            Method method = MyDynamicController.class.getDeclaredMethod("executeSql", Map.class, HttpServletRequest.class);
+            Method method = MyDynamicController.class.getDeclaredMethod("executeSql", HttpServletRequest.class);
             requestMappingHandlerMapping.registerMapping(mappingInfo, myDynamicController, method);
             // 修改数据库中显示的状态
             originalCustomizeRoute.setState(1);

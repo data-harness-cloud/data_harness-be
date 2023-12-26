@@ -231,7 +231,7 @@ public class ProjectEngineController {
         ProjectEngine projectEngine = projectMain.getProjectEngine();
         Strategy strategy = strategyFactory.getStrategy(
                 projectEngine.getEngineType(), projectEngine.getEngineHost(), projectEngine.getEnginePort(),
-                null, projectEngine.getEngineUsername(), projectEngine.getEnginePassword());
+                null, projectEngine.getEngineUsername(), projectEngine.getEnginePassword(),0);
         List<String> resultData = strategy.queryAllDatabaseName();
         strategy.closeAll();
         return ResponseResult.success(resultData);
@@ -262,7 +262,7 @@ public class ProjectEngineController {
         ProjectEngine projectEngine = projectMain.getProjectEngine();
         Strategy strategy = strategyFactory.getStrategy(
                 projectEngine.getEngineType(), projectEngine.getEngineHost(), projectEngine.getEnginePort(),
-                databaseName, projectEngine.getEngineUsername(), projectEngine.getEnginePassword());
+                databaseName, projectEngine.getEngineUsername(), projectEngine.getEnginePassword(),0);
         List<Map<String, Object>> resultData = strategy.executeSqlList(sql);
         strategy.closeAll();
         return ResponseResult.success(resultData);

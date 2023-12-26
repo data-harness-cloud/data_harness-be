@@ -30,7 +30,7 @@ public class DataSourceOracle extends BaseDataSource implements Strategy {
      * 初始化连接信息
      */
     @Override
-    public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password) {
+    public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password,int type) {
         this.databaseType = DataBaseTypeEnum.DATASOURCE_ORACLE;
         this.jdbcDriver = "oracle.jdbc.driver.OracleDriver";
         if (StrUtil.isBlank(databaseName)) {

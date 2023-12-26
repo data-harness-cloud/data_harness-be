@@ -301,16 +301,16 @@ public class ModelLogicalMainServiceImpl extends BaseService<ModelLogicalMain, L
         Strategy strategy;
         try {
             strategy = strategyFactory.getStrategy(projectEngine.getEngineType(), projectEngine.getEngineHost(), projectEngine.getEnginePort(),
-                    planningWarehouseLayer.getHouseLayerCode(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword());
+                    planningWarehouseLayer.getHouseLayerCode(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword(),0);
         } catch (Exception e) {
             if (StrUtil.contains(e.getMessage(), "Unknown database")) {
                 // 数据库不存在，创建数据库
                 strategy = strategyFactory.getStrategy(projectEngine.getEngineType(), projectEngine.getEngineHost(), projectEngine.getEnginePort(),
-                        projectEngine.getEngineName(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword());
+                        projectEngine.getEngineName(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword(),0);
                 strategy.createDatabase(planningWarehouseLayer.getHouseLayerCode());
                 strategy.closeAll();
                 return strategyFactory.getStrategy(projectEngine.getEngineType(), projectEngine.getEngineHost(), projectEngine.getEnginePort(),
-                        planningWarehouseLayer.getHouseLayerCode(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword());
+                        planningWarehouseLayer.getHouseLayerCode(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword(),0);
             }
             throw new RuntimeException(e);
         }

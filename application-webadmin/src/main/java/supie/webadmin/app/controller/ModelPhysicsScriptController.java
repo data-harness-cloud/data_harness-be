@@ -67,6 +67,37 @@ public class ModelPhysicsScriptController {
     }
 
     /**
+     * 新增物理表数据，并且创建物理表。-模型设计-模型物理表数据。
+     *
+     * @param modelPhysicsScriptDto 新增对象。
+     * @return 应答结果对象，包含新增对象主键Id。
+     */
+    @ApiOperation(value = "新增物理表数据，并且创建物理表。")
+    @ApiOperationSupport(ignoreParameters = {
+            "modelPhysicsScriptDto.id",
+            "modelPhysicsScriptDto.searchString",
+            "modelPhysicsScriptDto.updateTimeStart",
+            "modelPhysicsScriptDto.updateTimeEnd",
+            "modelPhysicsScriptDto.createTimeStart",
+            "modelPhysicsScriptDto.createTimeEnd"})
+    @OperationLog(type = SysOperationLogType.ADD)
+    @PostMapping("/addAndCreatingTable")
+    public ResponseResult<Long> addAndCreatingTable(@MyRequestBody ModelPhysicsScriptDto modelPhysicsScriptDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(modelPhysicsScriptDto, false);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+        }
+        ModelPhysicsScript modelPhysicsScript = MyModelUtil.copyTo(modelPhysicsScriptDto, ModelPhysicsScript.class);
+        // 验证关联Id的数据合法性
+        CallResult callResult = modelPhysicsScriptService.verifyRelatedData(modelPhysicsScript, null);
+        if (!callResult.isSuccess()) {
+            return ResponseResult.errorFrom(callResult);
+        }
+        modelPhysicsScript = modelPhysicsScriptService.addAndCreatingTable(modelPhysicsScript);
+        return ResponseResult.success(modelPhysicsScript.getId());
+    }
+
+    /**
      * 更新数据规划-模型设计-模型物理表数据。
      *
      * @param modelPhysicsScriptDto 更新对象。

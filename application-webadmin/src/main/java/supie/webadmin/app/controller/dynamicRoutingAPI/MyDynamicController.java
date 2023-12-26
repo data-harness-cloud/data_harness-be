@@ -2,6 +2,7 @@ package supie.webadmin.app.controller.dynamicRoutingAPI;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import cn.hutool.json.ObjectMapper;
 import com.github.pagehelper.PageInfo;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,9 @@ import supie.webadmin.app.service.databasemanagement.Strategy;
 import supie.webadmin.app.service.databasemanagement.StrategyFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 描述：
@@ -46,20 +49,39 @@ public class MyDynamicController {
      * 执行SQL
      */
     @ResponseBody
-    public ResponseResult<Object> executeSql(@RequestBody Map<String, Object> params, HttpServletRequest request) {
+    public ResponseResult<Object> executeSql(HttpServletRequest request) {
+        // 获取请求体格式类型
+        String contentType = request.getContentType();
+        // 获取请求体内容
+        String requestBody;
+        try {
+            requestBody = request.getReader().lines().collect(Collectors.joining());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Map<String, Object> params = new HashMap<>();
+        if (StrUtil.isNotBlank(requestBody)) {
+            try {
+                params = JSONUtil.toBean(requestBody, Map.class);
+            } catch (Exception e) {
+                return ResponseResult.error(ErrorCodeEnum.NO_ERROR, "请求体请使用正确的JSON格式!");
+            }
+        }
         String url = request.getRequestURI();
         RBucket<String> customizeRouteData = redissonClient.getBucket("CustomizeRoute:" + url);
         if (!customizeRouteData.isExists()) {
-            return ResponseResult.error(ErrorCodeEnum.NO_ERROR, "当前的路由相关信息获取失败，请重试！");
+            return ResponseResult.error(ErrorCodeEnum.NO_ERROR, "当前的路由相关信息获取失败，请重试!");
         }
-        String customizeRouteJsonStr = customizeRouteData.get();
-        CustomizeRoute customizeRoute = JSONUtil.toBean(customizeRouteJsonStr, CustomizeRoute.class);
-        if (customizeRoute == null) {
-            return ResponseResult.error(ErrorCodeEnum.NO_ERROR, "当前的路由相关信息获取失败，请联系管理员！");
-        }
+        CustomizeRoute customizeRoute = JSONUtil.toBean(customizeRouteData.get(), CustomizeRoute.class);
         return performCustomizeRouteBusiness(params, customizeRoute);
     }
 
+    /**
+     * 执行自定义路线业务
+     * @param params 请求参数
+     * @param customizeRoute 配置的参数信息
+     * @return
+     */
     @NotNull
     public ResponseResult<Object> performCustomizeRouteBusiness(Map<String, Object> params, CustomizeRoute customizeRoute) {
         String sqlScript = customizeRoute.getSqlScript();
@@ -70,13 +92,6 @@ public class MyDynamicController {
             if (!parameter.getRequired() && !paramsKey.contains(parameter.getName()) && StrUtil.isBlank(parameter.getDefaultValue())) {
                 // 缺少当前变量
                 return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST, "缺少必填[" + parameter.getName() + "]变量！");
-//                if (parameter.getDefaultValue() == null) {
-//                    defaultValue = "null";
-//                } else if (Objects.equals(parameter.getDefaultValue(), "")) {
-//                    defaultValue = "\"\"";
-//                } else {
-//                    defaultValue = parameter.getDefaultValue();
-//                }
             }
             String name = "${" + parameter.getName() + "}";
             Object value = params.get(parameter.getName());
@@ -100,7 +115,7 @@ public class MyDynamicController {
         ProjectEngine projectEngine = projectEngineMapper.selectByProjectId(customizeRoute.getProjectId());
         Strategy strategy = strategyFactory.getStrategy(
                 projectEngine.getEngineType(), projectEngine.getEngineHost(), projectEngine.getEnginePort(),
-                customizeRoute.getDatabaseName(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword());
+                customizeRoute.getDatabaseName(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword(),0);
         Map<String, Object> resultData;
         Map<String, Object> resultMap = new HashMap<>();
         if (paramsKey.contains("pageParam")) {

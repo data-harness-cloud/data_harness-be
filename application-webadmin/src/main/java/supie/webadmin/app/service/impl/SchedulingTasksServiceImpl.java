@@ -36,6 +36,8 @@ import java.util.*;
 @Service("schedulingTasksService")
 public class SchedulingTasksServiceImpl extends BaseService<SchedulingTasks, Long> implements SchedulingTasksService {
 
+    public static final Class<QuartzJobCheckCycle> TASK_CLASS = QuartzJobCheckCycle.class;
+
     @Autowired
     private SchedulingTasksMapper schedulingTasksMapper;
     @Autowired
@@ -246,7 +248,7 @@ public class SchedulingTasksServiceImpl extends BaseService<SchedulingTasks, Lon
         Map<String, Long> dataMap = new HashMap<>();
         dataMap.put("schedulingTasksId", schedulingTasks.getId());
         schedulingTasks.setTaskDataMap(JSONUtil.toJsonStr(dataMap));
-        schedulingTasks.setTaskClassName(QuartzJobCheckCycle.class.getCanonicalName());
+        schedulingTasks.setTaskClassName(TASK_CLASS.getCanonicalName());
         return schedulingTasks;
     }
 }

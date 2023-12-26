@@ -25,7 +25,7 @@ public class DataSourceSQLServer extends BaseDataSource implements Strategy {
      * 初始化连接信息
      */
     @Override
-    public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password) {
+    public void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password,int type) {
         this.databaseType = DataBaseTypeEnum.DATASOURCE_SQLSERVER;
         this.jdbcDriver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
         if (StrUtil.isBlank(databaseName)) {
