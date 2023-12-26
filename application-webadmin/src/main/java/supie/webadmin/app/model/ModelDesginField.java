@@ -172,6 +172,11 @@ public class ModelDesginField extends BaseModel {
     private Long processId;
 
     /**
+     * 数据标准主表ID standard_main_id。
+     */
+    private Long standardMainId;
+
+    /**
      * updateTime 范围过滤起始值(>=)。
      */
     @TableField(exist = false)

@@ -1,10 +1,12 @@
 package supie.webadmin.app.controller;
 
+import cn.hutool.core.util.StrUtil;
 import org.quartz.SchedulerException;
 import supie.common.log.annotation.OperationLog;
 import supie.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
 import supie.common.quartz.controller.QuartzJobController;
+import supie.webadmin.app.service.impl.SchedulingTasksServiceImpl;
 import supie.webadmin.app.vo.*;
 import supie.webadmin.app.dto.*;
 import supie.webadmin.app.model.*;
@@ -74,6 +76,23 @@ public class SchedulingTasksController extends QuartzJobController<SchedulingTas
         }
         schedulingTasks = schedulingTasksService.saveNew(schedulingTasks);
         return ResponseResult.success(schedulingTasks.getId());
+    }
+
+    /**
+     * 添加Job任务对象。
+     *
+     * @param modelJobParam Job的参数对象。
+     * @return 添加结果应答对象。
+     */
+    @Override
+    public ResponseResult<Void> addJob(SchedulingTasksDto modelJobParam) {
+        if (StrUtil.isBlankIfStr(modelJobParam.getTaskClassName())) {
+            modelJobParam.setTaskClassName(SchedulingTasksServiceImpl.TASK_CLASS.getCanonicalName());
+        }
+        if (StrUtil.isBlankIfStr(modelJobParam.getTaskGroup())) {
+            modelJobParam.setTaskGroup(SchedulingTasksServiceImpl.TASK_CLASS.getSimpleName());
+        }
+        return super.addJob(modelJobParam);
     }
 
     /**

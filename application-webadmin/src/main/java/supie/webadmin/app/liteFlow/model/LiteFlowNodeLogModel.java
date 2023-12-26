@@ -36,15 +36,15 @@ public class LiteFlowNodeLogModel {
     private String logMessage;
 
     public static LiteFlowNodeLogModel info(String nodeId, String nodeTag, String logMessage) {
-        return new LiteFlowNodeLogModel("INFO", nodeId, nodeTag, new Date(),logMessage);
+        return new LiteFlowNodeLogModel("INFO", nodeId, nodeTag, new Date(), logMessage);
     }
 
     public static LiteFlowNodeLogModel warn(String nodeId, String nodeTag, String logMessage) {
-        return new LiteFlowNodeLogModel("WARN", nodeId, nodeTag, new Date(),logMessage);
+        return new LiteFlowNodeLogModel("WARN", nodeId, nodeTag, new Date(), logMessage);
     }
 
     public static LiteFlowNodeLogModel error(String nodeId, String nodeTag, String logMessage) {
-        return new LiteFlowNodeLogModel("ERROR", nodeId, nodeTag, new Date(),logMessage);
+        return new LiteFlowNodeLogModel("ERROR", nodeId, nodeTag, new Date(), logMessage);
     }
 
     public LiteFlowNodeLogModel(String nodeId, String nodeTag, String logMessage) {

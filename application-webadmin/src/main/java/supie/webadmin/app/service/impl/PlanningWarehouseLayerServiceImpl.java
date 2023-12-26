@@ -67,19 +67,31 @@ public class PlanningWarehouseLayerServiceImpl extends BaseService<PlanningWareh
     public PlanningWarehouseLayer saveNew(PlanningWarehouseLayer planningWarehouseLayer) {
         planningWarehouseLayerMapper.insert(this.buildDefaultValue(planningWarehouseLayer));
         // 创建数据库
-        String createDatabaseName = planningWarehouseLayer.getHouseLayerCode();
-        ProjectMain projectMain = projectMainMapper.selectById(planningWarehouseLayer.getProjectId());
-        ProjectEngine projectEngine = projectEngineMapper.selectById(projectMain.getProjectEngineId());
+        ProjectEngine projectEngine = getProjectEngineByProjectId(planningWarehouseLayer.getProjectId());
+        createDatabaseByProjectEngine(projectEngine, planningWarehouseLayer.getHouseLayerCode());
+        return planningWarehouseLayer;
+    }
+
+    /**
+     * 根据项目id获取项目引擎
+     * @param projectId
+     * @return
+     */
+    private ProjectEngine getProjectEngineByProjectId(Long projectId) {
+        ProjectMain projectMain = projectMainMapper.selectById(projectId);
+        return projectEngineMapper.selectById(projectMain.getProjectEngineId());
+    }
+    public void createDatabaseByProjectEngine(ProjectEngine projectEngine, String... createDatabaseNameList) {
         String databaseType = projectEngine.getEngineType();
         String hostIp = projectEngine.getEngineHost();
         String hostPort = projectEngine.getEnginePort();
-        String databaseName = projectEngine.getEngineName();
         String userName = projectEngine.getEngineUsername();
         String password = projectEngine.getEnginePassword();
-        Strategy strategy = strategyFactory.getStrategy(databaseType, hostIp, hostPort, databaseName, userName, password);
-        strategy.createDatabase(createDatabaseName); // 创建数据库
+        Strategy strategy = strategyFactory.getStrategy(databaseType, hostIp, hostPort, null, userName, password,0);
+        for (String createDatabaseName : createDatabaseNameList) {
+            strategy.createDatabase(createDatabaseName); // 创建数据库
+        }
         strategy.closeAll();
-        return planningWarehouseLayer;
     }
 
     /**
@@ -122,6 +134,16 @@ public class PlanningWarehouseLayerServiceImpl extends BaseService<PlanningWareh
     @Override
     public boolean remove(Long id) {
         return planningWarehouseLayerMapper.deleteById(id) == 1;
+    }
+
+    /**
+     * 根据项目ID删除数据。
+     *
+     * @param projectId 项目ID。
+     */
+    @Override
+    public boolean removeByProjectId(Long projectId) {
+        return planningWarehouseLayerMapper.deleteByProjectId(projectId) > 0;
     }
 
     /**

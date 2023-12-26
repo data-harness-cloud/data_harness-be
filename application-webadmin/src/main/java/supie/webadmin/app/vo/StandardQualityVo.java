@@ -6,19 +6,18 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
 import java.util.Map;
 
 /**
- * StandardQuatityVO视图对象。
+ * StandardQualityVO视图对象。
  *
  * @author rm -rf .bug
  * @date 2020-11-12
  */
-@ApiModel("StandardQuatityVO视图对象")
+@ApiModel("StandardQualityVO视图对象")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class StandardQuatityVo extends BaseVo {
+public class StandardQualityVo extends BaseVo {
 
     /**
      * 租户号。
@@ -69,16 +68,22 @@ public class StandardQuatityVo extends BaseVo {
     private String standardQaulityRe;
 
     /**
-     * 质量校验长度限制。
+     * 质量校验长度限制（正数->大等于。负数->小等于）。
      */
-    @ApiModelProperty(value = "质量校验长度限制")
-    private String standardQualityLang;
+    @ApiModelProperty(value = "质量校验长度限制（正数->大等于。负数->小等于）")
+    private Integer standardQualityLang;
 
     /**
-     * 质量校验不为空。
+     * 质量校验不为空（1：不为空。0：可为空）。
      */
-    @ApiModelProperty(value = "质量校验不为空")
-    private String standardQualityNotNull;
+    @ApiModelProperty(value = "质量校验不为空（1：不为空。0：可为空）")
+    private Integer standardQualityNotNull;
+
+    /**
+     * SQL条件。
+     */
+    @ApiModelProperty(value = "SQL条件")
+    private String customJudgment;
 
     /**
      * 质量校验中心关联规则。
@@ -87,8 +92,8 @@ public class StandardQuatityVo extends BaseVo {
     private Long standardQualityQualityCenterId;
 
     /**
-     * id 的多对多关联表数据对象，数据对应类型为StandardFieldQuatityVo。
+     * id 的多对多关联表数据对象，数据对应类型为StandardFieldQualityVo。
      */
-    @ApiModelProperty(value = "id 的多对多关联表数据对象，数据对应类型为StandardFieldQuatityVo")
-    private Map<String, Object> standardFieldQuatity;
+    @ApiModelProperty(value = "id 的多对多关联表数据对象，数据对应类型为StandardFieldQualityVo")
+    private Map<String, Object> standardFieldQuality;
 }

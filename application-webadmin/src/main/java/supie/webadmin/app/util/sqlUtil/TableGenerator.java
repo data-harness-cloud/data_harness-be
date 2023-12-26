@@ -73,7 +73,7 @@ public class TableGenerator {
             String columnDefaultValue = null;
             Integer columnLength = null;
             Integer columnDecimal = null;
-            Boolean columnIsNullable = null;
+            Boolean columnIsNotNullable = null;
             Boolean columnIsKey = null;
             if (columnMap != null) {
                 columnCode = (String) columnMap.get("columnCode");
@@ -82,7 +82,7 @@ public class TableGenerator {
                 columnDefaultValue = (String) columnMap.get("columnDefaultValue");
                 columnLength = (Integer) columnMap.get("columnLength");
                 columnDecimal = (Integer) columnMap.get("columnDecimal");
-                columnIsNullable = (Boolean) columnMap.get("columnIsNullable");
+                columnIsNotNullable = (Boolean) columnMap.get("columnIsNotNullable");
                 columnIsKey = (Boolean) columnMap.get("columnIsKey");
             }
 
@@ -96,7 +96,7 @@ public class TableGenerator {
             } else if (StrUtil.contains(columnType.toUpperCase(), "VARCHAR")) {
                 sql.append("(").append(255).append(")");
             }
-            if (!columnIsNullable) {
+            if (!columnIsNotNullable) {
                 sql.append(" NULL");
             } else {
                 sql.append(" NOT NULL");
@@ -140,7 +140,7 @@ public class TableGenerator {
             String columnDefaultValue = null;
             Integer columnLength = null;
             Integer columnDecimal = null;
-            Boolean columnIsNullable = null;
+            Boolean columnIsNotNullable = null;
             Boolean columnIsKey = null;
             if (columnMap != null) {
                 columnCode = (String) columnMap.get("columnCode");
@@ -149,7 +149,7 @@ public class TableGenerator {
                 columnDefaultValue = (String) columnMap.get("columnDefaultValue");
                 columnLength = (Integer) columnMap.get("columnLength");
                 columnDecimal = (Integer) columnMap.get("columnDecimal");
-                columnIsNullable = (Boolean) columnMap.get("columnIsNullable");
+                columnIsNotNullable = (Boolean) columnMap.get("columnIsNotNullable");
                 columnIsKey = (Boolean) columnMap.get("columnIsKey");
             }
 
@@ -162,7 +162,7 @@ public class TableGenerator {
             } else if (StrUtil.contains(columnType.toUpperCase(), "VARCHAR")) {
                 sql.append("(").append(255).append(")");
             }
-            if (!columnIsNullable) {
+            if (!columnIsNotNullable) {
                 sql.append(" NULL");
             } else {
                 sql.append(" NOT NULL");
@@ -258,17 +258,17 @@ public class TableGenerator {
                     break;
                 case COLUMN_IS_NULLABLE:
                     // 是否为空
-                    Boolean columnIsNullable = false;
+                    Boolean columnIsNotNullable = false;
                     field.setAccessible(true);
                     if (field.getType() == boolean.class || field.getType() == Boolean.class) {
-                        columnIsNullable = (Boolean) field.get(columnMode);
+                        columnIsNotNullable = (Boolean) field.get(columnMode);
                     } else if (field.getType() == int.class || field.getType() == Integer.class) {
                         Integer isNull = (Integer) field.get(columnMode);
                         if (null != isNull) {
-                            columnIsNullable = isNull == 1;
+                            columnIsNotNullable = isNull == 1;
                         }
                     }
-                    columnMap.put("columnIsNullable", columnIsNullable);
+                    columnMap.put("columnIsNotNullable", columnIsNotNullable);
                     break;
                 case COLUMN_DEFAULT_VALUE:
                     // 默认值
@@ -282,13 +282,17 @@ public class TableGenerator {
                     if (field.getType() == boolean.class || field.getType() == Boolean.class) {
                         columnIsKey = (Boolean) field.get(columnMode);
                     } else if (field.getType() == int.class || field.getType() == Integer.class) {
-                        columnIsKey = ((Integer) field.get(columnMode)) == 1;
+                        if (field.get(columnMode) != null) columnIsKey = ((Integer) field.get(columnMode)) == 1;
                     }
                     columnMap.put("columnIsKey", columnIsKey);
                     break;
             }
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        }
+        // 如果字段为主键，则设置其不为空（All parts of a PRIMARY KEY must be NOT NULL; if you need NULL in a key, use UNIQUE instead.）
+        if (Boolean.TRUE.equals(columnMap.get("columnIsKey"))) {
+            columnMap.put("columnIsNotNullable", true);
         }
         return columnMap;
     }

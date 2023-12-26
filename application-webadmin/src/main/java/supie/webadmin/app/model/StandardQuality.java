@@ -5,22 +5,22 @@ import supie.common.core.util.MyCommonUtil;
 import supie.common.core.annotation.*;
 import supie.common.core.base.model.BaseModel;
 import supie.common.core.base.mapper.BaseModelMapper;
-import supie.webadmin.app.vo.StandardQuatityVo;
+import supie.webadmin.app.vo.StandardQualityVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 /**
- * StandardQuatity实体对象。
+ * StandardQuality实体对象。
  *
  * @author rm -rf .bug
  * @date 2020-11-12
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName(value = "sdt_standard_quatity")
-public class StandardQuatity extends BaseModel {
+@TableName(value = "sdt_standard_quality")
+public class StandardQuality extends BaseModel {
 
     /**
      * 租户号。
@@ -72,14 +72,19 @@ public class StandardQuatity extends BaseModel {
     private String standardQaulityRe;
 
     /**
-     * 质量校验长度限制。
+     * 质量校验长度限制（正数->大等于。负数->小等于）。
      */
-    private String standardQualityLang;
+    private Integer standardQualityLang;
 
     /**
-     * 质量校验不为空。
+     * 质量校验不为空（1：不为空。0：可为空）。
      */
-    private String standardQualityNotNull;
+    private Integer standardQualityNotNull;
+
+    /**
+     * SQL条件。
+     */
+    private String customJudgment;
 
     /**
      * 质量校验中心关联规则。
@@ -124,28 +129,28 @@ public class StandardQuatity extends BaseModel {
      * id 的多对多关联表数据对象。
      */
     @TableField(exist = false)
-    private StandardFieldQuatity standardFieldQuatity;
+    private StandardFieldQuality standardFieldQuality;
 
     @Mapper
-    public interface StandardQuatityModelMapper extends BaseModelMapper<StandardQuatityVo, StandardQuatity> {
+    public interface StandardQualityModelMapper extends BaseModelMapper<StandardQualityVo, StandardQuality> {
         /**
          * 转换Vo对象到实体对象。
          *
-         * @param standardQuatityVo 域对象。
+         * @param standardQualityVo 域对象。
          * @return 实体对象。
          */
-        @Mapping(target = "standardFieldQuatity", expression = "java(mapToBean(standardQuatityVo.getStandardFieldQuatity(), supie.webadmin.app.model.StandardFieldQuatity.class))")
+        @Mapping(target = "standardFieldQuality", expression = "java(mapToBean(standardQualityVo.getStandardFieldQuality(), supie.webadmin.app.model.StandardFieldQuality.class))")
         @Override
-        StandardQuatity toModel(StandardQuatityVo standardQuatityVo);
+        StandardQuality toModel(StandardQualityVo standardQualityVo);
         /**
          * 转换实体对象到VO对象。
          *
-         * @param standardQuatity 实体对象。
+         * @param standardQuality 实体对象。
          * @return 域对象。
          */
-        @Mapping(target = "standardFieldQuatity", expression = "java(beanToMap(standardQuatity.getStandardFieldQuatity(), false))")
+        @Mapping(target = "standardFieldQuality", expression = "java(beanToMap(standardQuality.getStandardFieldQuality(), false))")
         @Override
-        StandardQuatityVo fromModel(StandardQuatity standardQuatity);
+        StandardQualityVo fromModel(StandardQuality standardQuality);
     }
-    public static final StandardQuatityModelMapper INSTANCE = Mappers.getMapper(StandardQuatityModelMapper.class);
+    public static final StandardQualityModelMapper INSTANCE = Mappers.getMapper(StandardQualityModelMapper.class);
 }

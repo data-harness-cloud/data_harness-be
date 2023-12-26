@@ -6,18 +6,16 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
-
 /**
- * StandardFieldQuatityVO视图对象。
+ * StandardFieldQualityVO视图对象。
  *
  * @author rm -rf .bug
  * @date 2020-11-12
  */
-@ApiModel("StandardFieldQuatityVO视图对象")
+@ApiModel("StandardFieldQualityVO视图对象")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class StandardFieldQuatityVo extends BaseVo {
+public class StandardFieldQualityVo extends BaseVo {
 
     /**
      * 租户号。

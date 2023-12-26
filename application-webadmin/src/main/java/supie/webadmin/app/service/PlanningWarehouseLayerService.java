@@ -88,4 +88,13 @@ public interface PlanningWarehouseLayerService extends IBaseService<PlanningWare
      */
     List<PlanningWarehouseLayer> getGroupedPlanningWarehouseLayerListWithRelation(
             PlanningWarehouseLayer filter, String groupSelect, String groupBy, String orderBy);
+
+    void createDatabaseByProjectEngine(ProjectEngine projectEngine, String... databaseNameList);
+
+    /**
+     * 根据项目ID删除数据。
+     *
+     * @param projectId 项目ID。
+     */
+    boolean removeByProjectId(Long projectId);
 }

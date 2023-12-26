@@ -3,6 +3,7 @@ package supie.webadmin.app.controller;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.ApiOperation;
+import org.checkerframework.checker.units.qual.A;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import supie.common.log.annotation.OperationLog;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -45,6 +47,8 @@ public class ModelLogicalMainController {
     private ModelDesginFieldService modelDesginFieldService;
     @Autowired
     private RedissonClient redissonClient;
+    @Autowired
+    private ProjectMainService projectMainService;
 
     /**
      * 新增数据规划-模型设计-模型逻辑表数据，及其关联的从表数据。
@@ -297,12 +301,14 @@ public class ModelLogicalMainController {
 
     @ApiOperation("统计houseLayerNameNumbere数量")
     @PostMapping("/houseLayerNameNumber")
-    public ResponseResult<Map<String, Object>> houseLayerNameNumber(@MyRequestBody String projectId) {
+    public ResponseResult<Map<String, BigDecimal>> houseLayerNameNumber(@MyRequestBody Long projectId) {
         if (projectId == null) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        Map<String, Object> dataMap = modelLogicalMainService.houseLayerNameNumber(projectId);
-
-        return ResponseResult.success(dataMap);
+        // 判断该 projectId 是否存在
+        if (projectMainService.getById(projectId) == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, "该项目ID不存在!");
+        }
+        return ResponseResult.success(modelLogicalMainService.houseLayerNameNumber(projectId));
     }
 }

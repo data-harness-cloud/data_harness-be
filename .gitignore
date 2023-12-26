@@ -25,3 +25,20 @@ target/
 /nbdist/
 /.nb-gradle/
 .DS_Store
+
+/zzlogs/application-webadmin/**/*.log
+/zzlogs/application-webadmin/**/*.log.gz
+/application-common/src/main/java/rebel.xml
+/application-webadmin/src/main/resources/rebel.xml
+/common/common-core/src/main/java/rebel.xml
+/common/common-datafilter/src/main/resources/rebel.xml
+/common/common-dbutil/src/main/java/rebel.xml
+/common/common-dict/src/main/java/rebel.xml
+/common/common-ext/src/main/resources/rebel.xml
+/common/common-log/src/main/resources/rebel.xml
+/common/common-minio/src/main/resources/rebel.xml
+/common/common-quartz/src/main/java/rebel.xml
+/common/common-redis/src/main/resources/rebel.xml
+/common/common-sequence/src/main/resources/rebel.xml
+/common/common-swagger/src/main/resources/rebel.xml
+>>>>>>>>> Temporary merge branch 2

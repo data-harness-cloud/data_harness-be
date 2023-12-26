@@ -3,7 +3,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
 -- 行政区划表，在以下数据库中执行该脚本。
--- 主数据源 [162.14.122.254:40001/sdt_main]
+-- 主数据源 [localhost:3306/sdt_main]
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_area_code`;
 CREATE TABLE `zz_area_code` (

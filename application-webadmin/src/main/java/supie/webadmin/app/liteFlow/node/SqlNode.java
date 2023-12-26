@@ -62,7 +62,7 @@ public class SqlNode extends BaseNode {
         try {
             strategy = strategyFactory.getStrategy(
                     databaseManagement.getDatabaseType(), databaseManagement.getIp(), databaseManagement.getPort(),
-                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword());
+                    databaseManagement.getDatabase(), databaseManagement.getUser(), databaseManagement.getPassword(),0);
         } catch (Exception e) {
             nodeLog.add(LiteFlowNodeLogModel.error(nodeId, nodeTag, "获取数据库连接失败!" + e));
             throw new MyLiteFlowException(new ErrorMessageModel(getClass(), "获取数据库连接失败!" + e));

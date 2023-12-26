@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -89,6 +90,12 @@ public class DevAiChatDialogue extends BaseModel {
      * 对话标识ID。
      */
     private String dialogueStrId;
+
+    /**
+     * 对话标识ID列表(用于查询时作为 dialogueStrId 查询条件)。
+     */
+    @TableField(exist = false)
+    private List<String> dialogueStrIdList;
 
     /**
      * updateTime 范围过滤起始值(>=)。

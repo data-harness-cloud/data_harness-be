@@ -97,6 +97,11 @@ public class CustomizeRoute extends BaseModel {
     private Long processId;
 
     /**
+     * 指标ID。
+     */
+    private Long definitionIndexId;
+
+    /**
      * updateTime 范围过滤起始值(>=)。
      */
     @TableField(exist = false)

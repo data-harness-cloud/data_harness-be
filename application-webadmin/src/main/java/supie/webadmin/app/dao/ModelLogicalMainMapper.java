@@ -47,4 +47,6 @@ public interface ModelLogicalMainMapper extends BaseDaoMapper<ModelLogicalMain> 
      */
     List<ModelLogicalMain> getModelLogicalMainList(
             @Param("modelLogicalMainFilter") ModelLogicalMain modelLogicalMainFilter, @Param("orderBy") String orderBy);
+
+    List<String> houseLayerNameNumber(@Param("projectId") Long projectId);
 }

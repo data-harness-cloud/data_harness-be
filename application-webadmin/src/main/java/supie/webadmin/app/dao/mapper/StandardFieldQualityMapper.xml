@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.StandardFieldQualityMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.StandardFieldQuality">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="staidard_id" jdbcType="BIGINT" property="staidardId"/>
+        <result column="staidard_field_id" jdbcType="BIGINT" property="staidardFieldId"/>
+        <result column="staidard_quality_id" jdbcType="BIGINT" property="staidardQualityId"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_standard_field_quality
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            staidard_id,
+            staidard_field_id,
+            staidard_quality_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.staidardId},
+            #{item.staidardFieldId},
+            #{item.staidardQualityId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.StandardFieldQualityMapper.inputFilterRef"/>
+        AND sdt_standard_field_quality.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="standardFieldQualityFilter != null">
+            <if test="standardFieldQualityFilter.id != null">
+                AND sdt_standard_field_quality.id = #{standardFieldQualityFilter.id}
+            </if>
+            <if test="standardFieldQualityFilter.updateTimeStart != null and standardFieldQualityFilter.updateTimeStart != ''">
+                AND sdt_standard_field_quality.update_time &gt;= #{standardFieldQualityFilter.updateTimeStart}
+            </if>
+            <if test="standardFieldQualityFilter.updateTimeEnd != null and standardFieldQualityFilter.updateTimeEnd != ''">
+                AND sdt_standard_field_quality.update_time &lt;= #{standardFieldQualityFilter.updateTimeEnd}
+            </if>
+            <if test="standardFieldQualityFilter.createTimeStart != null and standardFieldQualityFilter.createTimeStart != ''">
+                AND sdt_standard_field_quality.create_time &gt;= #{standardFieldQualityFilter.createTimeStart}
+            </if>
+            <if test="standardFieldQualityFilter.createTimeEnd != null and standardFieldQualityFilter.createTimeEnd != ''">
+                AND sdt_standard_field_quality.create_time &lt;= #{standardFieldQualityFilter.createTimeEnd}
+            </if>
+            <if test="standardFieldQualityFilter.createUserId != null">
+                AND sdt_standard_field_quality.create_user_id = #{standardFieldQualityFilter.createUserId}
+            </if>
+            <if test="standardFieldQualityFilter.updateUserId != null">
+                AND sdt_standard_field_quality.update_user_id = #{standardFieldQualityFilter.updateUserId}
+            </if>
+            <if test="standardFieldQualityFilter.dataUserId != null">
+                AND sdt_standard_field_quality.data_user_id = #{standardFieldQualityFilter.dataUserId}
+            </if>
+            <if test="standardFieldQualityFilter.dataDeptId != null">
+                AND sdt_standard_field_quality.data_dept_id = #{standardFieldQualityFilter.dataDeptId}
+            </if>
+            <if test="standardFieldQualityFilter.staidardId != null">
+                AND sdt_standard_field_quality.staidard_id = #{standardFieldQualityFilter.staidardId}
+            </if>
+            <if test="standardFieldQualityFilter.staidardFieldId != null">
+                AND sdt_standard_field_quality.staidard_field_id = #{standardFieldQualityFilter.staidardFieldId}
+            </if>
+            <if test="standardFieldQualityFilter.staidardQualityId != null">
+                AND sdt_standard_field_quality.staidard_quality_id = #{standardFieldQualityFilter.staidardQualityId}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedStandardFieldQualityList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.StandardFieldQuality">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_standard_field_quality
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_standard_field_quality
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getStandardFieldQualityList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.StandardFieldQuality">
+        SELECT * FROM sdt_standard_field_quality
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

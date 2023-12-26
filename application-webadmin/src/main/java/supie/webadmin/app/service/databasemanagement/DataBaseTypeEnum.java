@@ -32,7 +32,7 @@ public enum DataBaseTypeEnum {
     /**
      * ClickHouse。
      */
-    DATASOURCE_CK("CLICKHOUSE"),
+    DATASOURCE_CLICK_HOUSE("CLICKHOUSE"),
     /**
      * Hive。
      */

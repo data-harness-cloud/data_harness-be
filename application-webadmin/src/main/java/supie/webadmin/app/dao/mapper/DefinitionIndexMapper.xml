@@ -18,14 +18,10 @@
         <result column="index_level" jdbcType="VARCHAR" property="indexLevel"/>
         <result column="process_id" jdbcType="BIGINT" property="processId"/>
         <result column="index_description" jdbcType="VARCHAR" property="indexDescription"/>
-        <result column="model_logical_id" jdbcType="BIGINT" property="modelLogicalId"/>
+        <result column="customize_route_id" jdbcType="BIGINT" property="customizeRouteId"/>
         <result column="model_desgin_field_id" jdbcType="BIGINT" property="modelDesginFieldId"/>
         <result column="data_type" jdbcType="VARCHAR" property="dataType"/>
         <result column="product_period" jdbcType="VARCHAR" property="productPeriod"/>
-        <result column="caliber_calculate_function" jdbcType="VARCHAR" property="caliberCalculateFunction"/>
-        <result column="caliber_measure_unit" jdbcType="VARCHAR" property="caliberMeasureUnit"/>
-        <result column="caliber_precision" jdbcType="VARCHAR" property="caliberPrecision"/>
-        <result column="caliber_description" jdbcType="VARCHAR" property="caliberDescription"/>
         <result column="project_id" jdbcType="BIGINT" property="projectId"/>
     </resultMap>
 
@@ -47,14 +43,10 @@
             index_level,
             process_id,
             index_description,
-            model_logical_id,
+            customize_route_id,
             model_desgin_field_id,
             data_type,
             product_period,
-            caliber_calculate_function,
-            caliber_measure_unit,
-            caliber_precision,
-            caliber_description,
          project_id)
         VALUES
         <foreach collection="list" index="index" item="item" separator="," >
@@ -74,14 +66,10 @@
             #{item.indexLevel},
             #{item.processId},
             #{item.indexDescription},
-            #{item.modelLogicalId},
+            #{item.customizeRouteId},
             #{item.modelDesginFieldId},
             #{item.dataType},
             #{item.productPeriod},
-            #{item.caliberCalculateFunction},
-            #{item.caliberMeasureUnit},
-            #{item.caliberPrecision},
-            #{item.caliberDescription},
             #{item.projectId})
         </foreach>
     </insert>
@@ -154,8 +142,8 @@
                 <bind name = "safeDefinitionIndexIndexDescription" value = "'%' + definitionIndexFilter.indexDescription + '%'" />
                 AND sdt_definition_index.index_description LIKE #{safeDefinitionIndexIndexDescription}
             </if>
-            <if test="definitionIndexFilter.modelLogicalId != null">
-                AND sdt_definition_index.model_logical_id = #{definitionIndexFilter.modelLogicalId}
+            <if test="definitionIndexFilter.customizeRouteId != null">
+                AND sdt_definition_index.customize_route_id = #{definitionIndexFilter.customizeRouteId}
             </if>
             <if test="definitionIndexFilter.modelDesginFieldId != null">
                 AND sdt_definition_index.model_desgin_field_id = #{definitionIndexFilter.modelDesginFieldId}
@@ -166,25 +154,9 @@
             <if test="definitionIndexFilter.productPeriod != null and definitionIndexFilter.productPeriod != ''">
                 AND sdt_definition_index.product_period = #{definitionIndexFilter.productPeriod}
             </if>
-            <if test="definitionIndexFilter.caliberCalculateFunction != null and definitionIndexFilter.caliberCalculateFunction != ''">
-                <bind name = "safeDefinitionIndexCaliberCalculateFunction" value = "'%' + definitionIndexFilter.caliberCalculateFunction + '%'" />
-                AND sdt_definition_index.caliber_calculate_function LIKE #{safeDefinitionIndexCaliberCalculateFunction}
-            </if>
-            <if test="definitionIndexFilter.caliberMeasureUnit != null and definitionIndexFilter.caliberMeasureUnit != ''">
-                <bind name = "safeDefinitionIndexCaliberMeasureUnit" value = "'%' + definitionIndexFilter.caliberMeasureUnit + '%'" />
-                AND sdt_definition_index.caliber_measure_unit LIKE #{safeDefinitionIndexCaliberMeasureUnit}
-            </if>
-            <if test="definitionIndexFilter.caliberPrecision != null and definitionIndexFilter.caliberPrecision != ''">
-                <bind name = "safeDefinitionIndexCaliberPrecision" value = "'%' + definitionIndexFilter.caliberPrecision + '%'" />
-                AND sdt_definition_index.caliber_precision LIKE #{safeDefinitionIndexCaliberPrecision}
-            </if>
-            <if test="definitionIndexFilter.caliberDescription != null and definitionIndexFilter.caliberDescription != ''">
-                <bind name = "safeDefinitionIndexCaliberDescription" value = "'%' + definitionIndexFilter.caliberDescription + '%'" />
-                AND sdt_definition_index.caliber_description LIKE #{safeDefinitionIndexCaliberDescription}
-            </if>
             <if test="definitionIndexFilter.searchString != null and definitionIndexFilter.searchString != ''">
                 <bind name = "safeDefinitionIndexSearchString" value = "'%' + definitionIndexFilter.searchString + '%'" />
-                AND CONCAT(IFNULL(sdt_definition_index.index_type,''), IFNULL(sdt_definition_index.index_name,''), IFNULL(sdt_definition_index.index_en_name,''), IFNULL(sdt_definition_index.index_code,''), IFNULL(sdt_definition_index.index_level,''), IFNULL(sdt_definition_index.index_description,''), IFNULL(sdt_definition_index.data_type,''), IFNULL(sdt_definition_index.product_period,''), IFNULL(sdt_definition_index.caliber_calculate_function,''), IFNULL(sdt_definition_index.caliber_measure_unit,''), IFNULL(sdt_definition_index.caliber_precision,''), IFNULL(sdt_definition_index.caliber_description,'')) LIKE #{safeDefinitionIndexSearchString}
+                AND CONCAT(IFNULL(sdt_definition_index.index_type,''), IFNULL(sdt_definition_index.index_name,''), IFNULL(sdt_definition_index.index_en_name,''), IFNULL(sdt_definition_index.index_code,''), IFNULL(sdt_definition_index.index_level,''), IFNULL(sdt_definition_index.index_description,''), IFNULL(sdt_definition_index.data_type,''), IFNULL(sdt_definition_index.product_period,'')) LIKE #{safeDefinitionIndexSearchString}
             </if>
         </if>
     </sql>

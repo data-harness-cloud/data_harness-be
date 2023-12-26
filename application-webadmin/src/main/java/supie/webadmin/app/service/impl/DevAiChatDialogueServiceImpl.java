@@ -1,7 +1,13 @@
 package supie.webadmin.app.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
+import supie.common.core.object.MyOrderParam;
+import supie.common.core.object.TokenData;
+import supie.common.core.util.RedisKeyUtil;
 import supie.webadmin.app.service.*;
 import supie.webadmin.app.dao.*;
 import supie.webadmin.app.model.*;
@@ -21,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 数据开发-AI模块-对话记录数据操作服务类。
@@ -40,6 +47,8 @@ public class DevAiChatDialogueServiceImpl extends BaseService<DevAiChatDialogue,
     private SysDeptService sysDeptService;
     @Autowired
     private IdGeneratorWrapper idGenerator;
+    @Autowired
+    private RedissonClient redissonClient;
 
     /**
      * 返回当前Service的主表Mapper对象。
@@ -61,6 +70,18 @@ public class DevAiChatDialogueServiceImpl extends BaseService<DevAiChatDialogue,
     @Override
     public DevAiChatDialogue saveNew(DevAiChatDialogue devAiChatDialogue) {
         devAiChatDialogueMapper.insert(this.buildDefaultValue(devAiChatDialogue));
+        // 存入redis
+        if (devAiChatDialogue.getDialogueStrId() != null) {
+            RBucket<String> rBucket = redissonClient.getBucket(RedisKeyUtil.makeAiConversationKey(devAiChatDialogue.getDialogueStrId()));
+            List<DevAiChatDialogue> devAiChatDialogueList;
+            if (rBucket.isExists()) {
+                devAiChatDialogueList = JSONUtil.toList(JSONUtil.toJsonStr(rBucket.get()), DevAiChatDialogue.class);
+            } else {
+                devAiChatDialogueList = new LinkedList<>();
+            }
+            devAiChatDialogueList.add(devAiChatDialogue);
+            rBucket.set(JSONUtil.toJsonStr(devAiChatDialogueList), 2, TimeUnit.HOURS);
+        }
         return devAiChatDialogue;
     }
 
@@ -91,7 +112,14 @@ public class DevAiChatDialogueServiceImpl extends BaseService<DevAiChatDialogue,
         MyModelUtil.fillCommonsForUpdate(devAiChatDialogue, originalDevAiChatDialogue);
         // 这里重点提示，在执行主表数据更新之前，如果有哪些字段不支持修改操作，请用原有数据对象字段替换当前数据字段。
         UpdateWrapper<DevAiChatDialogue> uw = this.createUpdateQueryForNullValue(devAiChatDialogue, devAiChatDialogue.getId());
-        return devAiChatDialogueMapper.update(devAiChatDialogue, uw) == 1;
+        if (devAiChatDialogueMapper.update(devAiChatDialogue, uw) == 1) {
+            if (devAiChatDialogue.getDialogueStrId() != null) {
+                // 删除redis中的相关数据，下次加载的时候从数据库重新加载到redis。
+                redissonClient.getBucket(RedisKeyUtil.makeAiConversationKey(devAiChatDialogue.getDialogueStrId())).delete();
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -176,5 +204,91 @@ public class DevAiChatDialogueServiceImpl extends BaseService<DevAiChatDialogue,
         MyModelUtil.setDefaultValue(devAiChatDialogue, "dialoguePrompt", "");
         MyModelUtil.setDefaultValue(devAiChatDialogue, "dialogueStrId", "");
         return devAiChatDialogue;
+    }
+
+    /**
+     * 查询对话历史记录
+     *
+     * @param devAiChatDialogueFilter 过滤条件
+     * @return 查询结果集
+     */
+    @Override
+    public List<DevAiChatDialogue> queryConversationHistory(DevAiChatDialogue devAiChatDialogueFilter) {
+        Long userId = TokenData.takeFromRequest().getUserId();
+        devAiChatDialogueFilter.setDataUserId(userId);
+        List<DevAiChatDialogue> devAiChatDialogueList = devAiChatDialogueMapper.queryConversationHistory(devAiChatDialogueFilter);
+        // 开启一个线程，异步存储对话数据到 redis 数据库
+        if (devAiChatDialogueList != null && devAiChatDialogueList.size() > 0) {
+            for (DevAiChatDialogue devAiChatDialogue : devAiChatDialogueList) {
+                if (devAiChatDialogueFilter.getDialogueStrIdList() == null) {
+                    devAiChatDialogueFilter.setDialogueStrIdList(new ArrayList<>());
+                }
+                devAiChatDialogueFilter.getDialogueStrIdList().add(devAiChatDialogue.getDialogueStrId());
+            }
+            new Thread(() -> {
+                loadConversationDataToRedis(devAiChatDialogueFilter);
+            }).start();
+        }
+        return devAiChatDialogueList;
+    }
+
+    /**
+     * 加载对话数据到redis
+     * @param devAiChatDialogueFilter 条件过滤器
+     */
+    private void loadConversationDataToRedis(DevAiChatDialogue devAiChatDialogueFilter) {
+        MyOrderParam.OrderInfo orderInfoOfCreateTime = new MyOrderParam.OrderInfo();
+        orderInfoOfCreateTime.setFieldName("createTime");
+        orderInfoOfCreateTime.setAsc(false);
+        MyOrderParam orderParam = new MyOrderParam();
+        orderParam.add(orderInfoOfCreateTime);
+        String orderBy = MyOrderParam.buildOrderBy(orderParam, DevAiChatDialogue.class);
+        List<DevAiChatDialogue> devAiChatDialogueList = getDevAiChatDialogueList(devAiChatDialogueFilter, orderBy);
+        Map<String, List<DevAiChatDialogue>> devAiChatDialogueMap = new HashMap<>();
+        for (DevAiChatDialogue devAiChatDialogue : devAiChatDialogueList) {
+            // 将其存储至redis中
+            if (!devAiChatDialogueMap.containsKey(devAiChatDialogue.getDialogueStrId())) {
+                devAiChatDialogueMap.put(devAiChatDialogue.getDialogueStrId(), new LinkedList<>());
+            }
+            devAiChatDialogueMap.get(devAiChatDialogue.getDialogueStrId()).add(devAiChatDialogue);
+        }
+        for (Map.Entry<String, List<DevAiChatDialogue>> entry : devAiChatDialogueMap.entrySet()) {
+            String dialogueStrId = entry.getKey();
+            List<DevAiChatDialogue> dialogueList = entry.getValue();
+            String aiConversationKey = RedisKeyUtil.makeAiConversationKey(dialogueStrId);
+            RBucket<String> bucket = redissonClient.getBucket(aiConversationKey);
+            bucket.set(JSONUtil.toJsonStr(dialogueList), 2, TimeUnit.HOURS);
+        }
+    }
+
+    /**
+     * 根据对话记录id查询对话记录
+     * 从redis拿取。redi没有再从数据库拿取，并且将其设置到redis。
+     * @param dialogueStrId 对话记录id
+     * @return 查询结果集
+     */
+    @Override
+    public List<DevAiChatDialogue> queryConversationHistoryByDialogueStrId(String dialogueStrId) {
+        String aiConversationKey = RedisKeyUtil.makeAiConversationKey(dialogueStrId);
+        RBucket<String> bucket = redissonClient.getBucket(aiConversationKey);
+        String jsonStr = bucket.get();
+        if (jsonStr != null) {
+            return JSONUtil.toList(jsonStr, DevAiChatDialogue.class);
+        }
+        DevAiChatDialogue devAiChatDialogueFilter = new DevAiChatDialogue();
+        devAiChatDialogueFilter.setDialogueStrId(dialogueStrId);
+        MyOrderParam.OrderInfo orderInfoOfCreateTime = new MyOrderParam.OrderInfo();
+        orderInfoOfCreateTime.setFieldName("createTime");
+        orderInfoOfCreateTime.setAsc(false);
+        MyOrderParam orderParam = new MyOrderParam();
+        orderParam.add(orderInfoOfCreateTime);
+        String orderBy = MyOrderParam.buildOrderBy(orderParam, DevAiChatDialogue.class);
+        List<DevAiChatDialogue> devAiChatDialogueList = getDevAiChatDialogueList(devAiChatDialogueFilter, orderBy);
+        if (devAiChatDialogueList != null && devAiChatDialogueList.size() > 0) {
+            bucket.set(JSONUtil.toJsonStr(devAiChatDialogueList), 2, TimeUnit.HOURS);
+            return devAiChatDialogueList;
+        } else {
+            return null;
+        }
     }
 }

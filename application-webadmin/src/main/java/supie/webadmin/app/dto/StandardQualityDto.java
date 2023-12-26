@@ -9,14 +9,14 @@ import lombok.Data;
 import javax.validation.constraints.*;
 
 /**
- * StandardQuatityDto对象。
+ * StandardQualityDto对象。
  *
  * @author rm -rf .bug
  * @date 2020-11-12
  */
-@ApiModel("StandardQuatityDto对象")
+@ApiModel("StandardQualityDto对象")
 @Data
-public class StandardQuatityDto {
+public class StandardQualityDto {
 
     /**
      * 租户号。
@@ -68,16 +68,22 @@ public class StandardQuatityDto {
     private String standardQaulityRe;
 
     /**
-     * 质量校验长度限制。
+     * 质量校验长度限制（正数->大等于。负数->小等于）。
      */
-    @ApiModelProperty(value = "质量校验长度限制")
-    private String standardQualityLang;
+    @ApiModelProperty(value = "质量校验长度限制（正数->大等于。负数->小等于）")
+    private Integer standardQualityLang;
 
     /**
-     * 质量校验不为空。
+     * 质量校验不为空（1：不为空。0：可为空）。
      */
-    @ApiModelProperty(value = "质量校验不为空")
-    private String standardQualityNotNull;
+    @ApiModelProperty(value = "质量校验不为空（1：不为空。0：可为空）")
+    private Integer standardQualityNotNull;
+
+    /**
+     * SQL条件。
+     */
+    @ApiModelProperty(value = "SQL条件")
+    private String customJudgment;
 
     /**
      * 质量校验中心关联规则。

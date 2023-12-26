@@ -11,31 +11,31 @@ import java.util.*;
  * @author rm -rf .bug
  * @date 2020-11-12
  */
-public interface StandardFieldQuatityService extends IBaseService<StandardFieldQuatity, Long> {
+public interface StandardFieldQualityService extends IBaseService<StandardFieldQuality, Long> {
 
     /**
      * 保存新增对象。
      *
-     * @param standardFieldQuatity 新增对象。
+     * @param standardFieldQuality 新增对象。
      * @return 返回新增对象。
      */
-    StandardFieldQuatity saveNew(StandardFieldQuatity standardFieldQuatity);
+    StandardFieldQuality saveNew(StandardFieldQuality standardFieldQuality);
 
     /**
      * 利用数据库的insertList语法，批量插入对象列表。
      *
-     * @param standardFieldQuatityList 新增对象列表。
+     * @param standardFieldQualityList 新增对象列表。
      */
-    void saveNewBatch(List<StandardFieldQuatity> standardFieldQuatityList);
+    void saveNewBatch(List<StandardFieldQuality> standardFieldQualityList);
 
     /**
      * 更新数据对象。
      *
-     * @param standardFieldQuatity         更新的对象。
-     * @param originalStandardFieldQuatity 原有数据对象。
+     * @param standardFieldQuality         更新的对象。
+     * @param originalStandardFieldQuality 原有数据对象。
      * @return 成功返回true，否则false。
      */
-    boolean update(StandardFieldQuatity standardFieldQuatity, StandardFieldQuatity originalStandardFieldQuatity);
+    boolean update(StandardFieldQuality standardFieldQuality, StandardFieldQuality originalStandardFieldQuality);
 
     /**
      * 删除指定数据。
@@ -47,24 +47,24 @@ public interface StandardFieldQuatityService extends IBaseService<StandardFieldQ
 
     /**
      * 获取单表查询结果。由于没有关联数据查询，因此在仅仅获取单表数据的场景下，效率更高。
-     * 如果需要同时获取关联数据，请移步(getStandardFieldQuatityListWithRelation)方法。
+     * 如果需要同时获取关联数据，请移步(getStandardFieldQualityListWithRelation)方法。
      *
      * @param filter  过滤对象。
      * @param orderBy 排序参数。
      * @return 查询结果集。
      */
-    List<StandardFieldQuatity> getStandardFieldQuatityList(StandardFieldQuatity filter, String orderBy);
+    List<StandardFieldQuality> getStandardFieldQualityList(StandardFieldQuality filter, String orderBy);
 
     /**
      * 获取主表的查询结果，以及主表关联的字典数据和一对一从表数据，以及一对一从表的字典数据。
      * 该查询会涉及到一对一从表的关联过滤，或一对多从表的嵌套关联过滤，因此性能不如单表过滤。
-     * 如果仅仅需要获取主表数据，请移步(getStandardFieldQuatityList)，以便获取更好的查询性能。
+     * 如果仅仅需要获取主表数据，请移步(getStandardFieldQualityList)，以便获取更好的查询性能。
      *
      * @param filter 主表过滤对象。
      * @param orderBy 排序参数。
      * @return 查询结果集。
      */
-    List<StandardFieldQuatity> getStandardFieldQuatityListWithRelation(StandardFieldQuatity filter, String orderBy);
+    List<StandardFieldQuality> getStandardFieldQualityListWithRelation(StandardFieldQuality filter, String orderBy);
 
     /**
      * 获取分组过滤后的数据查询结果，以及关联的字典数据和一对一从表数据，以及一对一从表的字典数据。
@@ -75,6 +75,6 @@ public interface StandardFieldQuatityService extends IBaseService<StandardFieldQ
      * @param orderBy     排序字符串，ORDER BY从句的参数。
      * @return 分组过滤结果集。
      */
-    List<StandardFieldQuatity> getGroupedStandardFieldQuatityListWithRelation(
-            StandardFieldQuatity filter, String groupSelect, String groupBy, String orderBy);
+    List<StandardFieldQuality> getGroupedStandardFieldQualityListWithRelation(
+            StandardFieldQuality filter, String groupSelect, String groupBy, String orderBy);
 }

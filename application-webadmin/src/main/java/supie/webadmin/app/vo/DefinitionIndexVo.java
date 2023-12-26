@@ -93,10 +93,10 @@ public class DefinitionIndexVo extends BaseVo {
     private String indexDescription;
 
     /**
-     * 关联明细表id。
+     * 动态路由id。
      */
-    @ApiModelProperty(value = "关联明细表id")
-    private Long modelLogicalId;
+    @ApiModelProperty(value = "动态路由id")
+    private Long customizeRouteId;
 
     /**
      * 关联字段。
@@ -116,27 +116,4 @@ public class DefinitionIndexVo extends BaseVo {
     @ApiModelProperty(value = "生产周期")
     private String productPeriod;
 
-    /**
-     * 计算函数。
-     */
-    @ApiModelProperty(value = "计算函数")
-    private String caliberCalculateFunction;
-
-    /**
-     * 度量单位。
-     */
-    @ApiModelProperty(value = "度量单位")
-    private String caliberMeasureUnit;
-
-    /**
-     * 度量精度。
-     */
-    @ApiModelProperty(value = "度量精度")
-    private String caliberPrecision;
-
-    /**
-     * 口径说明。
-     */
-    @ApiModelProperty(value = "口径说明")
-    private String caliberDescription;
 }

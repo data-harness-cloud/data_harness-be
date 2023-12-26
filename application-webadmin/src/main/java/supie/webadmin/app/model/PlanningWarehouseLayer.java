@@ -1,6 +1,8 @@
 package supie.webadmin.app.model;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import supie.common.core.util.MyCommonUtil;
 import supie.common.core.annotation.*;
 import supie.common.core.base.model.BaseModel;
@@ -19,6 +21,8 @@ import java.util.List;
  * @date 2020-11-12
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sdt_planning_warehouse_layer")
 public class PlanningWarehouseLayer extends BaseModel {
@@ -141,6 +145,13 @@ public class PlanningWarehouseLayer extends BaseModel {
             slaveIdField = "planningWarehouseLayerId")
     @TableField(exist = false)
     private List<ModelPhysicsScript> modelPhysicsScriptList;
+
+    public PlanningWarehouseLayer(Long projectId, String houseLayerCode, String houseLayerName, Integer houseLayerStatus) {
+        this.projectId = projectId;
+        this.houseLayerCode = houseLayerCode;
+        this.houseLayerName = houseLayerName;
+        this.houseLayerStatus = houseLayerStatus;
+    }
 
     @Mapper
     public interface PlanningWarehouseLayerModelMapper extends BaseModelMapper<PlanningWarehouseLayerVo, PlanningWarehouseLayer> {

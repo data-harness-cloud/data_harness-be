@@ -26,11 +26,11 @@ import java.util.*;
  * @date 2020-11-12
  */
 @Slf4j
-@Service("standardFieldQuatityService")
-public class StandardFieldQuatityServiceImpl extends BaseService<StandardFieldQuatity, Long> implements StandardFieldQuatityService {
+@Service("standardFieldQualityService")
+public class StandardFieldQualityServiceImpl extends BaseService<StandardFieldQuality, Long> implements StandardFieldQualityService {
 
     @Autowired
-    private StandardFieldQuatityMapper standardFieldQuatityMapper;
+    private StandardFieldQualityMapper standardFieldQualityMapper;
     @Autowired
     private IdGeneratorWrapper idGenerator;
 
@@ -40,51 +40,51 @@ public class StandardFieldQuatityServiceImpl extends BaseService<StandardFieldQu
      * @return 主表Mapper对象。
      */
     @Override
-    protected BaseDaoMapper<StandardFieldQuatity> mapper() {
-        return standardFieldQuatityMapper;
+    protected BaseDaoMapper<StandardFieldQuality> mapper() {
+        return standardFieldQualityMapper;
     }
 
     /**
      * 保存新增对象。
      *
-     * @param standardFieldQuatity 新增对象。
+     * @param standardFieldQuality 新增对象。
      * @return 返回新增对象。
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public StandardFieldQuatity saveNew(StandardFieldQuatity standardFieldQuatity) {
-        standardFieldQuatityMapper.insert(this.buildDefaultValue(standardFieldQuatity));
-        return standardFieldQuatity;
+    public StandardFieldQuality saveNew(StandardFieldQuality standardFieldQuality) {
+        standardFieldQualityMapper.insert(this.buildDefaultValue(standardFieldQuality));
+        return standardFieldQuality;
     }
 
     /**
      * 利用数据库的insertList语法，批量插入对象列表。
      *
-     * @param standardFieldQuatityList 新增对象列表。
+     * @param standardFieldQualityList 新增对象列表。
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void saveNewBatch(List<StandardFieldQuatity> standardFieldQuatityList) {
-        if (CollUtil.isNotEmpty(standardFieldQuatityList)) {
-            standardFieldQuatityList.forEach(this::buildDefaultValue);
-            standardFieldQuatityMapper.insertList(standardFieldQuatityList);
+    public void saveNewBatch(List<StandardFieldQuality> standardFieldQualityList) {
+        if (CollUtil.isNotEmpty(standardFieldQualityList)) {
+            standardFieldQualityList.forEach(this::buildDefaultValue);
+            standardFieldQualityMapper.insertList(standardFieldQualityList);
         }
     }
 
     /**
      * 更新数据对象。
      *
-     * @param standardFieldQuatity         更新的对象。
-     * @param originalStandardFieldQuatity 原有数据对象。
+     * @param standardFieldQuality         更新的对象。
+     * @param originalStandardFieldQuality 原有数据对象。
      * @return 成功返回true，否则false。
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean update(StandardFieldQuatity standardFieldQuatity, StandardFieldQuatity originalStandardFieldQuatity) {
-        MyModelUtil.fillCommonsForUpdate(standardFieldQuatity, originalStandardFieldQuatity);
+    public boolean update(StandardFieldQuality standardFieldQuality, StandardFieldQuality originalStandardFieldQuality) {
+        MyModelUtil.fillCommonsForUpdate(standardFieldQuality, originalStandardFieldQuality);
         // 这里重点提示，在执行主表数据更新之前，如果有哪些字段不支持修改操作，请用原有数据对象字段替换当前数据字段。
-        UpdateWrapper<StandardFieldQuatity> uw = this.createUpdateQueryForNullValue(standardFieldQuatity, standardFieldQuatity.getId());
-        return standardFieldQuatityMapper.update(standardFieldQuatity, uw) == 1;
+        UpdateWrapper<StandardFieldQuality> uw = this.createUpdateQueryForNullValue(standardFieldQuality, standardFieldQuality.getId());
+        return standardFieldQualityMapper.update(standardFieldQuality, uw) == 1;
     }
 
     /**
@@ -96,34 +96,34 @@ public class StandardFieldQuatityServiceImpl extends BaseService<StandardFieldQu
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean remove(Long id) {
-        return standardFieldQuatityMapper.deleteById(id) == 1;
+        return standardFieldQualityMapper.deleteById(id) == 1;
     }
 
     /**
      * 获取单表查询结果。由于没有关联数据查询，因此在仅仅获取单表数据的场景下，效率更高。
-     * 如果需要同时获取关联数据，请移步(getStandardFieldQuatityListWithRelation)方法。
+     * 如果需要同时获取关联数据，请移步(getStandardFieldQualityListWithRelation)方法。
      *
      * @param filter  过滤对象。
      * @param orderBy 排序参数。
      * @return 查询结果集。
      */
     @Override
-    public List<StandardFieldQuatity> getStandardFieldQuatityList(StandardFieldQuatity filter, String orderBy) {
-        return standardFieldQuatityMapper.getStandardFieldQuatityList(filter, orderBy);
+    public List<StandardFieldQuality> getStandardFieldQualityList(StandardFieldQuality filter, String orderBy) {
+        return standardFieldQualityMapper.getStandardFieldQualityList(filter, orderBy);
     }
 
     /**
      * 获取主表的查询结果，以及主表关联的字典数据和一对一从表数据，以及一对一从表的字典数据。
      * 该查询会涉及到一对一从表的关联过滤，或一对多从表的嵌套关联过滤，因此性能不如单表过滤。
-     * 如果仅仅需要获取主表数据，请移步(getStandardFieldQuatityList)，以便获取更好的查询性能。
+     * 如果仅仅需要获取主表数据，请移步(getStandardFieldQualityList)，以便获取更好的查询性能。
      *
      * @param filter 主表过滤对象。
      * @param orderBy 排序参数。
      * @return 查询结果集。
      */
     @Override
-    public List<StandardFieldQuatity> getStandardFieldQuatityListWithRelation(StandardFieldQuatity filter, String orderBy) {
-        List<StandardFieldQuatity> resultList = standardFieldQuatityMapper.getStandardFieldQuatityList(filter, orderBy);
+    public List<StandardFieldQuality> getStandardFieldQualityListWithRelation(StandardFieldQuality filter, String orderBy) {
+        List<StandardFieldQuality> resultList = standardFieldQualityMapper.getStandardFieldQualityList(filter, orderBy);
         // 在缺省生成的代码中，如果查询结果resultList不是Page对象，说明没有分页，那么就很可能是数据导出接口调用了当前方法。
         // 为了避免一次性的大量数据关联，规避因此而造成的系统运行性能冲击，这里手动进行了分批次读取，开发者可按需修改该值。
         int batchSize = resultList instanceof Page ? 0 : 1000;
@@ -141,10 +141,10 @@ public class StandardFieldQuatityServiceImpl extends BaseService<StandardFieldQu
      * @return 分组过滤结果集。
      */
     @Override
-    public List<StandardFieldQuatity> getGroupedStandardFieldQuatityListWithRelation(
-            StandardFieldQuatity filter, String groupSelect, String groupBy, String orderBy) {
-        List<StandardFieldQuatity> resultList =
-                standardFieldQuatityMapper.getGroupedStandardFieldQuatityList(filter, groupSelect, groupBy, orderBy);
+    public List<StandardFieldQuality> getGroupedStandardFieldQualityListWithRelation(
+            StandardFieldQuality filter, String groupSelect, String groupBy, String orderBy) {
+        List<StandardFieldQuality> resultList =
+                standardFieldQualityMapper.getGroupedStandardFieldQualityList(filter, groupSelect, groupBy, orderBy);
         // 在缺省生成的代码中，如果查询结果resultList不是Page对象，说明没有分页，那么就很可能是数据导出接口调用了当前方法。
         // 为了避免一次性的大量数据关联，规避因此而造成的系统运行性能冲击，这里手动进行了分批次读取，开发者可按需修改该值。
         int batchSize = resultList instanceof Page ? 0 : 1000;
@@ -154,12 +154,12 @@ public class StandardFieldQuatityServiceImpl extends BaseService<StandardFieldQu
         return resultList;
     }
 
-    private StandardFieldQuatity buildDefaultValue(StandardFieldQuatity standardFieldQuatity) {
-        if (standardFieldQuatity.getId() == null) {
-            standardFieldQuatity.setId(idGenerator.nextLongId());
+    private StandardFieldQuality buildDefaultValue(StandardFieldQuality standardFieldQuality) {
+        if (standardFieldQuality.getId() == null) {
+            standardFieldQuality.setId(idGenerator.nextLongId());
         }
-        MyModelUtil.fillCommonsForInsert(standardFieldQuatity);
-        standardFieldQuatity.setIsDelete(GlobalDeletedFlag.NORMAL);
-        return standardFieldQuatity;
+        MyModelUtil.fillCommonsForInsert(standardFieldQuality);
+        standardFieldQuality.setIsDelete(GlobalDeletedFlag.NORMAL);
+        return standardFieldQuality;
     }
 }

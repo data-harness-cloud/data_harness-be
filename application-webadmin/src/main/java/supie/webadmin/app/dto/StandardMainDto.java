@@ -98,6 +98,12 @@ public class StandardMainDto {
     private String standardStatus;
 
     /**
+     * 正则表达式。
+     */
+    @ApiModelProperty(value = "正则表达式")
+    private String standardRegular;
+
+    /**
      * updateTime 范围过滤起始值(>=)。
      */
     @ApiModelProperty(value = "updateTime 范围过滤起始值(>=)")

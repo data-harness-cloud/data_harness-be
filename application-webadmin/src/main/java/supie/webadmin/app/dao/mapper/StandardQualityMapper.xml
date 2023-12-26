@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="supie.webadmin.app.dao.StandardQualityMapper">
+    <resultMap id="BaseResultMap" type="supie.webadmin.app.model.StandardQuality">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="data_user_id" jdbcType="BIGINT" property="dataUserId"/>
+        <result column="data_dept_id" jdbcType="BIGINT" property="dataDeptId"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="standard_quality_name" jdbcType="VARCHAR" property="standardQualityName"/>
+        <result column="standard_quality_code" jdbcType="VARCHAR" property="standardQualityCode"/>
+        <result column="staidard_quality_type" jdbcType="VARCHAR" property="staidardQualityType"/>
+        <result column="standard_quality_parent_id" jdbcType="BIGINT" property="standardQualityParentId"/>
+        <result column="standard_qaulity_re" jdbcType="VARCHAR" property="standardQaulityRe"/>
+        <result column="standard_quality_lang" jdbcType="INTEGER" property="standardQualityLang"/>
+        <result column="standard_quality_not_null" jdbcType="INTEGER" property="standardQualityNotNull"/>
+        <result column="custom_judgment" jdbcType="VARCHAR" property="customJudgment"/>
+        <result column="standard_quality_quality_center_id" jdbcType="BIGINT" property="standardQualityQualityCenterId"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMapWithStandardFieldQuality" type="supie.webadmin.app.model.StandardQuality" extends="BaseResultMap">
+        <association property="standardFieldQuality" column="id" foreignColumn="staidard_quality_id"
+                     notNullColumn="id" resultMap="supie.webadmin.app.dao.StandardFieldQualityMapper.BaseResultMap" />
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO sdt_standard_quality
+            (id,
+            update_time,
+            create_time,
+            create_user_id,
+            update_user_id,
+            data_user_id,
+            data_dept_id,
+            is_delete,
+            standard_quality_name,
+            standard_quality_code,
+            staidard_quality_type,
+            standard_quality_parent_id,
+            standard_qaulity_re,
+            standard_quality_lang,
+            standard_quality_not_null,
+            custom_judgment,
+            standard_quality_quality_center_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.id},
+            #{item.updateTime},
+            #{item.createTime},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.dataUserId},
+            #{item.dataDeptId},
+            #{item.isDelete},
+            #{item.standardQualityName},
+            #{item.standardQualityCode},
+            #{item.staidardQualityType},
+            #{item.standardQualityParentId},
+            #{item.standardQaulityRe},
+            #{item.standardQualityLang},
+            #{item.standardQualityNotNull},
+            #{item.customJudgment},
+            #{item.standardQualityQualityCenterId})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="supie.webadmin.app.dao.StandardQualityMapper.inputFilterRef"/>
+        AND sdt_standard_quality.is_delete = ${@supie.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="standardQualityFilter != null">
+            <if test="standardQualityFilter.id != null">
+                AND sdt_standard_quality.id = #{standardQualityFilter.id}
+            </if>
+            <if test="standardQualityFilter.updateTimeStart != null and standardQualityFilter.updateTimeStart != ''">
+                AND sdt_standard_quality.update_time &gt;= #{standardQualityFilter.updateTimeStart}
+            </if>
+            <if test="standardQualityFilter.updateTimeEnd != null and standardQualityFilter.updateTimeEnd != ''">
+                AND sdt_standard_quality.update_time &lt;= #{standardQualityFilter.updateTimeEnd}
+            </if>
+            <if test="standardQualityFilter.createTimeStart != null and standardQualityFilter.createTimeStart != ''">
+                AND sdt_standard_quality.create_time &gt;= #{standardQualityFilter.createTimeStart}
+            </if>
+            <if test="standardQualityFilter.createTimeEnd != null and standardQualityFilter.createTimeEnd != ''">
+                AND sdt_standard_quality.create_time &lt;= #{standardQualityFilter.createTimeEnd}
+            </if>
+            <if test="standardQualityFilter.createUserId != null">
+                AND sdt_standard_quality.create_user_id = #{standardQualityFilter.createUserId}
+            </if>
+            <if test="standardQualityFilter.updateUserId != null">
+                AND sdt_standard_quality.update_user_id = #{standardQualityFilter.updateUserId}
+            </if>
+            <if test="standardQualityFilter.dataUserId != null">
+                AND sdt_standard_quality.data_user_id = #{standardQualityFilter.dataUserId}
+            </if>
+            <if test="standardQualityFilter.dataDeptId != null">
+                AND sdt_standard_quality.data_dept_id = #{standardQualityFilter.dataDeptId}
+            </if>
+            <if test="standardQualityFilter.standardQualityName != null and standardQualityFilter.standardQualityName != ''">
+                <bind name = "safeStandardQualityStandardQualityName" value = "'%' + standardQualityFilter.standardQualityName + '%'" />
+                AND sdt_standard_quality.standard_quality_name LIKE #{safeStandardQualityStandardQualityName}
+            </if>
+            <if test="standardQualityFilter.standardQualityCode != null and standardQualityFilter.standardQualityCode != ''">
+                <bind name = "safeStandardQualityStandardQualityCode" value = "'%' + standardQualityFilter.standardQualityCode + '%'" />
+                AND sdt_standard_quality.standard_quality_code LIKE #{safeStandardQualityStandardQualityCode}
+            </if>
+            <if test="standardQualityFilter.staidardQualityType != null and standardQualityFilter.staidardQualityType != ''">
+                <bind name = "safeStandardQualityStaidardQualityType" value = "'%' + standardQualityFilter.staidardQualityType + '%'" />
+                AND sdt_standard_quality.staidard_quality_type LIKE #{safeStandardQualityStaidardQualityType}
+            </if>
+            <if test="standardQualityFilter.standardQualityParentId != null">
+                AND sdt_standard_quality.standard_quality_parent_id = #{standardQualityFilter.standardQualityParentId}
+            </if>
+            <if test="standardQualityFilter.standardQaulityRe != null and standardQualityFilter.standardQaulityRe != ''">
+                <bind name = "safeStandardQualityStandardQaulityRe" value = "'%' + standardQualityFilter.standardQaulityRe + '%'" />
+                AND sdt_standard_quality.standard_qaulity_re LIKE #{safeStandardQualityStandardQaulityRe}
+            </if>
+            <if test="standardQualityFilter.standardQualityLang != null">
+                AND sdt_standard_quality.standard_quality_lang = #{standardQualityFilter.standardQualityLang}
+            </if>
+            <if test="standardQualityFilter.standardQualityNotNull != null">
+                AND sdt_standard_quality.standard_quality_not_null = #{standardQualityFilter.standardQualityNotNull}
+            </if>
+            <if test="standardQualityFilter.customJudgment != null and standardQualityFilter.customJudgment != ''">
+                <bind name = "safeStandardQualityCustomJudgment" value = "'%' + standardQualityFilter.customJudgment + '%'" />
+                AND sdt_standard_quality.custom_judgment LIKE #{safeStandardQualityCustomJudgment}
+            </if>
+            <if test="standardQualityFilter.standardQualityQualityCenterId != null">
+                AND sdt_standard_quality.standard_quality_quality_center_id = #{standardQualityFilter.standardQualityQualityCenterId}
+            </if>
+            <if test="standardQualityFilter.searchString != null and standardQualityFilter.searchString != ''">
+                <bind name = "safeStandardQualitySearchString" value = "'%' + standardQualityFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(sdt_standard_quality.standard_quality_name,''), IFNULL(sdt_standard_quality.standard_quality_code,''), IFNULL(sdt_standard_quality.staidard_quality_type,''), IFNULL(sdt_standard_quality.standard_qaulity_re,''), IFNULL(sdt_standard_quality.standard_quality_lang,''), IFNULL(sdt_standard_quality.standard_quality_not_null,'')) LIKE #{safeStandardQualitySearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedStandardQualityList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.StandardQuality">
+        SELECT * FROM
+            (SELECT
+                COUNT(id) id,
+                ${groupSelect}
+            FROM sdt_standard_quality
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) sdt_standard_quality
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getStandardQualityList" resultMap="BaseResultMap" parameterType="supie.webadmin.app.model.StandardQuality">
+        SELECT * FROM sdt_standard_quality
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getStandardQualityListByStaidardFieldId" resultMap="BaseResultMapWithStandardFieldQuality">
+        SELECT
+            sdt_standard_quality.*,
+            sdt_standard_field_quality.*
+        FROM
+            sdt_standard_quality,
+            sdt_standard_field_quality
+        <where>
+            AND sdt_standard_field_quality.staidard_field_id = #{staidardFieldId}
+            AND sdt_standard_field_quality.staidard_quality_id = sdt_standard_quality.id
+            <include refid="filterRef"/>
+            <include refid="supie.webadmin.app.dao.StandardFieldQualityMapper.filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getNotInStandardQualityListByStaidardFieldId" resultMap="BaseResultMap">
+        SELECT
+            sdt_standard_quality.*
+        FROM
+            sdt_standard_quality
+        <where>
+            AND NOT EXISTS (SELECT * FROM sdt_standard_field_quality
+                WHERE sdt_standard_field_quality.staidard_field_id = #{staidardFieldId} AND sdt_standard_field_quality.staidard_quality_id = sdt_standard_quality.id)
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

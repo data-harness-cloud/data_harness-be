@@ -25,6 +25,7 @@ import supie.webadmin.app.service.databasemanagement.StrategyFactory;
 import supie.webadmin.app.util.sqlUtil.TableGenerator;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -300,16 +301,16 @@ public class ModelLogicalMainServiceImpl extends BaseService<ModelLogicalMain, L
         Strategy strategy;
         try {
             strategy = strategyFactory.getStrategy(projectEngine.getEngineType(), projectEngine.getEngineHost(), projectEngine.getEnginePort(),
-                    planningWarehouseLayer.getHouseLayerCode(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword());
+                    planningWarehouseLayer.getHouseLayerCode(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword(),0);
         } catch (Exception e) {
             if (StrUtil.contains(e.getMessage(), "Unknown database")) {
                 // 数据库不存在，创建数据库
                 strategy = strategyFactory.getStrategy(projectEngine.getEngineType(), projectEngine.getEngineHost(), projectEngine.getEnginePort(),
-                        projectEngine.getEngineName(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword());
+                        projectEngine.getEngineName(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword(),0);
                 strategy.createDatabase(planningWarehouseLayer.getHouseLayerCode());
                 strategy.closeAll();
                 return strategyFactory.getStrategy(projectEngine.getEngineType(), projectEngine.getEngineHost(), projectEngine.getEnginePort(),
-                        planningWarehouseLayer.getHouseLayerCode(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword());
+                        planningWarehouseLayer.getHouseLayerCode(), projectEngine.getEngineUsername(), projectEngine.getEnginePassword(),0);
             }
             throw new RuntimeException(e);
         }
@@ -367,65 +368,34 @@ public class ModelLogicalMainServiceImpl extends BaseService<ModelLogicalMain, L
     }
 
     @Override
-    public Map<String, Object> houseLayerNameNumber(String projectId) {
-        // 查询ODS
-        PlanningWarehouseLayer ods = planningWarehouseLayerMapper.selectOne(new LambdaQueryWrapper<PlanningWarehouseLayer>()
-                .like(PlanningWarehouseLayer::getHouseLayerCode, "ODS")
-                .eq(PlanningWarehouseLayer::getProjectId, projectId));
-
-        // 统计DDS数量
-        Long odsNumber = modelLogicalMainMapper.selectCount(new LambdaQueryWrapper<ModelLogicalMain>()
-                .eq(ModelLogicalMain::getProjectId, projectId)
-                .eq(ModelLogicalMain::getWarehouseLayerId, ods.getId()));
-
-        // 查询DWS
-        PlanningWarehouseLayer dws = planningWarehouseLayerMapper.selectOne(new LambdaQueryWrapper<PlanningWarehouseLayer>()
-                .eq(PlanningWarehouseLayer::getProjectId, projectId)
-                .like(PlanningWarehouseLayer::getHouseLayerCode, "DWS"));
-
-        // 统计DWS数量
-        Long dwsNumber = modelLogicalMainMapper.selectCount(new LambdaQueryWrapper<ModelLogicalMain>()
-                .eq(ModelLogicalMain::getProjectId,projectId)
-                .eq(ModelLogicalMain::getWarehouseLayerId,dws.getId()));
-
-        // 查询DWD
-        PlanningWarehouseLayer dwd = planningWarehouseLayerMapper.selectOne(new LambdaQueryWrapper<PlanningWarehouseLayer>()
-                .eq(PlanningWarehouseLayer::getProjectId, projectId)
-                .like(PlanningWarehouseLayer::getHouseLayerCode, "DWD"));
-
-        // 统计DWD数量
-        Long dwdNumber =  modelLogicalMainMapper.selectCount(new LambdaQueryWrapper<ModelLogicalMain>()
-                .eq(ModelLogicalMain::getProjectId,projectId)
-                .eq(ModelLogicalMain::getWarehouseLayerId,dwd.getId()));
-
-        // 查询ADS
-        PlanningWarehouseLayer ads = planningWarehouseLayerMapper.selectOne(new LambdaQueryWrapper<PlanningWarehouseLayer>()
-                .eq(PlanningWarehouseLayer::getProjectId, projectId)
-                .like(PlanningWarehouseLayer::getHouseLayerCode, "ADS"));
-
-        // 统计ADS数量
-        Long adsNumber = modelLogicalMainMapper.selectCount(new LambdaQueryWrapper<ModelLogicalMain>()
-                .eq(ModelLogicalMain::getProjectId,projectId)
-                .eq(ModelLogicalMain::getWarehouseLayerId,ads.getId()));
-
-        // 查询DIM
-        PlanningWarehouseLayer dim = planningWarehouseLayerMapper.selectOne(new LambdaQueryWrapper<PlanningWarehouseLayer>()
-                .eq(PlanningWarehouseLayer::getProjectId, projectId)
-                .like(PlanningWarehouseLayer::getHouseLayerCode, "DIM"));
-
-        // 统计DIM数量
-        Long dimNumber =  modelLogicalMainMapper.selectCount(new LambdaQueryWrapper<ModelLogicalMain>()
-                .eq(ModelLogicalMain::getProjectId,projectId)
-                .eq(ModelLogicalMain::getWarehouseLayerId,dim.getId()));
-
-
-        HashMap<String, Object> dataMap = new HashMap<>();
-        dataMap.put("odsNumber",odsNumber);
-        dataMap.put("dwsNumber",dwsNumber);
-        dataMap.put("dwdNumber",dwdNumber);
-        dataMap.put("adsNumber",adsNumber);
-        dataMap.put("dimNumber",dimNumber);
-
+    public Map<String, BigDecimal> houseLayerNameNumber(Long projectId) {
+        // 查询ODS、DWS、DWD、ADS、DDS、DIM数量
+        List<String> houseLayerNameList = modelLogicalMainMapper.houseLayerNameNumber(projectId);
+        HashMap<String, BigDecimal> dataMap = new HashMap<>();
+        dataMap.put("odsNumber", new BigDecimal("0"));
+        dataMap.put("dwsNumber", new BigDecimal("0"));
+        dataMap.put("dwdNumber", new BigDecimal("0"));
+        dataMap.put("adsNumber", new BigDecimal("0"));
+        dataMap.put("ddsNumber", new BigDecimal("0"));
+        dataMap.put("dimNumber", new BigDecimal("0"));
+        for (String houseLayerName : houseLayerNameList) {
+            // 判断 houseLayerName 中是否存在指定字符串
+            if (StrUtil.contains(houseLayerName, "ODS")) {
+                dataMap.put("odsNumber", dataMap.get("odsNumber").add(BigDecimal.ONE));
+            } else if (StrUtil.contains(houseLayerName, "DWS")) {
+                dataMap.put("dwsNumber", dataMap.get("dwsNumber").add(BigDecimal.ONE));
+            } else if (StrUtil.contains(houseLayerName, "DWD")) {
+                dataMap.put("dwdNumber", dataMap.get("dwdNumber").add(BigDecimal.ONE));
+            } else if (StrUtil.contains(houseLayerName, "ADS")) {
+                dataMap.put("adsNumber", dataMap.get("adsNumber").add(BigDecimal.ONE));
+            } else if (StrUtil.contains(houseLayerName, "DDS")) {
+                dataMap.put("ddsNumber", dataMap.get("ddsNumber").add(BigDecimal.ONE));
+            } else if (StrUtil.contains(houseLayerName, "DIM")) {
+                dataMap.put("dimNumber", dataMap.get("dimNumber").add(BigDecimal.ONE));
+            } else {
+                throw new RuntimeException("projectId为[" + projectId + "]的houseLayerName 格式不正确");
+            }
+        }
         return dataMap;
     }
 }

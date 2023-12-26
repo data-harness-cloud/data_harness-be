@@ -103,7 +103,7 @@ public class ApiAuthenticationInterceptor implements HandlerInterceptor {
     /**
      * 获取验证信息.
      * 先从redis获取,若redis中不存在则从数据库中查找并存入redis.
-     * TODO 相应的权限有变动修改则删除redis中缓存的权限信息。
+     * 相应的权限有变动修改则删除redis中缓存的权限信息。
      *
      * @param url 路由地址
      * @return 验证信息集

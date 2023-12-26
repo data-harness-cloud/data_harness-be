@@ -4,22 +4,22 @@ import com.baomidou.mybatisplus.annotation.*;
 import supie.common.core.annotation.*;
 import supie.common.core.base.model.BaseModel;
 import supie.common.core.base.mapper.BaseModelMapper;
-import supie.webadmin.app.vo.StandardFieldQuatityVo;
+import supie.webadmin.app.vo.StandardFieldQualityVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 /**
- * StandardFieldQuatity实体对象。
+ * StandardFieldQuality实体对象。
  *
  * @author rm -rf .bug
  * @date 2020-11-12
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName(value = "sdt_standard_field_quatity")
-public class StandardFieldQuatity extends BaseModel {
+@TableName(value = "sdt_standard_field_quality")
+public class StandardFieldQuality extends BaseModel {
 
     /**
      * 租户号。
@@ -85,7 +85,7 @@ public class StandardFieldQuatity extends BaseModel {
     private String createTimeEnd;
 
     @Mapper
-    public interface StandardFieldQuatityModelMapper extends BaseModelMapper<StandardFieldQuatityVo, StandardFieldQuatity> {
+    public interface StandardFieldQualityModelMapper extends BaseModelMapper<StandardFieldQualityVo, StandardFieldQuality> {
     }
-    public static final StandardFieldQuatityModelMapper INSTANCE = Mappers.getMapper(StandardFieldQuatityModelMapper.class);
+    public static final StandardFieldQualityModelMapper INSTANCE = Mappers.getMapper(StandardFieldQualityModelMapper.class);
 }

@@ -64,7 +64,7 @@ public class BaseDataSource {
      * 查询所有数据库的名称
      * queryAllDatabaseName()
      */
-    protected String queryAllDatabaseNameSql = "SHOW DATABASES;";
+    protected String queryAllDatabaseNameSql = "SHOW DATABASES";
 
     /**
      * 连接数据库
@@ -80,6 +80,47 @@ public class BaseDataSource {
             throw new RuntimeException(e);
         }
     }
+
+    protected Boolean initConnectionAndCreatelibrarypermissions() {
+        try {
+            Class.forName(this.jdbcDriver);
+            // 连接数据库
+            connection = DriverManager.getConnection(this.jdbcUrl, this.userName, this.password);
+            // 检查用户是否有建库的权限
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SHOW GRANTS FOR '" + userName + "'@'%'");
+            boolean hasCreateDatabasePrivilege = false;
+            while (resultSet.next()) {
+                String grant = resultSet.getString(1);
+                // 如果权限中含有create，则说明具有创建数据库的权限
+                if (grant.toLowerCase().contains("create")) {
+                    hasCreateDatabasePrivilege = true;
+                    break;
+                }
+            }
+            if (hasCreateDatabasePrivilege == false){
+                resultSet.close();
+                statement.close();
+                throw  new RuntimeException("该用户没有创建数据库的权限！！！！！");
+            }
+            resultSet.close();
+            statement.close();
+            return !connection.isClosed() && hasCreateDatabasePrivilege;
+        } catch (ClassNotFoundException e) {
+            connection = null;
+            throw new RuntimeException("无法加载JDBC驱动", e);
+        } catch (SQLException e) {
+            connection = null;
+            if (e.getMessage().contains("no such grant defined")) {
+                throw new RuntimeException("用户在指定主机上没有相应的授权", e);
+            } else {
+                throw new RuntimeException("无法连接到数据库", e);
+            }
+        }
+    }
+
+
+
 
     /**
      * 关闭所有连接
@@ -258,7 +299,7 @@ public class BaseDataSource {
      * @date 2023/11/02 04:30
      */
     public void createDatabase(String databaseName) {
-        String createDatabaseSql = "CREATE DATABASE " + databaseName + ";";
+        String createDatabaseSql = "CREATE DATABASE IF NOT EXISTS " + databaseName;
         List<Map<String, Object>> resultDataList = executeSqlList(createDatabaseSql);
         Map<String, Object> resultMap = resultDataList.get(0);
         if (Boolean.TRUE.equals(resultMap.get("success")) && ((int) resultMap.get("updateResultData") == 1)) return;
@@ -297,9 +338,15 @@ public class BaseDataSource {
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             ResultSet resultSet = metaData.getTables(databaseName, null, null, new String[]{"TABLE"});
+            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+            int columnCount = resultSetMetaData.getColumnCount();
             // 循环TABLE，将结果记录在Map中
             while (resultSet.next()) {
                 HashMap<String, Object> tableMap = new HashMap<>();
+//                for (int i = 1; i <= columnCount; i++) {
+//                    String tableFieldName = resultSetMetaData.getColumnLabel(i);
+//                    tableMap.put(tableFieldName, resultSet.getObject(tableFieldName));
+//                }
                 // 获取表所属的schema
                 String tableSchema = resultSet.getString("TABLE_SCHEM");
                 // 表名
@@ -335,21 +382,29 @@ public class BaseDataSource {
                 tableName = sqlList.get(1);
             }
             ResultSet resultSet = metaData.getColumns(databaseName, schemaPattern, tableName, null);
+            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+            int columnCount = resultSetMetaData.getColumnCount();
             resultData = new ArrayList<>();
             while (resultSet.next()) {
                 HashMap<String, Object> dataTypeMap = new HashMap<>();
-                // 字段名
-                String columnName = resultSet.getString("COLUMN_NAME");
-                // 字段类型
-                String dataType = resultSet.getString("TYPE_NAME");
-                // 字段大小
-                int columnSize = resultSet.getInt("COLUMN_SIZE");
-                // 字段注释
-                String columnComment = resultSet.getString("REMARKS");
-                dataTypeMap.put("fieldName",columnName);
-                dataTypeMap.put("typeName",dataType);
-                dataTypeMap.put("columnSize",columnSize);
-                dataTypeMap.put("remarks",columnComment);
+                for (int i = 1; i <= columnCount; i++) {
+                    String tableFieldName = resultSetMetaData.getColumnLabel(i);
+                    dataTypeMap.put(tableFieldName, resultSet.getObject(tableFieldName));
+                }
+//                // 字段名
+//                String columnName = resultSet.getString("COLUMN_NAME");
+//                // 字段类型
+//                String dataType = resultSet.getString("TYPE_NAME");
+//                // 字段大小
+//                int columnSize = resultSet.getInt("COLUMN_SIZE");
+//                // 字段注释
+//                String columnComment = resultSet.getString("REMARKS");
+//                String nullable = resultSet.getString("NULLABLE");
+//                dataTypeMap.put("fieldName", columnName);
+//                dataTypeMap.put("typeName", dataType);
+//                dataTypeMap.put("columnSize", columnSize);
+//                dataTypeMap.put("remarks", columnComment);
+//                dataTypeMap.put("nullable", nullable);
                 resultData.add(dataTypeMap);
             }
             resultSet.close();

@@ -7,6 +7,7 @@ import com.github.pagehelper.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import supie.common.core.base.dao.BaseDaoMapper;
 import supie.common.core.base.service.BaseService;
@@ -17,6 +18,7 @@ import supie.common.core.util.MyModelUtil;
 import supie.common.dict.service.GlobalDictService;
 import supie.common.sequence.wrapper.IdGeneratorWrapper;
 import supie.webadmin.app.dao.ProjectDatasourceRelationMapper;
+import supie.webadmin.app.dao.ProjectEngineMapper;
 import supie.webadmin.app.dao.ProjectMainMapper;
 import supie.webadmin.app.dao.ProjectMemberMapper;
 import supie.webadmin.app.model.*;
@@ -24,6 +26,7 @@ import supie.webadmin.app.service.*;
 import supie.webadmin.upms.service.SysDeptService;
 import supie.webadmin.upms.service.SysUserService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -62,6 +65,12 @@ public class ProjectMainServiceImpl extends BaseService<ProjectMain, Long> imple
     private GlobalDictService globalDictService;
     @Autowired
     private IdGeneratorWrapper idGenerator;
+    @Autowired
+    private ProjectMemberService projectMemberService;
+    @Autowired
+    private PlanningWarehouseLayerService planningWarehouseLayerService;
+    @Autowired
+    private ProjectEngineMapper projectEngineMapper;
 
     /**
      * 返回当前Service的主表Mapper对象。
@@ -137,6 +146,8 @@ public class ProjectMainServiceImpl extends BaseService<ProjectMain, Long> imple
         ProjectDatasourceRelation projectDatasourceRelation = new ProjectDatasourceRelation();
         projectDatasourceRelation.setProjectId(id);
         projectDatasourceRelationMapper.delete(new QueryWrapper<>(projectDatasourceRelation));
+        // 删除相关的分层信息
+        planningWarehouseLayerService.removeByProjectId(id);
         return true;
     }
 
@@ -398,5 +409,43 @@ public class ProjectMainServiceImpl extends BaseService<ProjectMain, Long> imple
         projectMain.setIsDelete(GlobalDeletedFlag.NORMAL);
         MyModelUtil.setDefaultValue(projectMain, "projectCode", "");
         return projectMain;
+    }
+
+    /**
+     * 新增项目。
+     *
+     * @param projectMain      项目主表对象。
+     * @param memberUserIdList 项目成员用户Id列表。
+     * @return 新增结果。
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public Long addProject(ProjectMain projectMain, List<Long> memberUserIdList) throws Exception {
+        // 新增项目
+        ProjectMain saveProjectMain = saveNew(projectMain);
+        Long projectMainId = saveProjectMain.getId();
+        // 项目与成员关系关联
+        for (Long memberUserId : memberUserIdList) {
+            ProjectMember projectMember = new ProjectMember();
+            projectMember.setMemberProjectId(projectMainId);
+            projectMember.setMemberUserId(memberUserId);
+            projectMemberService.saveNew(projectMember);
+        }
+        // 新增分层
+        List<PlanningWarehouseLayer> planningWarehouseLayerList = new ArrayList<>();
+        planningWarehouseLayerList.add(new PlanningWarehouseLayer(projectMainId, projectMain.getProjectCode() + "_ODS", "原始层", 1));
+        planningWarehouseLayerList.add(new PlanningWarehouseLayer(projectMainId, projectMain.getProjectCode() + "_DWD", "明细层", 1));
+        planningWarehouseLayerList.add(new PlanningWarehouseLayer(projectMainId, projectMain.getProjectCode() + "_DWS", "汇总层", 1));
+        planningWarehouseLayerList.add(new PlanningWarehouseLayer(projectMainId, projectMain.getProjectCode() + "_ADS", "结果层", 1));
+        planningWarehouseLayerList.add(new PlanningWarehouseLayer(projectMainId, projectMain.getProjectCode() + "_DIM", "维度层", 1));
+        planningWarehouseLayerService.saveNewBatch(planningWarehouseLayerList);
+        // 创建分层相关的数据库
+        List<String> databaseNameList = new ArrayList<>();
+        for (PlanningWarehouseLayer planningWarehouseLayer : planningWarehouseLayerList) {
+            databaseNameList.add(planningWarehouseLayer.getHouseLayerCode());
+        }
+        ProjectEngine projectEngine = projectEngineMapper.selectById(projectMain.getProjectEngineId());
+        planningWarehouseLayerService.createDatabaseByProjectEngine(projectEngine, databaseNameList.toArray(new String[0]));
+        return projectMainId;
     }
 }

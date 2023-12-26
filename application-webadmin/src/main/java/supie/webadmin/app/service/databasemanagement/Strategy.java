@@ -18,10 +18,11 @@ public interface Strategy {
      * @param databaseName 数据库名称
      * @param userName     用户名
      * @param password     密码
+     * @param type     0为不需要校验是否需要创建库的权限  1为需要
      * @author 王立宏
      * @date 2023/11/06 04:51
      */
-    void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password);
+    void initStrategy(String hostIp, String hostPort, String databaseName, String userName, String password,int type);
 
     /**
      * 关闭连接

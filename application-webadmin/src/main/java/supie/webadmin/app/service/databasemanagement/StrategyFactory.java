@@ -23,7 +23,7 @@ public class StrategyFactory {
      * @param strategyType 存储类型。
      * @return 匹配的上传下载对象。
      */
-    public Strategy getStrategy(String strategyType, String hostIp, String hostPort, String databaseName, String userName, String password) {
+    public Strategy getStrategy(String strategyType, String hostIp, String hostPort, String databaseName, String userName, String password,int type) {
         if (StringUtil.isBlank(strategyType)) throw new NullPointerException("数据库类型不能为空！");
         if (StringUtil.isBlank(hostIp)) throw new NullPointerException("主机地址不能为空！");
         if (StringUtil.isBlank(hostPort)) throw new NullPointerException("连接端口不能为空！");
@@ -43,7 +43,7 @@ public class StrategyFactory {
             throw new UnsupportedOperationException(
                     "The storeType [" + strategyType + "] isn't supported, please add dependency jar first.");
         }
-        strategy.initStrategy(hostIp, hostPort, databaseName, userName, password);
+        strategy.initStrategy(hostIp, hostPort, databaseName, userName, password,type);
         return strategy;
     }
 

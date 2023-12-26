@@ -92,9 +92,9 @@ public class DefinitionIndex extends BaseModel {
     private String indexDescription;
 
     /**
-     * 关联明细表id。
+     * 动态路由id。
      */
-    private Long modelLogicalId;
+    private Long customizeRouteId;
 
     /**
      * 关联字段。
@@ -110,26 +110,6 @@ public class DefinitionIndex extends BaseModel {
      * 生产周期。
      */
     private String productPeriod;
-
-    /**
-     * 计算函数。
-     */
-    private String caliberCalculateFunction;
-
-    /**
-     * 度量单位。
-     */
-    private String caliberMeasureUnit;
-
-    /**
-     * 度量精度。
-     */
-    private String caliberPrecision;
-
-    /**
-     * 口径说明。
-     */
-    private String caliberDescription;
 
     /**
      * updateTime 范围过滤起始值(>=)。
@@ -156,7 +136,7 @@ public class DefinitionIndex extends BaseModel {
     private String createTimeEnd;
 
     /**
-     * index_type / index_name / index_en_name / index_code / index_level / index_description / data_type / product_period / caliber_calculate_function / caliber_measure_unit / caliber_precision / caliber_description LIKE搜索字符串。
+     * index_type / index_name / index_en_name / index_code / index_level / index_description / data_type / product_period / LIKE搜索字符串。
      */
     @TableField(exist = false)
     private String searchString;
